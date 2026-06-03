@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TemplatePage } from "@/components/template/TemplatePage";
+import { isPropertyDetailRoute } from "@/lib/property-gate";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import {
   TEMPLATE_PAGES,
@@ -52,5 +53,11 @@ export default async function TemplateRoutePage({ params }: PageProps) {
     notFound();
   }
 
-  return <TemplatePage html={data.html} bodyClass={data.bodyClass} />;
+  return (
+    <TemplatePage
+      html={data.html}
+      bodyClass={data.bodyClass}
+      propertyGate={isPropertyDetailRoute(route)}
+    />
+  );
 }

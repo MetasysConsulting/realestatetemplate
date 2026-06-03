@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
+import { PropertyUnlockGate } from "@/components/template/PropertyUnlockGate";
 
 type TemplatePageProps = {
   html: string;
   bodyClass: string;
+  propertyGate?: boolean;
 };
 
 function normalizeBodyClass(bodyClass: string): string {
@@ -20,7 +22,11 @@ function normalizeBodyClass(bodyClass: string): string {
   return classes.join(" ");
 }
 
-export function TemplatePage({ html, bodyClass }: TemplatePageProps) {
+export function TemplatePage({
+  html,
+  bodyClass,
+  propertyGate = false,
+}: TemplatePageProps) {
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
 
@@ -37,5 +43,10 @@ export function TemplatePage({ html, bodyClass }: TemplatePageProps) {
     return () => window.clearTimeout(t);
   }, [bodyClass, html]);
 
-  return <div id="template-root" dangerouslySetInnerHTML={{ __html: html }} />;
+  return (
+    <>
+      <PropertyUnlockGate enabled={propertyGate} />
+      <div id="template-root" dangerouslySetInnerHTML={{ __html: html }} />
+    </>
+  );
 }

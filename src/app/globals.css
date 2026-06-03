@@ -33,6 +33,71 @@ body {
   min-height: 100vh;
 }
 
+/* Property detail unlock gate (ForeclosureIQ-style) */
+.proty-unlock-gate {
+  background: #fff;
+  border: 1px solid var(--Line, #ececec);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(118, 149, 255, 0.12);
+  margin-bottom: 30px;
+}
+
+.proty-unlock-head {
+  background: linear-gradient(135deg, #2c2e33, #161e2d);
+  color: #fff;
+  padding: 18px 20px;
+}
+
+.proty-unlock-head h4 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 8px 0 0;
+}
+
+.proty-unlock-head p {
+  font-size: 12.5px;
+  color: #a8abae;
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+.proty-unlock-icon {
+  font-size: 22px;
+}
+
+.proty-unlock-body {
+  padding: 18px 20px;
+}
+
+.proty-unlock-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.proty-unlocked-note {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 13px;
+  margin-top: 14px;
+}
+
+.proty-unlock-secure {
+  font-size: 11.5px;
+  color: var(--Note, #a8abae);
+  text-align: center;
+  margin-top: 12px;
+  margin-bottom: 0;
+}
+
+.proty-blurred {
+  transition: filter 0.2s ease;
+}
+
 /* Hardcoded orange in compiled styles.css */
 .section-CTA.style-2 .content-inner {
   background-color: #7695ff !important;
