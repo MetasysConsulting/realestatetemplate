@@ -1,26 +1,32 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Blue theme (theme-color-4 from original template) */
+:root,
+.theme-color-4 {
+  --Primary: #7695ff;
+  --Sub-primary-1: rgba(242, 245, 255, 1);
+  --Sub-primary-2: rgba(118, 149, 255, 0.16);
+  --Sub-primary-3: rgba(118, 149, 255, 0.1);
+  --shadown: rgba(118, 149, 255, 0.12);
+  --Color-4: #7695ff;
+  --Color-5: #1563df;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-lexend), "Lexend", sans-serif;
+}
+
+#wrapper {
+  min-height: 100vh;
+}
+
+/* Next.js Image compatibility with template */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.swiper-pagination-bullet-active {
+  background: var(--Primary) !important;
 }
