@@ -78,6 +78,15 @@ const hrefReplacements = Object.entries(ROUTE_MAP)
   .sort((a, b) => b[0].length - a[0].length)
   .map(([file, route]) => ({ from: file, to: route }));
 
+/** Replace template orange accent with blue (theme-color-4). */
+function applyBlueTheme(html) {
+  return html
+    .replace(/#f1913d/gi, "#7695ff")
+    .replace(/#fef7f1/gi, "#f2f5ff")
+    .replace(/rgba?\(\s*241\s*,\s*145\s*,\s*61[^)]*\)/gi, "rgba(118, 149, 255, 0.16)")
+    .replace(/rgb\(\s*241\s*,\s*145\s*,\s*61\s*\)/gi, "rgb(118, 149, 255)");
+}
+
 function transformHtml(html) {
   let out = html;
 
@@ -97,12 +106,18 @@ function transformHtml(html) {
   out = out.replace(/src="icons\//g, 'src="/icons/');
   out = out.replace(/href="css\//g, 'href="/css/');
 
-  return out;
+  return applyBlueTheme(out);
 }
 
 function extractPage(html, filename) {
   const bodyMatch = html.match(/<body[^>]*class="([^"]*)"[^>]*>/i);
-  const bodyClass = bodyMatch?.[1] ?? "theme-color-4";
+  let bodyClass = bodyMatch?.[1] ?? "theme-color-4";
+  bodyClass = bodyClass
+    .replace(/\btheme-color-[123]\b/g, "")
+    .trim();
+  if (!bodyClass.includes("theme-color-4")) {
+    bodyClass = `${bodyClass} theme-color-4`.trim();
+  }
 
   const titleMatch = html.match(/<title>([^<]*)<\/title>/i);
   const title = titleMatch?.[1]?.trim() ?? "Proty";

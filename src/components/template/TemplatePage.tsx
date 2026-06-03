@@ -7,9 +7,22 @@ type TemplatePageProps = {
   bodyClass: string;
 };
 
+function normalizeBodyClass(bodyClass: string): string {
+  const classes = bodyClass
+    .split(/\s+/)
+    .filter(Boolean)
+    .filter((c) => !/^theme-color-[123]$/.test(c));
+
+  if (!classes.includes("theme-color-4")) {
+    classes.push("theme-color-4");
+  }
+
+  return classes.join(" ");
+}
+
 export function TemplatePage({ html, bodyClass }: TemplatePageProps) {
   useEffect(() => {
-    document.body.className = bodyClass;
+    document.body.className = normalizeBodyClass(bodyClass);
 
     const hideLoader = () => {
       const loading = document.getElementById("loading");

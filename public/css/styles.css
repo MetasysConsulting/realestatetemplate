@@ -49,11 +49,11 @@
   --Heading-2: rgba(44, 46, 51, 0.5);
   --Note: #a8abae;
   --Note-2: #8e8e93;
-  --Primary: #f1913d;
-  --Sub-primary-1: #fef7f1;
-  --Sub-primary-2: rgba(241, 145, 61, 0.15);
-  --Sub-primary-3: rgba(241, 145, 61, 0.1);
-  --shadown: rgba(241, 145, 61, 0.12);
+  --Primary: #7695ff;
+  --Sub-primary-1: #f2f5ff;
+  --Sub-primary-2: rgba(118, 149, 255, 0.16);
+  --Sub-primary-3: rgba(118, 149, 255, 0.1);
+  --shadown: rgba(118, 149, 255, 0.12);
   --Secondary: #2c2e33;
   --Color-1: #06a788;
   --Color-2: #f2695c;
@@ -6830,21 +6830,21 @@ tr {
 
 /*------------ themes-color ---------------- */
 .theme-color-1 {
-  --Primary: #06a788;
-  --Sub-primary-1: rgba(215, 241, 236, 1);
-  --Sub-primary-2: rgba(6, 167, 136, 0.16);
+  --Primary: #7695ff;
+  --Sub-primary-1: rgba(242, 245, 255, 1);
+  --Sub-primary-2: rgba(118, 149, 255, 0.16);
 }
 
 .theme-color-2 {
-  --Primary: #f2695c;
-  --Sub-primary-1: rgba(253, 231, 229, 1);
-  --Sub-primary-2: rgba(242, 105, 92, 0.16);
+  --Primary: #7695ff;
+  --Sub-primary-1: rgba(242, 245, 255, 1);
+  --Sub-primary-2: rgba(118, 149, 255, 0.16);
 }
 
 .theme-color-3 {
-  --Primary: #c79e34;
-  --Sub-primary-1: rgba(246, 239, 222, 1);
-  --Sub-primary-2: rgba(199, 158, 52, 0.16);
+  --Primary: #7695ff;
+  --Sub-primary-1: rgba(242, 245, 255, 1);
+  --Sub-primary-2: rgba(118, 149, 255, 0.16);
 }
 
 .theme-color-4 {
@@ -7094,7 +7094,7 @@ tr {
   --border: #ececec;
   --border-2: #5c5e61;
   --border-3: #5c5e61;
-  --Secondary: #fef7f1;
+  --Secondary: #f2f5ff;
 }
 .light-theme.default-dark .form-get-in-touch.style-2 {
   background-color: #fff;
@@ -10409,7 +10409,7 @@ tr {
   justify-content: center;
   width: 38px;
   height: 38px;
-  background: rgba(241, 145, 61, 0.1019607843);
+  background: rgba(118, 149, 255, 0.1);
   color: var(--Primary);
   border-radius: 999px;
   font-size: 18px;
@@ -12755,7 +12755,7 @@ tr {
 }
 .section-CTA.style-2 .content-inner {
   overflow: hidden;
-  background-color: rgb(241, 145, 61);
+  background-color: rgb(118, 149, 255);
   position: relative;
   padding: 32px;
   border-radius: 16px;

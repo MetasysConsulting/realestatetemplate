@@ -7,14 +7,19 @@
   --font-main-5: var(--font-manrope), "Manrope", sans-serif;
 }
 
-/* Blue theme (theme-color-4) — default sitewide accent */
+/* Site-wide blue theme — replaces default orange (#f1913d) everywhere */
 :root,
-.theme-color-4 {
-  --Primary: #7695ff;
-  --Sub-primary-1: rgba(242, 245, 255, 1);
-  --Sub-primary-2: rgba(118, 149, 255, 0.16);
-  --Sub-primary-3: rgba(118, 149, 255, 0.1);
-  --shadown: rgba(118, 149, 255, 0.12);
+.theme-color-1,
+.theme-color-2,
+.theme-color-3,
+.theme-color-4,
+body,
+#template-root {
+  --Primary: #7695ff !important;
+  --Sub-primary-1: #f2f5ff !important;
+  --Sub-primary-2: rgba(118, 149, 255, 0.16) !important;
+  --Sub-primary-3: rgba(118, 149, 255, 0.1) !important;
+  --shadown: rgba(118, 149, 255, 0.12) !important;
 }
 
 html,
@@ -26,4 +31,24 @@ body {
 
 #template-root {
   min-height: 100vh;
+}
+
+/* Hardcoded orange in compiled styles.css */
+.section-CTA.style-2 .content-inner {
+  background-color: #7695ff !important;
+}
+
+.agencies-item .contact .list-link a {
+  background: rgba(118, 149, 255, 0.1) !important;
+}
+
+/* Inline SVG / attribute strokes from template HTML */
+#template-root [stroke="#F1913D"],
+#template-root [stroke="#f1913d"] {
+  stroke: #7695ff !important;
+}
+
+#template-root [fill="#F1913D"],
+#template-root [fill="#f1913d"] {
+  fill: #7695ff !important;
 }

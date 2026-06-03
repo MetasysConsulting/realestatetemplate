@@ -13,42 +13,42 @@ export const TEMPLATE_PAGES: TemplatePageMeta[] = [
     "file": "index.html",
     "slug": "index",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "popup-loader"
+    "bodyClass": "popup-loader theme-color-4"
   },
   {
     "route": "/home/02",
     "file": "home02.html",
     "slug": "home__02",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "counter-scroll theme-color-1"
+    "bodyClass": "counter-scroll theme-color-4"
   },
   {
     "route": "/home/03",
     "file": "home03.html",
     "slug": "home__03",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "theme-color-2"
+    "bodyClass": "theme-color-4"
   },
   {
     "route": "/home/04",
     "file": "home04.html",
     "slug": "home__04",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "theme-color-3"
+    "bodyClass": "theme-color-4"
   },
   {
     "route": "/home/05",
     "file": "home05.html",
     "slug": "home__05",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "theme-color-4 "
+    "bodyClass": "theme-color-4"
   },
   {
     "route": "/home/06",
     "file": "home06.html",
     "slug": "home__06",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": " default-dark"
+    "bodyClass": "default-dark theme-color-4"
   },
   {
     "route": "/home/07",
@@ -321,56 +321,56 @@ export const TEMPLATE_PAGES: TemplatePageMeta[] = [
     "file": "dashboard.html",
     "slug": "dashboard",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "bg-dashboard"
+    "bodyClass": "bg-dashboard theme-color-4"
   },
   {
     "route": "/add-property",
     "file": "add-property.html",
     "slug": "add-property",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "bg-dashboard"
+    "bodyClass": "bg-dashboard theme-color-4"
   },
   {
     "route": "/my-property",
     "file": "my-property.html",
     "slug": "my-property",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "bg-dashboard"
+    "bodyClass": "bg-dashboard theme-color-4"
   },
   {
     "route": "/my-profile",
     "file": "my-profile.html",
     "slug": "my-profile",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "bg-dashboard"
+    "bodyClass": "bg-dashboard theme-color-4"
   },
   {
     "route": "/my-favorites",
     "file": "my-favorites.html",
     "slug": "my-favorites",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "bg-dashboard"
+    "bodyClass": "bg-dashboard theme-color-4"
   },
   {
     "route": "/my-package",
     "file": "my-package.html",
     "slug": "my-package",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "bg-dashboard"
+    "bodyClass": "bg-dashboard theme-color-4"
   },
   {
     "route": "/my-save-search",
     "file": "my-save-search.html",
     "slug": "my-save-search",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "bg-dashboard"
+    "bodyClass": "bg-dashboard theme-color-4"
   },
   {
     "route": "/review",
     "file": "review.html",
     "slug": "review",
     "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "bg-dashboard"
+    "bodyClass": "bg-dashboard theme-color-4"
   },
   {
     "route": "/template-404",
