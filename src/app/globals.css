@@ -1,4 +1,13 @@
-/* Blue theme (theme-color-4 from original template) */
+/* Template fonts (match scss/abstracts/_variable.scss) */
+:root {
+  --font-main: var(--font-lexend), "Lexend", sans-serif;
+  --font-main-2: var(--font-manrope), "Manrope", sans-serif;
+  --font-main-3: var(--font-poppins), "Poppins", sans-serif;
+  --font-main-4: var(--font-mulish), "Mulish", sans-serif;
+  --font-main-5: var(--font-manrope), "Manrope", sans-serif;
+}
+
+/* Blue theme (theme-color-4) — default sitewide accent */
 :root,
 .theme-color-4 {
   --Primary: #7695ff;
@@ -6,27 +15,15 @@
   --Sub-primary-2: rgba(118, 149, 255, 0.16);
   --Sub-primary-3: rgba(118, 149, 255, 0.1);
   --shadown: rgba(118, 149, 255, 0.12);
-  --Color-4: #7695ff;
-  --Color-5: #1563df;
 }
 
 html,
 body {
   margin: 0;
   padding: 0;
-  font-family: var(--font-lexend), "Lexend", sans-serif;
+  font-family: var(--font-main);
 }
 
-#wrapper {
+#template-root {
   min-height: 100vh;
-}
-
-/* Next.js Image compatibility with template */
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-.swiper-pagination-bullet-active {
-  background: var(--Primary) !important;
 }

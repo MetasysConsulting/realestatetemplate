@@ -1,72 +1,71 @@
-# Proty — Hawaii Real Estate (Next.js)
+# Proty Real Estate — Next.js (Full Template Port)
 
-Next.js port of the **Proty** real estate HTML template (ThemeForest), configured with the template’s **blue theme** (`theme-color-4`: primary `#7695ff`).
+Complete port of the **Proty** ThemeForest HTML template into Next.js, preserving original markup, styles, fonts, icons, images, and JavaScript behavior.
 
 ## Stack
 
-- [Next.js](https://nextjs.org/) 16 (App Router)
-- [pnpm](https://pnpm.io/) package manager
-- Original template CSS (Bootstrap grid + Proty `styles.css`)
-- [Swiper](https://swiperjs.com/) for listing carousels
+- Next.js 16 (App Router, static generation)
+- pnpm
+- Original template CSS (`public/css/styles.css`, Bootstrap, Swiper, etc.)
+- Template JS (`public/js/main.js`, jQuery, GSAP, Swiper, …)
+- Fonts: **Lexend**, **Manrope**, **Poppins**, **Mulish** (same as template SCSS)
+- Default accent: **blue theme** (`theme-color-4`, `#7695ff`)
 
-## Getting started
+## Commands
 
 ```bash
 pnpm install
-pnpm dev
+pnpm dev          # http://localhost:3000
+pnpm build
+pnpm start
+pnpm convert-template   # Re-import HTML from ../proty-package/proty
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+## All pages (53 routes)
 
-## Scripts
+| Route | Original HTML |
+|-------|----------------|
+| `/` | index.html |
+| `/home/02` … `/home/10` | home02.html … home10.html |
+| `/listing/grid-full-width` | property-grid-full-width.html |
+| `/listing/grid-top-search` | property-gird-top-search.html |
+| `/listing/grid-left-sidebar` | property-gird-left-sidebar.html |
+| `/listing/grid-right-sidebar` | property-gird-right-sidebar.html |
+| `/listing/list-full-width` | property-list-full-width.html |
+| `/listing/list-top-search` | property-list-top-search.html |
+| `/listing/list-left-sidebar` | property-list-left-sidebar.html |
+| `/listing/list-right-sidebar` | property-list-right-sidebar.html |
+| `/listing/half-map-grid` | property-half-map-grid.html |
+| `/listing/half-map-list` | property-half-map-list.html |
+| `/listing/half-top-map` | property-half-top-map.html |
+| `/listing/filter-popup` | property-filter-popup.html |
+| `/listing/filter-popup-left` | property-filter-popup-left.html |
+| `/listing/filter-popup-right` | property-filter-popup-right.html |
+| `/property/detail/v1` … `v5` | property-detail-v1.html … v5 |
+| `/agents`, `/agents/details` | agents.html, agents-details.html |
+| `/agency/grid`, `/list`, `/details` | agency-*.html |
+| `/blog/grid`, `/list`, `/details` | blog-*.html |
+| `/project/list`, `/details` | project-*.html |
+| `/contact`, `/faq`, `/career`, `/compare` | contact, faq, career, compare |
+| `/home-loan-process` | home-loan-process.html |
+| `/dashboard`, `/add-property` | dashboard, add-property |
+| `/my-property`, `/my-profile`, `/my-favorites`, `/my-package`, `/my-save-search` | my-*.html |
+| `/review` | review.html |
+| `/template-404` | 404.html (also used for Next `not-found`) |
 
-| Command       | Description          |
-|---------------|----------------------|
-| `pnpm dev`    | Development server   |
-| `pnpm build`  | Production build     |
-| `pnpm start`  | Run production build |
-| `pnpm lint`   | ESLint               |
+Redirects: `/blog` → `/blog/grid`, `/properties` → `/listing/grid-full-width`.
 
-## Routes
+## How it works
 
-| Path                 | Page                    |
-|----------------------|-------------------------|
-| `/`                  | Home + hero search      |
-| `/properties`        | Property grid/list      |
-| `/properties/[id]`   | Property detail         |
-| `/agents`            | Agents                  |
-| `/blog`              | Blog index              |
-| `/faq`               | FAQ                     |
-| `/contact`           | Contact form            |
+1. `scripts/convert-template.mjs` reads HTML from `../proty-package/proty/`
+2. Extracts `#wrapper` content + modals, rewrites links to Next routes and `/images/…` paths
+3. Outputs `src/generated/pages/*.json` + `template-manifest.ts` + `page-registry.ts`
+4. `src/app/[[...slug]]/page.tsx` statically renders each page via `TemplatePage`
 
-## Theme
+## Repository
 
-Blue branding is applied via CSS variables in `src/app/globals.css` (matching the HTML template’s `theme-color-4`).
+https://github.com/MetasysConsulting/realestatetemplate
 
-## Push to a remote repository
+## License
 
-This project is already a git repo. Create a GitHub repo, then:
-
-```bash
-git remote add origin git@github.com:YOUR_USER/proty-web.git
-git add .
-git commit -m "Initial Next.js port of Proty template with blue theme"
-git push -u origin main
-```
-
-## Source template
-
-Static assets and styles come from `proty-package/proty/` in the parent folder (original ThemeForest zip). License and extended use follow your ThemeForest purchase terms.
-
-## Project structure
-
-```
-src/
-  app/           # Routes (App Router)
-  components/    # Header, footer, property cards, home sections
-  lib/           # Navigation + sample property data
-public/
-  css/           # Template stylesheets
-  icons/         # Icomoon icon font
-  images/        # Template images
-```
+Use of the Proty design/assets is subject to your ThemeForest license.

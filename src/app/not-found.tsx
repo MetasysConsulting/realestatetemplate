@@ -1,18 +1,17 @@
-import Link from "next/link";
-import { SiteLayout } from "@/components/layout/SiteLayout";
+import { TemplatePage } from "@/components/template/TemplatePage";
+import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 
 export default function NotFound() {
+  const data = loadTemplatePageBySlug("template-404");
+
+  if (data) {
+    return <TemplatePage html={data.html} bodyClass={data.bodyClass} />;
+  }
+
   return (
-    <SiteLayout>
-      <section className="tf-spacing-1 text-center">
-        <div className="tf-container">
-          <h1 className="title">404</h1>
-          <p className="text-1 mb-20">Page not found.</p>
-          <Link href="/" className="tf-btn bg-color-primary pd-23">
-            Back to home
-          </Link>
-        </div>
-      </section>
-    </SiteLayout>
+    <main style={{ padding: 48, textAlign: "center" }}>
+      <h1>404</h1>
+      <p>Page not found.</p>
+    </main>
   );
 }
