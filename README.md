@@ -1,4 +1,6 @@
-# Proty Real Estate — Next.js (Full Template Port)
+# Site 1 — Proty Real Estate (Next.js)
+
+**Site 1** in the Hawai Guy Project. Site 2 lives in `../site-2-web`.
 
 Complete port of the **Proty** ThemeForest HTML template into Next.js, preserving original markup, styles, fonts, icons, images, and JavaScript behavior.
 
