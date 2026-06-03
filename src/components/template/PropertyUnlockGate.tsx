@@ -16,11 +16,14 @@ function unlockAll(root: HTMLElement) {
     node.classList.remove("proty-blurred");
   });
 
-  root.querySelectorAll(".proty-unlock-gate").forEach((gate) => {
+  root.querySelectorAll(".proty-unlock-gate, .proty-unlock-overlay").forEach((gate) => {
     const btns = gate.querySelector(".proty-unlock-btns");
     const note = gate.querySelector(".proty-unlocked-note");
     if (btns) (btns as HTMLElement).style.display = "none";
     if (note) (note as HTMLElement).style.display = "flex";
+    if (gate.classList.contains("proty-unlock-overlay")) {
+      window.setTimeout(() => gate.remove(), 400);
+    }
   });
 
   if (typeof window !== "undefined") {
@@ -30,7 +33,7 @@ function unlockAll(root: HTMLElement) {
 
 function applyBlur(el: HTMLElement) {
   el.classList.add("proty-blurred");
-  el.style.filter = "blur(6px)";
+  el.style.filter = "blur(8px)";
   el.style.userSelect = "none";
   el.style.pointerEvents = "none";
 }
@@ -41,7 +44,7 @@ function buildPaywallHtml(): string {
       <div class="proty-unlock-head">
         <div class="proty-unlock-icon">🔐</div>
         <h4>Unlock full property details</h4>
-        <p>Exact address, seller contact &amp; location data</p>
+        <p>Specs, description, amenities, map, floor plans &amp; seller contact</p>
       </div>
       <div class="proty-unlock-body">
         <div class="proty-unlock-btns">
@@ -52,11 +55,32 @@ function buildPaywallHtml(): string {
             Subscribe — $49/mo · unlimited
           </button>
         </div>
-        <div class="proty-unlocked-note">✓ Unlocked — full details now visible</div>
+        <div class="proty-unlocked-note">✓ Unlocked — full listing details now visible</div>
         <p class="proty-unlock-secure">🔒 Secure checkout · powered by Stripe</p>
       </div>
     </div>
   `;
+}
+
+function attachUnlockHandlers(root: HTMLElement, gate: HTMLElement) {
+  gate.querySelectorAll("[data-proty-unlock]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      unlockAll(root);
+    });
+  });
+}
+
+function insertPaywall(root: HTMLElement, parent: HTMLElement, className: string) {
+  if (parent.querySelector(`.${className}`)) return null;
+
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = buildPaywallHtml();
+  const gate = wrapper.firstElementChild as HTMLElement;
+  gate.classList.add(className);
+  parent.appendChild(gate);
+  attachUnlockHandlers(root, gate);
+  return gate;
 }
 
 function initGate(root: HTMLElement) {
@@ -67,42 +91,46 @@ function initGate(root: HTMLElement) {
     typeof window !== "undefined" &&
     sessionStorage.getItem(UNLOCK_STORAGE_KEY) === "1";
 
-  const location = root.querySelector(
-    ".section-property-detail .box-overview .location",
-  ) as HTMLElement | null;
-  if (location) applyBlur(location);
+  const blurTargets = [
+    ".section-property-image",
+    ".section-property-detail .col-xl-8",
+    ".section-property-detail .col-lg-7",
+    ".section-similar-properties",
+  ];
 
-  const sellerInfo = root.querySelector(
-    ".section-property-detail .form-contact-seller .seller-info",
-  ) as HTMLElement | null;
-  if (sellerInfo) applyBlur(sellerInfo);
+  blurTargets.forEach((selector) => {
+    root.querySelectorAll(selector).forEach((el) => {
+      applyBlur(el as HTMLElement);
+    });
+  });
 
-  const mapBlock = root.querySelector(
-    ".section-property-detail .single-property-map",
-  ) as HTMLElement | null;
-  if (mapBlock) {
-    const infoMap = mapBlock.querySelector(".info-map") as HTMLElement | null;
-    if (infoMap) applyBlur(infoMap);
-    const iframe = mapBlock.querySelector("iframe") as HTMLElement | null;
-    if (iframe) applyBlur(iframe);
+  const mainCol = (root.querySelector(
+    ".section-property-detail .col-xl-8, .section-property-detail .col-lg-7",
+  ) ?? null) as HTMLElement | null;
+
+  if (mainCol) {
+    mainCol.style.position = "relative";
+    insertPaywall(root, mainCol, "proty-unlock-overlay");
   }
 
   const sidebar = root.querySelector(
     ".section-property-detail .tf-sidebar",
   ) as HTMLElement | null;
 
-  if (sidebar && !sidebar.querySelector(".proty-unlock-gate")) {
+  if (sidebar) {
+    Array.from(sidebar.children).forEach((child) => {
+      if (!(child as HTMLElement).classList.contains("proty-unlock-gate")) {
+        applyBlur(child as HTMLElement);
+      }
+    });
+
     const wrapper = document.createElement("div");
     wrapper.innerHTML = buildPaywallHtml();
     const gate = wrapper.firstElementChild as HTMLElement;
-    sidebar.insertBefore(gate, sidebar.firstChild);
-
-    gate.querySelectorAll("[data-proty-unlock]").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.preventDefault();
-        unlockAll(root);
-      });
-    });
+    if (!sidebar.querySelector(".proty-unlock-gate")) {
+      sidebar.insertBefore(gate, sidebar.firstChild);
+      attachUnlockHandlers(root, gate);
+    }
   }
 
   if (alreadyUnlocked) {
@@ -121,11 +149,13 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
 
     run();
     const t = window.setTimeout(run, 100);
-    const t2 = window.setTimeout(run, 600);
+    const t2 = window.setTimeout(run, 800);
+    const t3 = window.setTimeout(run, 2000);
 
     return () => {
       window.clearTimeout(t);
       window.clearTimeout(t2);
+      window.clearTimeout(t3);
     };
   }, [enabled]);
 

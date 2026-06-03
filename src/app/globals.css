@@ -98,6 +98,27 @@ body {
   transition: filter 0.2s ease;
 }
 
+/* Centered paywall over blurred listing body */
+.section-property-detail .col-xl-8,
+.section-property-detail .col-lg-7 {
+  position: relative;
+}
+
+.proty-unlock-overlay {
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 30;
+  width: min(380px, calc(100% - 32px));
+  pointer-events: auto;
+  box-shadow: 0 16px 48px rgba(44, 46, 51, 0.2);
+}
+
+.proty-unlock-overlay.proty-unlock-gate {
+  margin-bottom: 0;
+}
+
 /* Hardcoded orange in compiled styles.css */
 .section-CTA.style-2 .content-inner {
   background-color: #7695ff !important;
