@@ -1,0 +1,55 @@
+/**
+ * REOVANA logo — load after styles.css
+ * Template forces .header .header-logo img to 136×42 (squashes wide logo).
+ */
+#template-root .header .header-logo {
+  padding: 8px 0 !important;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+#template-root .header .header-logo a.site-logo {
+  display: inline-flex;
+  align-items: center;
+  height: auto !important;
+  max-height: none !important;
+  line-height: 0;
+  overflow: visible;
+}
+
+#template-root .header .header-logo img.logo_header,
+#template-root .header .header-logo img.reovana-logo {
+  display: block !important;
+  width: auto !important;
+  height: 126px !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  object-position: left center;
+}
+
+#template-root .inner-mobile-nav .top-nav-mobile img.logo_header,
+#template-root .inner-mobile-nav .top-nav-mobile #mobile-logo_header {
+  width: auto !important;
+  height: 72px !important;
+  max-height: 72px !important;
+  object-fit: contain !important;
+}
+
+@media (max-width: 1199px) {
+  #template-root .header .header-logo img.logo_header,
+  #template-root .header .header-logo img.reovana-logo {
+    height: 84px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  #template-root .header .header-logo {
+    padding: 6px 0 !important;
+  }
+
+  #template-root .header .header-logo img.logo_header,
+  #template-root .header .header-logo img.reovana-logo {
+    height: 56px !important;
+  }
+}

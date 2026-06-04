@@ -302,12 +302,7 @@ body {
   }
 }
 
-#template-root .header .header-logo img.reovana-logo {
-  width: auto !important;
-  height: 42px !important;
-  max-width: 136px !important;
-  object-fit: contain !important;
-}
+/* Logo sizing — see public/css/reovana-overrides.css */
 
 #template-root .phone-number {
   display: none !important;

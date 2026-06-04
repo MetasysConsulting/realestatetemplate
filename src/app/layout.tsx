@@ -58,6 +58,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="/css/sib-styles.css" />
         <link rel="stylesheet" href="/css/swiper-bundle.min.css" />
         <link rel="stylesheet" href="/css/styles.css" />
+        <link rel="stylesheet" href="/css/reovana-overrides.css" />
         <link rel="stylesheet" href="/icons/icomoon/style.css" />
         <link rel="shortcut icon" href="/images/reovana/logo.png" />
       </head>
