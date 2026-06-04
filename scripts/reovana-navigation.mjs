@@ -70,12 +70,20 @@ function desktopSellExtras() {
                                                 </li>`;
 }
 
+function desktopPlaceholderLinks(labels) {
+  return labels
+    .map((label) => `                                                <li><a href="#">${label}</a></li>`)
+    .join("\n");
+}
+
+const LEARN_PLACEHOLDERS = ["Placeholder 1", "Placeholder 2", "Placeholder 3"];
+const RESOURCES_PLACEHOLDERS = ["Placeholder 1", "Placeholder 2", "Placeholder 3"];
+
 export function buildDesktopMainMenu() {
   return `<nav class="main-menu">
                                     <ul class="navigation ">
                                         <li class="has-child style-2"><a href="#">Buy</a>
                                             <ul class="submenu">
-                                                <li><a href="/listing/grid-full-width">Browse Foreclosed Homes</a></li>
 ${desktopListingSubmenu()}
                                             </ul>
                                         </li>
@@ -85,8 +93,16 @@ ${desktopSellExtras()}
 ${desktopListingSubmenu()}
                                             </ul>
                                         </li>
-                                        <li><a href="#">Learn</a></li>
-                                        <li><a href="#">Resources</a></li>
+                                        <li class="has-child"><a href="#">Learn</a>
+                                            <ul class="submenu">
+${desktopPlaceholderLinks(LEARN_PLACEHOLDERS)}
+                                            </ul>
+                                        </li>
+                                        <li class="has-child"><a href="#">Resources</a>
+                                            <ul class="submenu">
+${desktopPlaceholderLinks(RESOURCES_PLACEHOLDERS)}
+                                            </ul>
+                                        </li>
                                     </ul>
                                 </nav>`;
 }
@@ -99,6 +115,27 @@ function mobileLinks(items, linkClass = "") {
         `                                            <li class="menu-item"><a href="${href}"${cls}>${label}</a></li>`,
     )
     .join("\n");
+}
+
+function mobilePlaceholderLinks(labels, linkClass = "item-menu-mobile") {
+  return labels
+    .map(
+      (label) =>
+        `                                <li class="menu-item"><a href="#" class="${linkClass}">${label}</a></li>`,
+    )
+    .join("\n");
+}
+
+function mobilePlaceholderSection(menuId, title, labels) {
+  return `                    <li class="menu-item menu-item-has-children-mobile">
+                        <a href="#${menuId}" class="item-menu-mobile collapsed" data-bs-toggle="collapse"
+                            aria-expanded="false" aria-controls="${menuId}">${title}</a>
+                        <div id="${menuId}" class="collapse" data-bs-parent="#menu-mobile-menu">
+                            <ul class="sub-mobile">
+${mobilePlaceholderLinks(labels)}
+                            </ul>
+                        </div>
+                    </li>`;
 }
 
 function mobileListingBlock(parentId, layoutId, mapId, detailsId) {
@@ -138,7 +175,6 @@ export function buildMobileMenu() {
                             aria-expanded="false" aria-controls="dropdown-menu-buy">Buy</a>
                         <div id="dropdown-menu-buy" class="collapse" data-bs-parent="#menu-mobile-menu">
                             <ul class="sub-mobile">
-                                <li class="menu-item"><a href="/listing/grid-full-width" class="item-menu-mobile">Browse Foreclosed Homes</a></li>
 ${mobileListingBlock("dropdown-menu-buy", "sub-buy-layout", "sub-buy-map", "sub-buy-details")}
                             </ul>
                         </div>
@@ -154,8 +190,8 @@ ${mobileListingBlock("dropdown-menu-sell", "sub-sell-layout", "sub-sell-map", "s
                             </ul>
                         </div>
                     </li>
-                    <li class="menu-item"><a href="#" class="item-menu-mobile">Learn</a></li>
-                    <li class="menu-item"><a href="#" class="item-menu-mobile">Resources</a></li>
+${mobilePlaceholderSection("dropdown-menu-learn", "Learn", LEARN_PLACEHOLDERS)}
+${mobilePlaceholderSection("dropdown-menu-resources", "Resources", RESOURCES_PLACEHOLDERS)}
                 </ul>`;
 }
 
