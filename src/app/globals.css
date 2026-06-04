@@ -157,6 +157,21 @@ body {
   border-radius: 12px;
   text-decoration: none;
   line-height: 1;
+  background-color: var(--Primary) !important;
+  color: #fff !important;
+  border: 1px solid var(--Primary);
+}
+
+/* Inverse of Add property (style-border): blue fill → white fill + blue text on hover */
+#template-root .reovana-login-btn::after {
+  background-color: #fff !important;
+}
+
+#template-root .reovana-login-btn:hover,
+#template-root .reovana-login-btn:focus-visible {
+  background-color: transparent !important;
+  color: var(--Primary) !important;
+  border-color: var(--Primary) !important;
 }
 
 #template-root .header-right .box-user {
