@@ -142,9 +142,11 @@ body {
   min-height: clamp(520px, 52vw, 700px) !important;
   display: flex;
   align-items: center;
+  overflow: hidden;
   background-image: url(/images/reovana/hero-house.jpeg) !important;
-  background-size: cover !important;
-  background-position: center 42% !important;
+  /* Scale up ~15% vertically, anchor top — crops bottom of photo */
+  background-size: 100% 118% !important;
+  background-position: center top !important;
   background-repeat: no-repeat !important;
   background-attachment: scroll !important;
   background-color: #1a1a22;
@@ -193,7 +195,7 @@ body {
   margin: 0;
   margin-left: clamp(8px, 1.5%, 32px);
   /* Slightly above vertical center */
-  transform: translateY(clamp(-56px, -7vh, -88px));
+  transform: translateY(clamp(-72px, -9vh, -100px));
 }
 
 /* Text block */
@@ -260,7 +262,7 @@ body {
   align-items: flex-start;
   width: 100%;
   line-height: 0.88;
-  font-size: clamp(4rem, 9.5vw, 7rem);
+  font-size: clamp(4.5rem, 10vw, 7.75rem);
   font-weight: 800;
   margin-bottom: clamp(14px, 2.5vh, 24px) !important;
   text-align: left;
@@ -278,7 +280,7 @@ body {
 .reovana-tagline {
   width: 100%;
   margin: 0 !important;
-  font-size: clamp(0.95rem, 2.2vw, 1.35rem) !important;
+  font-size: clamp(1.05rem, 2.35vw, 1.5rem) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -291,7 +293,8 @@ body {
   #template-root .page-title.home01.reovana-home-hero {
     min-height: clamp(480px, 80vw, 560px) !important;
     padding: 36px 0 40px !important;
-    background-position: center 38% !important;
+    background-size: 100% 118% !important;
+    background-position: center top !important;
   }
 
   #template-root .page-title.home01.reovana-home-hero .content-inner {
@@ -315,14 +318,14 @@ body {
   }
 
   .reovana-headline {
-    font-size: clamp(2.25rem, 10.5vw, 3.5rem);
+    font-size: clamp(2.5rem, 11vw, 4rem);
     align-items: center;
     text-align: center;
   }
 
   .reovana-tagline {
     text-align: center;
-    font-size: clamp(0.85rem, 3.5vw, 1.15rem) !important;
+    font-size: clamp(0.95rem, 3.7vw, 1.25rem) !important;
   }
 }
 
