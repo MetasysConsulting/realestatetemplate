@@ -102,7 +102,7 @@ function applyBlueTheme(html) {
 
 function stripPopupSettings(html) {
   return html.replace(
-    /\s*<!--\s*popup-setting\s*-->\s*<div class="popup-setting">[\s\S]*?<\/div>\s*<!--\s*popup-setting\s*-->\s*/gi,
+    /<!--\s*popup-setting\s*-->[\s\S]*?<!--\s*popup-setting\s*-->\s*/gi,
     "",
   );
 }
