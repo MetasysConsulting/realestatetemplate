@@ -35,11 +35,11 @@ const mulish = Mulish({
 
 export const metadata: Metadata = {
   title: {
-    default: "Proty — Real Estate",
+    default: "REOVANA — Foreclosed Homes",
     template: "%s",
   },
   description:
-    "Proty real estate template — buy, rent, and explore luxury properties.",
+    "Distressed and foreclosed properties. Find great deals. Create real value.",
 };
 
 export default function RootLayout({
@@ -59,7 +59,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="/css/swiper-bundle.min.css" />
         <link rel="stylesheet" href="/css/styles.css" />
         <link rel="stylesheet" href="/icons/icomoon/style.css" />
-        <link rel="shortcut icon" href="/images/logo/favicon.svg" />
+        <link rel="shortcut icon" href="/images/reovana/logo.png" />
       </head>
       <body className="theme-color-4 popup-loader">
         {children}

@@ -121,3 +121,47 @@ body {
 #template-root [fill="#f1913d"] {
   fill: #7695ff !important;
 }
+
+/* REOVANA homepage hero copy (template page-title layout) */
+.reovana-headline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 0.95;
+  font-size: clamp(2rem, 5vw, 3.75rem);
+  font-weight: 800;
+  margin-bottom: 16px !important;
+}
+
+.reovana-headline__line {
+  display: block;
+}
+
+.reovana-headline__line--gold {
+  color: #b08d57;
+}
+
+.reovana-tagline {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 500 !important;
+}
+
+.reovana-browse-cta {
+  display: inline-block;
+  margin-bottom: 24px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+#template-root .header .header-logo img.reovana-logo {
+  width: auto !important;
+  height: 42px !important;
+  max-width: 136px !important;
+  object-fit: contain !important;
+}
+
+#template-root .phone-number {
+  display: none !important;
+}

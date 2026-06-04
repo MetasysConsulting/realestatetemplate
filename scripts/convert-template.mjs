@@ -78,6 +78,20 @@ const hrefReplacements = Object.entries(ROUTE_MAP)
   .sort((a, b) => b[0].length - a[0].length)
   .map(([file, route]) => ({ from: file, to: route }));
 
+const REOVANA_LOGO = "/images/reovana/logo.png";
+const REOVANA_LOGO_DARK = "/images/reovana/logo-dark.jpeg";
+
+const REOVANA_HEADING_HTML = `<div class="heading-title reovana-heading-title">
+                                <h1 class="title reovana-headline">
+                                    <span class="reovana-headline__line">DISTRESSED</span>
+                                    <span class="reovana-headline__line reovana-headline__line--gold">FORECLOSED</span>
+                                    <span class="reovana-headline__line">PROPERTIES</span>
+                                </h1>
+                                <p class="h6 fw-4 reovana-tagline">FIND GREAT DEALS. CREATE REAL VALUE.</p>
+                                <a href="/listing/grid-full-width" class="tf-btn bg-color-primary pd-3 reovana-browse-cta">BROWSE PROPERTIES</a>
+                            </div>
+                            `;
+
 /** Replace template orange accent with blue (theme-color-4). */
 function applyBlueTheme(html) {
   return html
@@ -87,7 +101,85 @@ function applyBlueTheme(html) {
     .replace(/rgb\(\s*241\s*,\s*145\s*,\s*61\s*\)/gi, "rgb(118, 149, 255)");
 }
 
-function transformHtml(html) {
+function stripPhoneNumbers(html) {
+  let out = html;
+
+  out = out.replace(/<div class="phone-number">[\s\S]*?<\/div>\s*/gi, "");
+
+  let prev = "";
+  while (prev !== out && out.includes("icon-phone-2")) {
+    prev = out;
+    out = out.replace(
+      /<div class="contact-item">[\s\S]*?<i class="icon-phone-2"><\/i>[\s\S]*?<\/div>\s*<\/div>\s*/gi,
+      "",
+    );
+  }
+
+  out = out.replace(
+    /<li>\s*Call Us Now:\s*<span class="number">[^<]*<\/span>\s*<\/li>\s*/gi,
+    "",
+  );
+  out = out.replace(/<li>\s*<i class="icon-phone-1"><\/i>[\s\S]*?<\/li>\s*/gi, "");
+  out = out.replace(
+    /<li>\s*<i class="icon-phone-1"><\/i>\s*<span>[^<]*<\/span>\s*<\/li>\s*/gi,
+    "",
+  );
+  out = out.replace(
+    /<li><i class="icon-phone-1"><\/i><span>[^<]*<\/span><\/li>\s*/gi,
+    "",
+  );
+  out = out.replace(/<a[^>]*href="tel:[^"]*"[^>]*>[\s\S]*?<\/a>/gi, "");
+  out = out.replace(/<a[^>]*>\s*\(?\d{3}\)?\s*[\d\s.-]{7,}\s*<\/a>/gi, "");
+  out = out.replace(
+    /<a[^>]*>(?:(?!<\/a>).)*?\(\d{3}\)\s*[\d\s.-]{7,}(?:(?!<\/a>).)*?<\/a>/gi,
+    "",
+  );
+  out = out.replace(/<div class="phone"[^>]*>[\s\S]*?<\/div>\s*/gi, "");
+  out = out.replace(/<p>\s*\(\d{3}\)\s*[\d\s.-]+\s*<\/p>\s*/gi, "");
+  out = out.replace(
+    /<h6>\s*<a[^>]*>\s*\(?\d{3}\)?\s*[\d\s.-]+\s*<\/a>\s*<\/h6>\s*/gi,
+    "",
+  );
+  out = out.replace(
+    /<li class="flex gap-8">\s*<i class="icon-phone-1"><\/i>\s*[^<]*<\/li>\s*/gi,
+    "",
+  );
+
+  out = out.replace(/\(603\)\s*555-0123/g, "");
+  out = out.replace(/1-333-345-6868/g, "");
+  out = out.replace(/1-555-678-8888/g, "");
+
+  return out;
+}
+
+function applyReovanaHomeCopy(html) {
+  return html.replace(
+    /<div class="heading-title">\s*<h1 class="title">Search Luxury Homes<\/h1>[\s\S]*?<\/div>\s*(?=<div class="wg-filter">)/i,
+    REOVANA_HEADING_HTML,
+  );
+}
+
+function applyBranding(html, filename) {
+  let out = html;
+
+  out = out.replace(/src="\/images\/logo\/logo@2x\.png"/g, `src="${REOVANA_LOGO}"`);
+  out = out.replace(/src="\/images\/logo\/logo-2@2x\.png"/g, `src="${REOVANA_LOGO_DARK}"`);
+  out = out.replace(/src="\/images\/logo\/loading\.png"/g, `src="${REOVANA_LOGO}"`);
+  out = out.replace(/data-light="\/images\/logo\/logo@2x\.png"/g, `data-light="${REOVANA_LOGO}"`);
+  out = out.replace(/data-dark="\/images\/logo\/logo-2@2x\.png"/g, `data-dark="${REOVANA_LOGO_DARK}"`);
+  out = out.replace(/alt="logo-footer"/g, 'alt="REOVANA"');
+  out = out.replace(/class="logo_header"/g, 'class="logo_header reovana-logo"');
+
+  out = stripPhoneNumbers(out);
+
+  if (filename === "index.html") {
+    out = applyReovanaHomeCopy(out);
+  }
+
+  return out;
+}
+
+function transformHtml(html, filename) {
   let out = html;
 
   for (const { from, to } of hrefReplacements) {
@@ -106,7 +198,7 @@ function transformHtml(html) {
   out = out.replace(/src="icons\//g, 'src="/icons/');
   out = out.replace(/href="css\//g, 'href="/css/');
 
-  return applyBlueTheme(out);
+  return applyBranding(applyBlueTheme(out), filename);
 }
 
 function extractPage(html, filename) {
@@ -134,9 +226,12 @@ function extractPage(html, filename) {
       ? html.slice(wrapperStart, end)
       : html.slice(html.indexOf("<body"), end);
 
-  chunk = transformHtml(chunk);
+  chunk = transformHtml(chunk, filename);
 
-  return { bodyClass, title, html: chunk };
+  const pageTitle =
+    filename === "index.html" ? "REOVANA — Foreclosed Homes" : title;
+
+  return { bodyClass, title: pageTitle, html: chunk };
 }
 
 function routeToSlug(route) {

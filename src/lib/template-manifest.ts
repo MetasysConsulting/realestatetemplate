@@ -12,7 +12,7 @@ export const TEMPLATE_PAGES: TemplatePageMeta[] = [
     "route": "/",
     "file": "index.html",
     "slug": "index",
-    "title": "Proty - Real Estate HTML Template",
+    "title": "REOVANA — Foreclosed Homes",
     "bodyClass": "popup-loader theme-color-4"
   },
   {
