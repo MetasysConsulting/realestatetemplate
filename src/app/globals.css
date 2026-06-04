@@ -136,99 +136,59 @@ body {
   pointer-events: all !important;
 }
 
-/* Login + Add property grouped side by side */
+/* Login + Add property — horizontal row inside header-right */
+#template-root .header-right {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+}
+
 #template-root .header-right .reovana-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 12px !important;
   flex-shrink: 0;
 }
 
-#template-root .reovana-header-auth {
-  display: flex;
-  align-items: center;
+#template-root .reovana-header-auth,
+#template-root .header-right .btn-add {
+  display: flex !important;
+  align-items: center !important;
   flex-shrink: 0;
 }
 
-/* Icon-only login (matches template .user 44×44 control) */
 #template-root .reovana-login-btn {
-  position: relative;
-  display: inline-flex;
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  width: 44px;
+  min-height: 44px;
   height: 44px;
-  padding: 0 !important;
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
   border-radius: 12px;
   text-decoration: none;
-  line-height: 0;
+  line-height: 1;
   background-color: var(--Primary) !important;
   color: #fff !important;
   border: 1px solid var(--Primary);
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease;
 }
 
-#template-root .reovana-login-btn__icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+#template-root .reovana-login-btn::after {
+  background-color: #fff !important;
 }
 
-#template-root .reovana-login-icon {
-  display: block;
-}
-
-/* Inverse of Add property: blue → white fill, blue icon on hover */
 #template-root .reovana-login-btn:hover,
 #template-root .reovana-login-btn:focus-visible {
-  background-color: #fff !important;
+  background-color: transparent !important;
   color: var(--Primary) !important;
   border-color: var(--Primary) !important;
-  outline: none;
-}
-
-/* Hover tooltip (standard account-icon pattern) */
-#template-root .reovana-login-tooltip {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%) translateY(2px);
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  color: #fff;
-  background: var(--Heading, #161e2d);
-  border-radius: 8px;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease,
-    visibility 0.2s ease;
-  z-index: 10;
-}
-
-#template-root .reovana-login-tooltip::before {
-  content: "";
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-bottom-color: var(--Heading, #161e2d);
-}
-
-#template-root .reovana-login-btn:hover .reovana-login-tooltip,
-#template-root .reovana-login-btn:focus-visible .reovana-login-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateX(-50%) translateY(0);
 }
 
 #template-root .header-right .box-user {
