@@ -18,14 +18,6 @@ export type AuctionProperty = {
   lng: number;
 };
 
-export type MapCluster = {
-  id: string;
-  label: string;
-  top: string;
-  left: string;
-  size: "sm" | "md" | "lg";
-};
-
 export const MOCK_AUCTION_PROPERTIES: AuctionProperty[] = [
   {
     id: "1",
@@ -217,16 +209,6 @@ export const MOCK_AUCTION_PROPERTIES: AuctionProperty[] = [
     lat: 36.03,
     lng: -115.12,
   },
-];
-
-export const MOCK_MAP_CLUSTERS: MapCluster[] = [
-  { id: "c1", label: "190", top: "28%", left: "22%", size: "md" },
-  { id: "c2", label: "71", top: "35%", left: "38%", size: "sm" },
-  { id: "c3", label: "1,104", top: "42%", left: "52%", size: "lg" },
-  { id: "c4", label: "326", top: "55%", left: "44%", size: "md" },
-  { id: "c5", label: "88", top: "48%", left: "28%", size: "sm" },
-  { id: "c6", label: "412", top: "62%", left: "58%", size: "md" },
-  { id: "c7", label: "156", top: "38%", left: "68%", size: "sm" },
 ];
 
 export function formatCurrency(value: number): string {

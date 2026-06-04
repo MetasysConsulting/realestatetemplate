@@ -4,10 +4,10 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import {
   MOCK_AUCTION_PROPERTIES,
-  MOCK_MAP_CLUSTERS,
   formatCurrency,
   type AuctionProperty,
 } from "@/lib/auctions-mock-data";
+import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 
 const FILTER_OPTIONS = {
   assetType: ["All", "Foreclosure", "Bank Owned", "Short Sale", "Commercial"],
@@ -196,25 +196,8 @@ export function AuctionsExplorer() {
               </button>
             </div>
           </div>
-          <div className={`auctions-map-wrap ${mapView === "satellite" ? "is-satellite" : ""}`}>
-            <iframe
-              title="Auction properties map"
-              className="auctions-map-iframe"
-              src="https://www.openstreetmap.org/export/embed.html?bbox=-125.0%2C24.5%2C-66.9%2C49.4&layer=mapnik"
-              loading="lazy"
-            />
-            <div className="auctions-map-clusters" aria-hidden>
-              {MOCK_MAP_CLUSTERS.map((cluster) => (
-                <button
-                  key={cluster.id}
-                  type="button"
-                  className={`auctions-cluster auctions-cluster--${cluster.size}`}
-                  style={{ top: cluster.top, left: cluster.left }}
-                >
-                  {cluster.label}
-                </button>
-              ))}
-            </div>
+          <div className="auctions-map-wrap">
+            <AuctionsMap properties={filtered} mapView={mapView} />
             <button type="button" className="auctions-map-search-area tf-btn bg-color-primary">
               Search This Area
             </button>

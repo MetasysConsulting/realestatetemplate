@@ -31,6 +31,10 @@ function fixChromeDom() {
   const headers = root.querySelectorAll("header");
   if (headers.length > 1) headers[0].remove();
 
+  root.querySelectorAll("header").forEach((header) => {
+    header.classList.add("is-sticky", "reovana-chrome-header");
+  });
+
   root.querySelectorAll(".box-user").forEach((box) => {
     const auth = document.createElement("div");
     auth.className = "reovana-header-auth";
