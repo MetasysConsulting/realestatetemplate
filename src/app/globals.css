@@ -193,7 +193,7 @@ body {
   margin: 0;
   margin-left: clamp(8px, 1.5%, 32px);
   /* Slightly above vertical center */
-  transform: translateY(clamp(-32px, -4vh, -56px));
+  transform: translateY(clamp(-56px, -7vh, -88px));
 }
 
 /* Text block */
@@ -260,7 +260,7 @@ body {
   align-items: flex-start;
   width: 100%;
   line-height: 0.88;
-  font-size: clamp(5.05rem, 11.25vw, 9rem);
+  font-size: clamp(4rem, 9.5vw, 7rem);
   font-weight: 800;
   margin-bottom: clamp(14px, 2.5vh, 24px) !important;
   text-align: left;
@@ -278,7 +278,7 @@ body {
 .reovana-tagline {
   width: 100%;
   margin: 0 !important;
-  font-size: clamp(1.125rem, 2.5vw, 1.7rem) !important;
+  font-size: clamp(0.95rem, 2.2vw, 1.35rem) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -315,14 +315,14 @@ body {
   }
 
   .reovana-headline {
-    font-size: clamp(2.8rem, 12.4vw, 4.5rem);
+    font-size: clamp(2.25rem, 10.5vw, 3.5rem);
     align-items: center;
     text-align: center;
   }
 
   .reovana-tagline {
     text-align: center;
-    font-size: clamp(1rem, 3.9vw, 1.35rem) !important;
+    font-size: clamp(0.85rem, 3.5vw, 1.15rem) !important;
   }
 }
 
