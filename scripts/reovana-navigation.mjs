@@ -5,12 +5,12 @@
 /** @type {[string, string][]} */
 const BUY_LINKS = [
   ["/auctions", "All Auction Homes"],
-  ["/auctions", "Foreclosure Homes"],
-  ["/auctions", "Bank Owned"],
-  ["/auctions", "2nd Chance Foreclosure"],
-  ["/auctions", "Short Sale"],
-  ["/auctions", "Commercial"],
-  ["/auctions", "Non-Bank Owned"],
+  ["/auctions/foreclosure-homes", "Foreclosure Homes"],
+  ["/auctions/bank-owned", "Bank Owned"],
+  ["/auctions/second-chance-foreclosure", "2nd Chance Foreclosure"],
+  ["/auctions/short-sale", "Short Sale"],
+  ["/auctions/commercial", "Commercial"],
+  ["/auctions/non-bank-owned", "Non-Bank Owned"],
 ];
 
 /** @type {[string, string][]} */

@@ -2,12 +2,14 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import type { BuyCategoryKey } from "@/lib/buy-categories";
 import {
-  MOCK_AUCTION_PROPERTIES,
   formatCurrency,
+  getInventoryCount,
   type AuctionProperty,
-} from "@/lib/auctions-mock-data";
+} from "@/lib/generate-auction-properties";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
+import { PropertyPhoto } from "@/components/auctions/PropertyPhoto";
 
 const FILTER_OPTIONS = {
   assetType: ["All", "Foreclosure", "Bank Owned", "Short Sale", "Commercial"],
@@ -16,13 +18,19 @@ const FILTER_OPTIONS = {
   featured: ["All", "Featured Only"],
 };
 
+type AuctionsExplorerProps = {
+  pageTitle: string;
+  categoryKey: BuyCategoryKey;
+  properties: AuctionProperty[];
+};
+
 function PropertyCard({ property }: { property: AuctionProperty }) {
+  const alt = `${property.address}, ${property.city}, ${property.state}`;
+
   return (
     <article className="auctions-card">
       <div className="auctions-card__media">
-        <div className="auctions-card__placeholder" aria-hidden>
-          <span className="auctions-card__placeholder-icon">🏠</span>
-        </div>
+        <PropertyPhoto src={property.imageUrl} alt={alt} />
         {property.isNew ? <span className="auctions-card__badge">NEW</span> : null}
         <button type="button" className="auctions-card__favorite" aria-label="Save property">
           ♥
@@ -61,7 +69,11 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
   );
 }
 
-export function AuctionsExplorer() {
+export function AuctionsExplorer({
+  pageTitle,
+  categoryKey,
+  properties,
+}: AuctionsExplorerProps) {
   const [assetType, setAssetType] = useState("All");
   const [propertyType, setPropertyType] = useState("All");
   const [auctionStatus, setAuctionStatus] = useState("All");
@@ -69,7 +81,7 @@ export function AuctionsExplorer() {
   const [mapView, setMapView] = useState<"map" | "satellite">("map");
 
   const filtered = useMemo(() => {
-    return MOCK_AUCTION_PROPERTIES.filter((p) => {
+    return properties.filter((p) => {
       if (auctionStatus !== "All" && !p.status.includes(auctionStatus)) return false;
       if (assetType !== "All" && !p.category.toLowerCase().includes(assetType.toLowerCase())) {
         return false;
@@ -79,7 +91,9 @@ export function AuctionsExplorer() {
       if (featured === "Featured Only" && !p.isNew) return false;
       return true;
     });
-  }, [assetType, propertyType, auctionStatus, featured]);
+  }, [properties, assetType, propertyType, auctionStatus, featured]);
+
+  const inventoryCount = getInventoryCount(categoryKey, filtered.length);
 
   const clearFilters = () => {
     setAssetType("All");
@@ -149,9 +163,10 @@ export function AuctionsExplorer() {
       <div className="auctions-layout">
         <section className="auctions-list-panel" aria-label="Auction properties">
           <div className="auctions-list-head">
-            <h1>All Auctions</h1>
+            <h1>{pageTitle}</h1>
             <p>
-              Showing <strong>{filtered.length}</strong> auction properties
+              Showing <strong>{filtered.length}</strong> of{" "}
+              <strong>{inventoryCount.toLocaleString()}</strong> auction properties
             </p>
             <div className="auctions-list-head__actions">
               <button type="button" className="auctions-link-btn">

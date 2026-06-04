@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { AuctionProperty } from "@/lib/auctions-mock-data";
+import type { AuctionProperty } from "@/lib/generate-auction-properties";
 
 /** Continental US — pan/zoom constrained to this region */
 const US_BOUNDS: [[number, number], [number, number]] = [

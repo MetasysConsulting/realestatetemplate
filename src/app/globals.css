@@ -665,15 +665,51 @@ body.auctions-route .template-chrome-footer {
 
 .auctions-card__media {
   position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  background: linear-gradient(145deg, #e8ecf8 0%, #d4dcf5 50%, #c5d0f0 100%);
+}
+
+.auctions-card__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.auctions-card__photo.is-loaded {
+  opacity: 1;
 }
 
 .auctions-card__placeholder {
-  aspect-ratio: 4 / 3;
-  border-radius: 10px;
-  background: linear-gradient(145deg, #e8ecf8 0%, #d4dcf5 50%, #c5d0f0 100%);
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.auctions-card__placeholder--loading {
+  background: linear-gradient(145deg, #e8ecf8 0%, #d4dcf5 50%, #c5d0f0 100%);
+}
+
+.auctions-card__placeholder-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(118, 149, 255, 0.2);
+  border-top-color: var(--Primary);
+  border-radius: 50%;
+  animation: auctions-spin 0.8s linear infinite;
+}
+
+@keyframes auctions-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .auctions-card__placeholder-icon {
