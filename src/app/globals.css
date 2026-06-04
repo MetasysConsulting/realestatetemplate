@@ -122,16 +122,46 @@ body {
   fill: #7695ff !important;
 }
 
-/* REOVANA homepage — compact hero (template uses 258px bottom padding for old layout) */
+/*
+ * Homepage hero spacing (see proty-package/proty/scss/_sections.scss)
+ * - .page-title.home01 uses padding: 154px 0 258px for a full-bleed bg hero
+ * - Navbar is in normal document flow, so top padding stacks UNDER the header
+ * - 258px bottom padding is empty space below the search bar
+ */
+#template-root .header.header-sticky:not(.is-sticky) {
+  position: relative !important;
+  transform: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: all !important;
+}
+
 #template-root .page-title.home01.reovana-home-hero {
-  padding: 88px 0 40px !important;
+  padding: 28px 0 32px !important;
+  min-height: 0 !important;
   background-image: none !important;
   background-attachment: scroll !important;
   background-color: #232530;
 }
 
+#template-root .page-title.home01.reovana-home-hero .content-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 0;
+}
+
 #template-root .page-title.home01.reovana-home-hero .reovana-heading-title {
-  margin-bottom: 24px !important;
+  margin-bottom: 0 !important;
+}
+
+#template-root .page-title.home01.reovana-home-hero .wg-filter {
+  position: relative;
+  margin: 0;
+}
+
+#template-root .page-title.home01.reovana-home-hero .wd-search-form:not(.show) {
+  display: none !important;
 }
 
 #template-root .page-title.home01.reovana-home-hero .tf-dropdown-sort {
@@ -165,7 +195,7 @@ body {
 
 .reovana-browse-cta {
   display: inline-block;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-weight: 700;
@@ -173,7 +203,11 @@ body {
 
 @media (max-width: 767px) {
   #template-root .page-title.home01.reovana-home-hero {
-    padding: 64px 0 32px !important;
+    padding: 20px 0 24px !important;
+  }
+
+  #template-root .page-title.home01.reovana-home-hero .content-inner {
+    gap: 16px;
   }
 }
 

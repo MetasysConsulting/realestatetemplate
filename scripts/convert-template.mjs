@@ -159,8 +159,25 @@ function stripHomeSearchDropdown(html) {
   );
 }
 
-function applyReovanaHomeCopy(html) {
+/**
+ * index.html ships two #header-main blocks (sticky clone + visible).
+ * Keep one header with header-sticky so main.js scroll behavior still works.
+ */
+function dedupeHomeHeaders(html) {
   let out = html.replace(
+    /<header[^>]*class="header header-sticky"[^>]*>[\s\S]*?<\/header>\s*(?:<!-- \/\.header -->)?\s*/i,
+    "",
+  );
+  out = out.replace(
+    /<header id="header-main" class="header ">/,
+    '<header id="header-main" class="header header-sticky">',
+  );
+  return out;
+}
+
+function applyReovanaHomeCopy(html) {
+  let out = dedupeHomeHeaders(html);
+  out = out.replace(
     /<div class="page-title home01">/,
     '<div class="page-title home01 reovana-home-hero">',
   );
