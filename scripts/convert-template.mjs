@@ -84,7 +84,7 @@ const REOVANA_LOGO_DARK = "/images/reovana/logo-dark.jpeg";
 const REOVANA_HEADING_HTML = `<div class="heading-title reovana-heading-title">
                                 <h1 class="title reovana-headline">
                                     <span class="reovana-headline__line">DISTRESSED</span>
-                                    <span class="reovana-headline__line reovana-headline__line--gold">FORECLOSED</span>
+                                    <span class="reovana-headline__line reovana-headline__line--accent">FORECLOSED</span>
                                     <span class="reovana-headline__line">PROPERTIES</span>
                                 </h1>
                                 <p class="h6 fw-4 reovana-tagline">FIND GREAT DEALS. CREATE REAL VALUE.</p>
@@ -152,11 +152,23 @@ function stripPhoneNumbers(html) {
   return out;
 }
 
-function applyReovanaHomeCopy(html) {
+function stripHomeSearchDropdown(html) {
   return html.replace(
+    /<div class="tf-dropdown-sort[^>]*>[\s\S]*?<\/div>\s*<\/div>\s*(?=<form>)/i,
+    "",
+  );
+}
+
+function applyReovanaHomeCopy(html) {
+  let out = html.replace(
+    /<div class="page-title home01">/,
+    '<div class="page-title home01 reovana-home-hero">',
+  );
+  out = out.replace(
     /<div class="heading-title">\s*<h1 class="title">Search Luxury Homes<\/h1>[\s\S]*?<\/div>\s*(?=<div class="wg-filter">)/i,
     REOVANA_HEADING_HTML,
   );
+  return stripHomeSearchDropdown(out);
 }
 
 function applyBranding(html, filename) {
