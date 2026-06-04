@@ -228,11 +228,15 @@ body {
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form fieldset input {
-  font-size: 15px !important;
+  font-size: 11.25px !important;
   line-height: 1.4 !important;
   min-height: 48px;
   padding: 6px 0;
   width: 100%;
+}
+
+#template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form fieldset input::placeholder {
+  font-size: 11.25px !important;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title .btn-filter {
