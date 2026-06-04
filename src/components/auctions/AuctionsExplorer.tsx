@@ -18,11 +18,20 @@ const FILTER_OPTIONS = {
 };
 
 function PropertyCard({ property }: { property: AuctionProperty }) {
+  const alt = `${property.address}, ${property.city}, ${property.state}`;
+
   return (
     <article className="auctions-card">
       <div className="auctions-card__media">
-        <div className="auctions-card__placeholder" aria-hidden>
-          <span className="auctions-card__placeholder-icon">🏠</span>
+        <div className="auctions-card__thumb">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={property.imageUrl}
+            alt={alt}
+            className="auctions-card__photo"
+            loading="lazy"
+            decoding="async"
+          />
         </div>
         {property.isNew ? <span className="auctions-card__badge">NEW</span> : null}
         <button type="button" className="auctions-card__favorite" aria-label="Save property">

@@ -1,0 +1,238 @@
+/**
+ * Curated Pexels photos (free license: https://www.pexels.com/license/)
+ * Downloaded at 480×360 for auction card thumbnails.
+ */
+export const AUCTION_IMAGE_SOURCES = [
+  {
+    file: "01-suburban-two-story.jpg",
+    pexelsId: 106399,
+    label: "Suburban two-story with lawn",
+    categories: ["all", "bank-owned", "non-bank-owned"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "02-white-colonial.jpg",
+    pexelsId: 280222,
+    label: "White colonial-style home",
+    categories: ["all", "non-bank-owned"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "03-modern-glass-facade.jpg",
+    pexelsId: 3237805,
+    label: "Modern home with large windows",
+    categories: ["all", "bank-owned"],
+    photographer: "Max Vakhtbovych",
+  },
+  {
+    file: "04-brick-ranch.jpg",
+    pexelsId: 439391,
+    label: "Brick ranch-style house",
+    categories: ["all", "bank-owned", "short-sale"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "05-craftsman-porch.jpg",
+    pexelsId: 1396122,
+    label: "Craftsman home with front porch",
+    categories: ["all", "non-bank-owned"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "06-mediterranean-stucco.jpg",
+    pexelsId: 2635038,
+    label: "Mediterranean stucco exterior",
+    categories: ["all", "short-sale"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "07-yellow-victorian.jpg",
+    pexelsId: 256490,
+    label: "Yellow Victorian-style home",
+    categories: ["all", "second-chance-foreclosure"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "08-lakefront-cottage.jpg",
+    pexelsId: 186077,
+    label: "Lakefront cottage exterior",
+    categories: ["all", "non-bank-owned"],
+    photographer: "Luis Cifuentes",
+  },
+  {
+    file: "09-wood-siding-bungalow.jpg",
+    pexelsId: 323775,
+    label: "Wood siding bungalow",
+    categories: ["all", "foreclosure-homes"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "10-red-brick-two-story.jpg",
+    pexelsId: 210617,
+    label: "Red brick two-story home",
+    categories: ["all", "bank-owned"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "11-new-construction.jpg",
+    pexelsId: 2595884,
+    label: "New construction suburban home",
+    categories: ["all", "bank-owned"],
+    photographer: "Max Vakhtbovych",
+  },
+  {
+    file: "12-gray-siding-split-level.jpg",
+    pexelsId: 7031600,
+    label: "Gray siding split-level",
+    categories: ["all", "short-sale"],
+    photographer: "Max Vakhtbovych",
+  },
+  {
+    file: "13-farmhouse-white.jpg",
+    pexelsId: 1029599,
+    label: "White farmhouse style",
+    categories: ["all", "second-chance-foreclosure"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "14-condo-townhome-row.jpg",
+    pexelsId: 534151,
+    label: "Townhome / row exterior",
+    categories: ["all", "short-sale"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "15-blue-trim-cottage.jpg",
+    pexelsId: 2599620,
+    label: "Cottage with blue trim",
+    categories: ["all", "non-bank-owned"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "16-stone-accent-facade.jpg",
+    pexelsId: 348526,
+    label: "Stone accent facade",
+    categories: ["all", "bank-owned"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "17-older-wood-siding.jpg",
+    pexelsId: 261039,
+    label: "Older wood siding home",
+    categories: ["foreclosure-homes", "second-chance-foreclosure"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "18-peeling-paint-older.jpg",
+    pexelsId: 1168514,
+    label: "Older home needing work",
+    categories: ["foreclosure-homes", "second-chance-foreclosure"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "19-overgrown-yard.jpg",
+    pexelsId: 1022923,
+    label: "Home with overgrown yard",
+    categories: ["foreclosure-homes"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "20-vacant-lot-house.jpg",
+    pexelsId: 1876300,
+    label: "Modest single-story home",
+    categories: ["foreclosure-homes", "short-sale"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "21-duplex-side-by-side.jpg",
+    pexelsId: 1438832,
+    label: "Duplex / multi-unit exterior",
+    categories: ["all", "short-sale"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "22-urban-row-homes.jpg",
+    pexelsId: 1643383,
+    label: "Urban row homes",
+    categories: ["all", "foreclosure-homes"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "23-snow-cape-cod.jpg",
+    pexelsId: 280216,
+    label: "Cape Cod style home",
+    categories: ["all", "bank-owned"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "24-pool-backyard-view.jpg",
+    pexelsId: 236047,
+    label: "Suburban home with pool area",
+    categories: ["all", "non-bank-owned"],
+    photographer: "Max Vakhtbovych",
+  },
+  {
+    file: "25-driveway-garage.jpg",
+    pexelsId: 1571460,
+    label: "Home with front driveway",
+    categories: ["all", "bank-owned"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "26-corner-lot-bungalow.jpg",
+    pexelsId: 1115804,
+    label: "Corner lot bungalow",
+    categories: ["all", "second-chance-foreclosure"],
+    photographer: "Mark McCammon",
+  },
+  {
+    file: "27-hillside-home.jpg",
+    pexelsId: 209296,
+    label: "Hillside residential home",
+    categories: ["all", "non-bank-owned"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "28-palm-tree-suburban.jpg",
+    pexelsId: 280230,
+    label: "Warm-climate suburban home",
+    categories: ["all", "short-sale"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "29-commercial-office-glass.jpg",
+    pexelsId: 3755272,
+    label: "Modern office building",
+    categories: ["commercial"],
+    photographer: "Max Vakhtbovych",
+  },
+  {
+    file: "30-commercial-retail-strip.jpg",
+    pexelsId: 431637,
+    label: "Retail / commercial storefront",
+    categories: ["commercial"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "31-commercial-warehouse.jpg",
+    pexelsId: 448361,
+    label: "Industrial / warehouse exterior",
+    categories: ["commercial"],
+    photographer: "Pixabay",
+  },
+  {
+    file: "32-commercial-mixed-use.jpg",
+    pexelsId: 323705,
+    label: "Mixed-use commercial building",
+    categories: ["commercial"],
+    photographer: "Pixabay",
+  },
+];
+
+export function pexelsDownloadUrl(pexelsId) {
+  return `https://images.pexels.com/photos/${pexelsId}/pexels-photo-${pexelsId}.jpeg?auto=compress&cs=tinysrgb&w=480&h=360&fit=crop`;
+}
+
+export function pexelsPageUrl(pexelsId) {
+  return `https://www.pexels.com/photo/${pexelsId}/`;
+}

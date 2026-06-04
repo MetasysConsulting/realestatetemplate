@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>REOVANA — Auction image review</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 24px;
+        background: #f4f6fb;
+        color: #1a1f36;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+      }
+      .intro {
+        max-width: 720px;
+        margin-bottom: 24px;
+        line-height: 1.5;
+        color: #4a5568;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+      }
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(26, 31, 54, 0.08);
+      }
+      .card img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        display: block;
+        background: #e8ecf8;
+      }
+      .card-body {
+        padding: 12px 14px 16px;
+      }
+      .card-body h2 {
+        margin: 0 0 6px;
+        font-size: 0.95rem;
+      }
+      .card-body p {
+        margin: 0 0 8px;
+        font-size: 0.8rem;
+        color: #64748b;
+      }
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .tag {
+        font-size: 0.7rem;
+        padding: 3px 8px;
+        border-radius: 999px;
+        background: #e8ecf8;
+        color: #3d4f7c;
+      }
+      .file {
+        font-family: ui-monospace, monospace;
+        font-size: 0.72rem;
+        color: #94a3b8;
+        margin-top: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Auction property images — review</h1>
+    <p class="intro">
+      32 thumbnails from Pexels (480×360). Approve in chat, then we’ll add them to the live auctions
+      page. See <code>README.md</code> and <code>manifest.json</code> for details.
+    </p>
+    <div class="grid" id="grid"></div>
+    <script>
+      fetch("./manifest.json")
+        .then((r) => r.json())
+        .then((data) => {
+          const grid = document.getElementById("grid");
+          for (const img of data.images) {
+            const card = document.createElement("article");
+            card.className = "card";
+            const tags = img.categories
+              .map((c) => `<span class="tag">${c}</span>`)
+              .join("");
+            card.innerHTML = `
+              <img src="./${img.file}" alt="${img.label}" loading="lazy" />
+              <div class="card-body">
+                <h2>${img.label}</h2>
+                <p>Photo by ${img.photographer} · <a href="${img.pexelsPage}" target="_blank" rel="noopener">Pexels</a></p>
+                <div class="tags">${tags}</div>
+                <div class="file">${img.file}</div>
+              </div>
+            `;
+            grid.appendChild(card);
+          }
+        })
+        .catch(() => {
+          document.getElementById("grid").innerHTML =
+            "<p>Run <code>node scripts/download-auction-images.mjs</code> first to generate images and manifest.json.</p>";
+        });
+    </script>
+  </body>
+</html>
