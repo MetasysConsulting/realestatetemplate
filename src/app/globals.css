@@ -360,3 +360,11 @@ body {
 #template-root .phone-number {
   display: none !important;
 }
+
+/* Template floating settings / RTL / theme toggle panel */
+.popup-setting,
+#template-root .popup-setting {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

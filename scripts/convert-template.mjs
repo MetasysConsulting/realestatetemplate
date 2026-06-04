@@ -80,9 +80,6 @@ const hrefReplacements = Object.entries(ROUTE_MAP)
 
 const REOVANA_LOGO = "/images/reovana/logo.png";
 const REOVANA_LOGO_DARK = "/images/reovana/logo-dark.jpeg";
-/** Display size — ~3× template 42px height, 3:2 aspect (source 1080×720) */
-const REOVANA_LOGO_HEIGHT = 126;
-const REOVANA_LOGO_WIDTH = 189;
 
 const REOVANA_HEADING_HTML = `<div class="heading-title reovana-heading-title">
                                 <h1 class="title reovana-headline">
@@ -101,6 +98,13 @@ function applyBlueTheme(html) {
     .replace(/#fef7f1/gi, "#f2f5ff")
     .replace(/rgba?\(\s*241\s*,\s*145\s*,\s*61[^)]*\)/gi, "rgba(118, 149, 255, 0.16)")
     .replace(/rgb\(\s*241\s*,\s*145\s*,\s*61\s*\)/gi, "rgb(118, 149, 255)");
+}
+
+function stripPopupSettings(html) {
+  return html.replace(
+    /\s*<!--\s*popup-setting\s*-->\s*<div class="popup-setting">[\s\S]*?<\/div>\s*<!--\s*popup-setting\s*-->\s*/gi,
+    "",
+  );
 }
 
 function stripPhoneNumbers(html) {
@@ -199,12 +203,10 @@ function applyBranding(html, filename) {
   out = out.replace(/data-light="\/images\/logo\/logo@2x\.png"/g, `data-light="${REOVANA_LOGO}"`);
   out = out.replace(/data-dark="\/images\/logo\/logo-2@2x\.png"/g, `data-dark="${REOVANA_LOGO_DARK}"`);
   out = out.replace(/alt="logo-footer"/g, 'alt="REOVANA"');
-  out = out.replace(
-    /class="logo_header"/g,
-    `class="logo_header reovana-logo" width="${REOVANA_LOGO_WIDTH}" height="${REOVANA_LOGO_HEIGHT}"`,
-  );
+  out = out.replace(/class="logo_header"/g, 'class="logo_header reovana-logo"');
 
   out = stripPhoneNumbers(out);
+  out = stripPopupSettings(out);
 
   if (filename === "index.html") {
     out = applyReovanaHomeCopy(out);
