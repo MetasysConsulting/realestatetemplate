@@ -2,196 +2,91 @@
  * REOVANA site navigation — desktop header + mobile offcanvas.
  */
 
-const LISTING_LAYOUT_LINKS = [
-  ["/listing/grid-full-width", "Grid — Full Width"],
-  ["/listing/grid-top-search", "Grid — Top Search"],
-  ["/listing/grid-left-sidebar", "Grid — Sidebar Left"],
-  ["/listing/grid-right-sidebar", "Grid — Sidebar Right"],
-  ["/listing/list-full-width", "List — Full Width"],
-  ["/listing/list-top-search", "List — Top Search"],
-  ["/listing/list-left-sidebar", "List — Sidebar Left"],
-  ["/listing/list-right-sidebar", "List — Sidebar Right"],
+/** @type {[string, string][]} */
+const BUY_LINKS = [
+  ["/listing/grid-full-width", "All Auction Homes"],
+  ["/listing/grid-full-width", "Foreclosure Homes"],
+  ["/listing/grid-full-width", "Bank Owned"],
+  ["/listing/grid-full-width", "2nd Chance Foreclosure"],
+  ["/listing/grid-full-width", "Short Sale"],
+  ["/listing/grid-full-width", "Commercial"],
+  ["/listing/grid-full-width", "Non-Bank Owned"],
 ];
 
-const LISTING_MAP_LINKS = [
-  ["/listing/half-map-grid", "Half Map — Grid"],
-  ["/listing/half-map-list", "Half Map — List"],
-  ["/listing/half-top-map", "Half Map — Top Search"],
-  ["/listing/filter-popup", "Filter Popup"],
-  ["/listing/filter-popup-left", "Filter Popup — Left"],
-  ["/listing/filter-popup-right", "Filter Popup — Right"],
+/** @type {[string, string][]} */
+const LEARN_LINKS = [
+  ["/blog/grid", "Blog"],
+  ["/faq", "FAQ"],
+  ["#", "Glossary"],
+  ["/faq", "Help Center"],
 ];
 
-const LISTING_DETAIL_LINKS = [
-  ["/property/detail/v1", "Property Details 1"],
-  ["/property/detail/v2", "Property Details 2"],
-  ["/property/detail/v3", "Property Details 3"],
-  ["/property/detail/v4", "Property Details 4"],
-  ["/property/detail/v5", "Property Details 5"],
+/** @type {[string, string][]} */
+const RESOURCES_LINKS = [
+  ["#", "Overview"],
+  ["#", "Leadership"],
+  ["#", "Our Values"],
+  ["#", "Business Solutions"],
+  ["/career", "Careers"],
 ];
 
-function desktopLinks(items) {
+const SELL_PAGE = "/add-property";
+
+function desktopSubmenuLinks(items) {
   return items
     .map(
       ([href, label]) =>
-        `                                                        <li><a href="${href}">${label}</a></li>`,
+        `                                                <li><a href="${href}">${label}</a></li>`,
     )
     .join("\n");
 }
 
-function desktopListingSubmenu() {
-  return `                                                <li>
-                                                    <a href="#">Layout</a>
-                                                    <ul class="submenu2">
-${desktopLinks(LISTING_LAYOUT_LINKS)}
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <a href="#">Map &amp; Filters</a>
-                                                    <ul class="submenu2">
-${desktopLinks(LISTING_MAP_LINKS)}
-                                                    </ul>
-                                                </li>
-                                                <li>
-                                                    <a href="#">Property Details</a>
-                                                    <ul class="submenu2">
-${desktopLinks(LISTING_DETAIL_LINKS)}
-                                                    </ul>
-                                                </li>`;
+function desktopDropdown(title, items) {
+  return `                                        <li class="has-child"><a href="#">${title}</a>
+                                            <ul class="submenu">
+${desktopSubmenuLinks(items)}
+                                            </ul>
+                                        </li>`;
 }
-
-function desktopSellExtras() {
-  return `                                                <li>
-                                                    <a href="#">Seller Tools</a>
-                                                    <ul class="submenu2">
-                                                        <li><a href="/add-property">List Your Property</a></li>
-                                                        <li><a href="/dashboard">Seller Dashboard</a></li>
-                                                    </ul>
-                                                </li>`;
-}
-
-function desktopPlaceholderLinks(labels) {
-  return labels
-    .map((label) => `                                                <li><a href="#">${label}</a></li>`)
-    .join("\n");
-}
-
-const LEARN_PLACEHOLDERS = ["Placeholder 1", "Placeholder 2", "Placeholder 3"];
-const RESOURCES_PLACEHOLDERS = ["Placeholder 1", "Placeholder 2", "Placeholder 3"];
 
 export function buildDesktopMainMenu() {
   return `<nav class="main-menu">
                                     <ul class="navigation ">
-                                        <li class="has-child style-2"><a href="#">Buy</a>
-                                            <ul class="submenu">
-${desktopListingSubmenu()}
-                                            </ul>
-                                        </li>
-                                        <li class="has-child style-2"><a href="#">Sell</a>
-                                            <ul class="submenu">
-${desktopSellExtras()}
-${desktopListingSubmenu()}
-                                            </ul>
-                                        </li>
-                                        <li class="has-child"><a href="#">Learn</a>
-                                            <ul class="submenu">
-${desktopPlaceholderLinks(LEARN_PLACEHOLDERS)}
-                                            </ul>
-                                        </li>
-                                        <li class="has-child"><a href="#">Resources</a>
-                                            <ul class="submenu">
-${desktopPlaceholderLinks(RESOURCES_PLACEHOLDERS)}
-                                            </ul>
-                                        </li>
+${desktopDropdown("Buy", BUY_LINKS)}
+                                        <li><a href="${SELL_PAGE}">Sell</a></li>
+${desktopDropdown("Learn", LEARN_LINKS)}
+${desktopDropdown("Resources", RESOURCES_LINKS)}
                                     </ul>
                                 </nav>`;
 }
 
-function mobileLinks(items, linkClass = "") {
-  const cls = linkClass ? ` class="${linkClass}"` : "";
+function mobileSubmenuLinks(items, linkClass = "item-menu-mobile") {
   return items
     .map(
       ([href, label]) =>
-        `                                            <li class="menu-item"><a href="${href}"${cls}>${label}</a></li>`,
+        `                                <li class="menu-item"><a href="${href}" class="${linkClass}">${label}</a></li>`,
     )
     .join("\n");
 }
 
-function mobilePlaceholderLinks(labels, linkClass = "item-menu-mobile") {
-  return labels
-    .map(
-      (label) =>
-        `                                <li class="menu-item"><a href="#" class="${linkClass}">${label}</a></li>`,
-    )
-    .join("\n");
-}
-
-function mobilePlaceholderSection(menuId, title, labels) {
+function mobileDropdownSection(menuId, title, items) {
   return `                    <li class="menu-item menu-item-has-children-mobile">
                         <a href="#${menuId}" class="item-menu-mobile collapsed" data-bs-toggle="collapse"
                             aria-expanded="false" aria-controls="${menuId}">${title}</a>
                         <div id="${menuId}" class="collapse" data-bs-parent="#menu-mobile-menu">
                             <ul class="sub-mobile">
-${mobilePlaceholderLinks(labels)}
+${mobileSubmenuLinks(items)}
                             </ul>
                         </div>
                     </li>`;
 }
 
-function mobileListingBlock(parentId, layoutId, mapId, detailsId) {
-  return `                                <li class="menu-item menu-item-has-children-mobile-2">
-                                    <a href="#${layoutId}" class="item-menu-mobile collapsed" data-bs-toggle="collapse"
-                                        aria-expanded="false" aria-controls="${layoutId}">Layout</a>
-                                    <div id="${layoutId}" class="collapse" data-bs-parent="#${parentId}">
-                                        <ul class="sub-mobile">
-${mobileLinks(LISTING_LAYOUT_LINKS, "item-menu-mobile")}
-                                        </ul>
-                                    </div>
-                                </li>
-                                <li class="menu-item menu-item-has-children-mobile-2">
-                                    <a href="#${mapId}" class="item-menu-mobile collapsed" data-bs-toggle="collapse"
-                                        aria-expanded="false" aria-controls="${mapId}">Map &amp; Filters</a>
-                                    <div id="${mapId}" class="collapse" data-bs-parent="#${parentId}">
-                                        <ul class="sub-mobile">
-${mobileLinks(LISTING_MAP_LINKS, "item-menu-mobile")}
-                                        </ul>
-                                    </div>
-                                </li>
-                                <li class="menu-item menu-item-has-children-mobile-2">
-                                    <a href="#${detailsId}" class="item-menu-mobile collapsed" data-bs-toggle="collapse"
-                                        aria-expanded="false" aria-controls="${detailsId}">Property Details</a>
-                                    <div id="${detailsId}" class="collapse" data-bs-parent="#${parentId}">
-                                        <ul class="sub-mobile">
-${mobileLinks(LISTING_DETAIL_LINKS, "item-menu-mobile")}
-                                        </ul>
-                                    </div>
-                                </li>`;
-}
-
 export function buildMobileMenu() {
   return `<ul id="menu-mobile-menu">
-                    <li class="menu-item menu-item-has-children-mobile">
-                        <a href="#dropdown-menu-buy" class="item-menu-mobile collapsed" data-bs-toggle="collapse"
-                            aria-expanded="false" aria-controls="dropdown-menu-buy">Buy</a>
-                        <div id="dropdown-menu-buy" class="collapse" data-bs-parent="#menu-mobile-menu">
-                            <ul class="sub-mobile">
-${mobileListingBlock("dropdown-menu-buy", "sub-buy-layout", "sub-buy-map", "sub-buy-details")}
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="menu-item menu-item-has-children-mobile">
-                        <a href="#dropdown-menu-sell" class="item-menu-mobile collapsed" data-bs-toggle="collapse"
-                            aria-expanded="false" aria-controls="dropdown-menu-sell">Sell</a>
-                        <div id="dropdown-menu-sell" class="collapse" data-bs-parent="#menu-mobile-menu">
-                            <ul class="sub-mobile">
-                                <li class="menu-item"><a href="/add-property" class="item-menu-mobile">List Your Property</a></li>
-                                <li class="menu-item"><a href="/dashboard" class="item-menu-mobile">Seller Dashboard</a></li>
-${mobileListingBlock("dropdown-menu-sell", "sub-sell-layout", "sub-sell-map", "sub-sell-details")}
-                            </ul>
-                        </div>
-                    </li>
-${mobilePlaceholderSection("dropdown-menu-learn", "Learn", LEARN_PLACEHOLDERS)}
-${mobilePlaceholderSection("dropdown-menu-resources", "Resources", RESOURCES_PLACEHOLDERS)}
+${mobileDropdownSection("dropdown-menu-buy", "Buy", BUY_LINKS)}
+                    <li class="menu-item"><a href="${SELL_PAGE}" class="item-menu-mobile">Sell</a></li>
+${mobileDropdownSection("dropdown-menu-learn", "Learn", LEARN_LINKS)}
+${mobileDropdownSection("dropdown-menu-resources", "Resources", RESOURCES_LINKS)}
                 </ul>`;
 }
 
