@@ -4,6 +4,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { replaceSiteNavigation } from "./reovana-navigation.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -256,6 +257,7 @@ function applyBranding(html, filename) {
   out = groupHeaderActions(out);
   out = repairHeaderRight(out);
   out = applyFooterLogo(out);
+  out = replaceSiteNavigation(out);
 
   if (filename === "index.html") {
     out = applyReovanaHomeCopy(out);
