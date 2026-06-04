@@ -137,27 +137,50 @@ body {
 }
 
 #template-root .page-title.home01.reovana-home-hero {
-  padding: 28px 0 32px !important;
+  padding: 36px 0 40px !important;
   min-height: 0 !important;
   background-image: none !important;
   background-attachment: scroll !important;
   background-color: #232530;
 }
 
+#template-root .page-title.home01.reovana-home-hero .tf-container,
+#template-root .page-title.home01.reovana-home-hero .row {
+  justify-content: center;
+  text-align: center;
+}
+
+#template-root .page-title.home01.reovana-home-hero .col-lg-8 {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 #template-root .page-title.home01.reovana-home-hero .content-inner {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  align-items: center;
+  gap: 24px;
   margin: 0;
+  width: 100%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 #template-root .page-title.home01.reovana-home-hero .reovana-heading-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
   margin-bottom: 0 !important;
+  text-align: center;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter {
   position: relative;
   margin: 0;
+  width: 100%;
+  max-width: 900px;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wd-search-form:not(.show) {
@@ -172,14 +195,17 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  line-height: 0.95;
-  font-size: clamp(1.75rem, 4.5vw, 3rem);
+  width: 100%;
+  line-height: 0.92;
+  font-size: clamp(3.25rem, 9vw, 6rem);
   font-weight: 800;
-  margin-bottom: 12px !important;
+  margin-bottom: 16px !important;
+  text-align: center;
 }
 
 .reovana-headline__line {
   display: block;
+  width: 100%;
 }
 
 .reovana-headline__line--accent {
@@ -187,27 +213,46 @@ body {
 }
 
 .reovana-tagline {
+  width: 100%;
+  max-width: 42rem;
+  margin: 0 auto 8px !important;
+  font-size: clamp(1.05rem, 2.8vw, 1.75rem) !important;
+  line-height: 1.35 !important;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 500 !important;
-  margin-bottom: 16px !important;
+  text-align: center;
 }
 
 .reovana-browse-cta {
-  display: inline-block;
-  margin-bottom: 0;
-  letter-spacing: 0.06em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin: 0 auto;
+  padding: 16px 40px !important;
+  font-size: 15px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 700;
 }
 
 @media (max-width: 767px) {
   #template-root .page-title.home01.reovana-home-hero {
-    padding: 20px 0 24px !important;
+    padding: 24px 0 28px !important;
   }
 
   #template-root .page-title.home01.reovana-home-hero .content-inner {
-    gap: 16px;
+    gap: 18px;
+  }
+
+  .reovana-headline {
+    font-size: clamp(2.25rem, 11vw, 3.5rem);
+  }
+
+  .reovana-tagline {
+    font-size: clamp(0.8rem, 3.5vw, 1.1rem) !important;
+    letter-spacing: 0.08em;
   }
 }
 
