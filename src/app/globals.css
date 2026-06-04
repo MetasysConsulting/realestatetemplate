@@ -144,8 +144,8 @@ body {
   align-items: center;
   overflow: hidden;
   background-image: url(/images/reovana/hero-house.jpeg) !important;
-  /* Scale up ~15% vertically, anchor top — crops bottom of photo */
-  background-size: 100% 118% !important;
+  /* Scale up vertically, anchor top — crops bottom of photo (~20%) */
+  background-size: 100% 124% !important;
   background-position: center top !important;
   background-repeat: no-repeat !important;
   background-attachment: scroll !important;
@@ -293,7 +293,7 @@ body {
   #template-root .page-title.home01.reovana-home-hero {
     min-height: clamp(480px, 80vw, 560px) !important;
     padding: 36px 0 40px !important;
-    background-size: 100% 118% !important;
+    background-size: 100% 124% !important;
     background-position: center top !important;
   }
 
