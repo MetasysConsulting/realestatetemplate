@@ -152,9 +152,9 @@ body {
 
 /* Blurred dark overlay — backdrop-filter blurs the bg image, rgba dims it */
 #template-root .page-title.home01.reovana-home-hero::after {
-  background: rgba(0, 0, 0, 0.48) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
 }
 
 #template-root .page-title.home01.reovana-home-hero > .tf-container {
@@ -187,8 +187,7 @@ body {
   align-items: stretch;        /* search bar stretches to headline width */
   gap: 20px;
   margin: 0;
-  /* Push right — adjust this one value to move the whole block */
-  margin-left: clamp(80px, 14%, 220px);
+  margin-left: clamp(40px, 7%, 120px);
 }
 
 /* Text block */
@@ -255,7 +254,7 @@ body {
   align-items: flex-start;
   width: 100%;
   line-height: 0.88;
-  font-size: clamp(4.5rem, 10vw, 8rem);
+  font-size: clamp(6.75rem, 15vw, 12rem);
   font-weight: 800;
   margin-bottom: clamp(14px, 2.5vh, 24px) !important;
   text-align: left;
@@ -273,7 +272,7 @@ body {
 .reovana-tagline {
   width: 100%;
   margin: 0 !important;
-  font-size: clamp(1rem, 2.2vw, 1.5rem) !important;
+  font-size: clamp(1.5rem, 3.3vw, 2.25rem) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -309,14 +308,14 @@ body {
   }
 
   .reovana-headline {
-    font-size: clamp(2.5rem, 11vw, 4rem);
+    font-size: clamp(3.75rem, 16.5vw, 6rem);
     align-items: center;
     text-align: center;
   }
 
   .reovana-tagline {
     text-align: center;
-    font-size: clamp(0.9rem, 3.5vw, 1.2rem) !important;
+    font-size: clamp(1.35rem, 5.25vw, 1.8rem) !important;
   }
 }
 
