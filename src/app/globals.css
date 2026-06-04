@@ -128,7 +128,8 @@ body {
  * - Navbar is in normal document flow, so top padding stacks UNDER the header
  * - 258px bottom padding is empty space below the search bar
  */
-#template-root .header.header-sticky:not(.is-sticky) {
+/* Site-wide navbar — same as homepage on template + auctions pages */
+.reovana-site .header.header-sticky:not(.is-sticky) {
   position: relative !important;
   transform: none !important;
   opacity: 1 !important;
@@ -136,15 +137,20 @@ body {
   pointer-events: all !important;
 }
 
+.reovana-site .template-chrome-header {
+  flex-shrink: 0;
+  overflow: visible;
+}
+
 /* Login + Add property — horizontal row inside header-right */
-#template-root .header-right {
+.reovana-site .header-right {
   display: flex !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
   align-items: center !important;
 }
 
-#template-root .header-right .reovana-header-actions {
+.reovana-site .header-right .reovana-header-actions {
   display: flex !important;
   flex-direction: row !important;
   flex-wrap: nowrap !important;
@@ -153,14 +159,14 @@ body {
   flex-shrink: 0;
 }
 
-#template-root .reovana-header-auth,
-#template-root .header-right .btn-add {
+.reovana-site .reovana-header-auth,
+.reovana-site .header-right .btn-add {
   display: flex !important;
   align-items: center !important;
   flex-shrink: 0;
 }
 
-#template-root .reovana-login-btn {
+.reovana-site .reovana-login-btn {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -180,18 +186,18 @@ body {
   border: 1px solid var(--Primary);
 }
 
-#template-root .reovana-login-btn::after {
+.reovana-site .reovana-login-btn::after {
   background-color: #fff !important;
 }
 
-#template-root .reovana-login-btn:hover,
-#template-root .reovana-login-btn:focus-visible {
+.reovana-site .reovana-login-btn:hover,
+.reovana-site .reovana-login-btn:focus-visible {
   background-color: transparent !important;
   color: var(--Primary) !important;
   border-color: var(--Primary) !important;
 }
 
-#template-root .header-right .box-user {
+.reovana-site .header-right .box-user {
   display: none !important;
 }
 
@@ -398,7 +404,7 @@ body {
  * height (78px) and allow overflow:visible so the bigger img extends
  * above/below the bar without pushing it open.
  */
-#template-root .header .header-logo {
+.reovana-site .header .header-logo {
   padding: 0 !important;
   height: 78px !important;
   overflow: visible !important;
@@ -407,14 +413,14 @@ body {
   flex-shrink: 0;
 }
 
-#template-root .header .header-logo a.site-logo {
+.reovana-site .header .header-logo a.site-logo {
   display: flex !important;
   align-items: center !important;
   overflow: visible !important;
   height: 100% !important;
 }
 
-#template-root .header .header-logo img.reovana-logo {
+.reovana-site .header .header-logo img.reovana-logo {
   width: auto !important;
   height: 200px !important;  /* ~5× from 42px */
   max-width: none !important;
@@ -426,7 +432,7 @@ body {
 /*
  * Footer logo: same asset + enlarging treatment as navbar (not dark variant).
  */
-#template-root #footer .footer-logo {
+.reovana-site #footer .footer-logo {
   overflow: visible !important;
   display: flex !important;
   align-items: center !important;
@@ -434,14 +440,14 @@ body {
   flex-shrink: 0;
 }
 
-#template-root #footer .footer-logo a {
+.reovana-site #footer .footer-logo a {
   display: flex !important;
   align-items: center !important;
   overflow: visible !important;
   height: 100% !important;
 }
 
-#template-root #footer .footer-logo img.reovana-footer-logo {
+.reovana-site #footer .footer-logo img.reovana-footer-logo {
   width: auto !important;
   height: 200px !important;
   max-width: none !important;
@@ -450,13 +456,13 @@ body {
   z-index: 1;
 }
 
-#template-root .phone-number {
+.reovana-site .phone-number {
   display: none !important;
 }
 
 /* Template floating settings / RTL / theme toggle panel */
 .popup-setting,
-#template-root .popup-setting {
+.reovana-site .popup-setting {
   display: none !important;
   visibility: hidden !important;
   pointer-events: none !important;
@@ -472,24 +478,11 @@ body.auctions-route #loading {
   display: none !important;
 }
 
-body.auctions-route #template-chrome-root {
+body.auctions-route #template-chrome-root.reovana-site {
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
-}
-
-/* Keep navbar visible — template hides header-sticky until scroll */
-body.auctions-route #template-chrome-root .header.header-sticky,
-body.auctions-route #template-chrome-root .header.reovana-chrome-header {
-  position: relative !important;
-  top: 0 !important;
-  flex-shrink: 0;
-  transform: none !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: all !important;
-  z-index: 1000;
 }
 
 body.auctions-route .template-chrome-footer {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { extractTemplateChrome } from "@/lib/extract-template-chrome";
+import { fixReovanaHeader } from "@/lib/fix-reovana-header";
 
 type TemplateChromeProps = {
   headerHtml: string;
@@ -24,38 +24,6 @@ function normalizeBodyClass(bodyClass: string): string {
   return classes.join(" ");
 }
 
-function fixChromeDom() {
-  const root = document.getElementById("template-chrome-root");
-  if (!root) return;
-
-  const headers = root.querySelectorAll("header");
-  if (headers.length > 1) headers[0].remove();
-
-  root.querySelectorAll("header").forEach((header) => {
-    header.classList.add("is-sticky", "reovana-chrome-header");
-  });
-
-  root.querySelectorAll(".box-user").forEach((box) => {
-    const auth = document.createElement("div");
-    auth.className = "reovana-header-auth";
-    auth.innerHTML = `<a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Login</a>`;
-    box.replaceWith(auth);
-  });
-
-  root.querySelectorAll(".header-inner-wrap").forEach((wrap) => {
-    const headerRight = wrap.querySelector(":scope > .header-right");
-    if (!headerRight || headerRight.children.length > 0) return;
-    const actions = wrap.querySelector(":scope > .reovana-header-actions");
-    const mobile = wrap.querySelector(":scope > .mobile-button");
-    if (actions) headerRight.appendChild(actions);
-    if (mobile && !headerRight.contains(mobile)) headerRight.appendChild(mobile);
-  });
-
-  const loading = document.getElementById("loading");
-  if (loading) loading.style.display = "none";
-  document.body.classList.remove("popup-loader");
-}
-
 export function TemplateChrome({
   headerHtml,
   footerHtml,
@@ -65,11 +33,17 @@ export function TemplateChrome({
 }: TemplateChromeProps) {
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
-    fixChromeDom();
+
+    const root = document.getElementById("template-chrome-root");
+    if (root) fixReovanaHeader(root);
+
+    const loading = document.getElementById("loading");
+    if (loading) loading.style.display = "none";
+    document.body.classList.remove("popup-loader");
   }, [bodyClass, headerHtml, footerHtml, tailHtml]);
 
   return (
-    <div id="template-chrome-root">
+    <div id="template-chrome-root" className="reovana-site">
       {headerHtml ? (
         <div
           className="template-chrome-header"
@@ -91,8 +65,4 @@ export function TemplateChrome({
       ) : null}
     </div>
   );
-}
-
-export function getIndexChrome(html: string) {
-  return extractTemplateChrome(html);
 }
