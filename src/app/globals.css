@@ -302,7 +302,36 @@ body {
   }
 }
 
-/* Logo sizing — see public/css/reovana-overrides.css */
+/*
+ * Logo 5× size without growing the navbar bar.
+ * The bar height is set by the nav links. We fix header-logo to that same
+ * height (78px) and allow overflow:visible so the bigger img extends
+ * above/below the bar without pushing it open.
+ */
+#template-root .header .header-logo {
+  padding: 0 !important;
+  height: 78px !important;
+  overflow: visible !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0;
+}
+
+#template-root .header .header-logo a.site-logo {
+  display: flex !important;
+  align-items: center !important;
+  overflow: visible !important;
+  height: 100% !important;
+}
+
+#template-root .header .header-logo img.reovana-logo {
+  width: auto !important;
+  height: 200px !important;  /* ~5× from 42px */
+  max-width: none !important;
+  object-fit: contain !important;
+  position: relative;
+  z-index: 1;
+}
 
 #template-root .phone-number {
   display: none !important;
