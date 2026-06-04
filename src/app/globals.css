@@ -136,10 +136,10 @@ body {
   pointer-events: all !important;
 }
 
+/* ── REOVANA hero: two-column, text left / search right ─────────────────── */
 #template-root .page-title.home01.reovana-home-hero {
-  /* Image is 1600×855 — tall hero avoids cover cropping top/bottom */
-  padding: clamp(40px, 6vh, 72px) 0 clamp(44px, 6vh, 72px) !important;
-  min-height: clamp(520px, 52vw, 680px) !important;
+  padding: clamp(48px, 7vh, 88px) 0 clamp(52px, 7vh, 88px) !important;
+  min-height: clamp(520px, 52vw, 700px) !important;
   display: flex;
   align-items: center;
   background-image: url(/images/reovana/hero-house.jpeg) !important;
@@ -150,12 +150,15 @@ body {
   background-color: #1a1a22;
 }
 
-#template-root .page-title.home01.reovana-home-hero > .tf-container {
-  width: 100%;
+/* Blurred dark overlay — backdrop-filter blurs the bg image, rgba dims it */
+#template-root .page-title.home01.reovana-home-hero::after {
+  background: rgba(0, 0, 0, 0.48) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
 }
 
-#template-root .page-title.home01.reovana-home-hero::after {
-  background: rgba(0, 0, 0, 0.52) !important;
+#template-root .page-title.home01.reovana-home-hero > .tf-container {
+  width: 100%;
 }
 
 #template-root .page-title.home01.reovana-home-hero .tf-container {
@@ -163,69 +166,79 @@ body {
   z-index: 1;
 }
 
-#template-root .page-title.home01.reovana-home-hero .tf-container,
+/* Override bootstrap row centering */
 #template-root .page-title.home01.reovana-home-hero .row {
-  justify-content: center;
-  text-align: center;
+  justify-content: flex-start !important;
+  text-align: left;
 }
 
+/* Widen the column to full width so we control layout inside */
 #template-root .page-title.home01.reovana-home-hero .col-lg-8 {
-  margin-left: auto;
-  margin-right: auto;
+  width: 100% !important;
+  max-width: 100% !important;
+  flex: 0 0 100% !important;
+  margin: 0;
 }
 
+/* Two-column flex: text on left, search on right */
 #template-root .page-title.home01.reovana-home-hero .content-inner {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: clamp(28px, 4vh, 40px);
-  margin: 0;
+  justify-content: space-between;
+  gap: clamp(32px, 5vw, 64px);
   width: 100%;
-  max-width: 1100px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0;
 }
 
+/* Left column — text */
 #template-root .page-title.home01.reovana-home-hero .reovana-heading-title {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  width: 100%;
+  align-items: flex-start;
+  text-align: left;
   margin-bottom: 0 !important;
-  text-align: center;
 }
 
+/* Right column — search */
 #template-root .page-title.home01.reovana-home-hero .wg-filter {
+  flex: 0 0 clamp(300px, 36%, 460px);
+  width: clamp(300px, 36%, 460px);
   position: relative;
   margin: 0;
-  width: 100%;
-  max-width: 1100px;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title {
-  padding: 12px 14px 12px 28px !important;
-  gap: 20px !important;
-  border-radius: 18px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  padding: 10px 12px 10px 22px !important;
+  gap: 14px !important;
+  border-radius: 16px;
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.25);
+}
+
+#template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form {
+  flex: 1;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form fieldset input {
-  font-size: clamp(16px, 1.6vw, 20px) !important;
+  font-size: 15px !important;
   line-height: 1.4 !important;
-  min-height: 58px;
-  padding: 8px 0;
+  min-height: 48px;
+  padding: 6px 0;
+  width: 100%;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title .btn-filter {
-  height: 62px !important;
-  width: 62px !important;
+  height: 52px !important;
+  width: 52px !important;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title .wrap-btn .tf-btn {
-  height: 62px !important;
-  padding: 0 36px !important;
-  font-size: 17px !important;
-  border-radius: 14px;
+  height: 52px !important;
+  padding: 0 24px !important;
+  font-size: 15px !important;
+  border-radius: 12px;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wd-search-form:not(.show) {
@@ -236,16 +249,17 @@ body {
   display: none !important;
 }
 
+/* Headline text — larger, left-aligned */
 .reovana-headline {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   width: 100%;
-  line-height: 0.9;
-  font-size: clamp(3.5rem, 10.5vw, 7.25rem);
+  line-height: 0.88;
+  font-size: clamp(3.75rem, 8.5vw, 6.5rem);
   font-weight: 800;
-  margin-bottom: clamp(12px, 2vh, 20px) !important;
-  text-align: center;
+  margin-bottom: clamp(14px, 2.5vh, 24px) !important;
+  text-align: left;
 }
 
 .reovana-headline__line {
@@ -259,46 +273,49 @@ body {
 
 .reovana-tagline {
   width: 100%;
-  max-width: 48rem;
-  margin: 0 auto !important;
-  font-size: clamp(1.15rem, 3.2vw, 2rem) !important;
-  line-height: 1.35 !important;
-  letter-spacing: 0.12em;
+  margin: 0 !important;
+  font-size: clamp(1rem, 2.2vw, 1.5rem) !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   font-weight: 500 !important;
-  text-align: center;
+  text-align: left;
 }
 
-@media (max-width: 767px) {
+/* Mobile: stack back to column */
+@media (max-width: 900px) {
   #template-root .page-title.home01.reovana-home-hero {
-    min-height: clamp(440px, 75vw, 520px) !important;
-    padding: 28px 0 32px !important;
+    min-height: clamp(480px, 80vw, 560px) !important;
+    padding: 36px 0 40px !important;
     background-position: center 38% !important;
   }
 
   #template-root .page-title.home01.reovana-home-hero .content-inner {
-    gap: 22px;
-    max-width: 100%;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  #template-root .page-title.home01.reovana-home-hero .reovana-heading-title {
+    align-items: center;
+    text-align: center;
+  }
+
+  #template-root .page-title.home01.reovana-home-hero .wg-filter {
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: 560px;
   }
 
   .reovana-headline {
-    font-size: clamp(2.5rem, 12vw, 4rem);
+    font-size: clamp(2.5rem, 11vw, 4rem);
+    align-items: center;
+    text-align: center;
   }
 
   .reovana-tagline {
-    font-size: clamp(0.85rem, 3.8vw, 1.2rem) !important;
-    letter-spacing: 0.08em;
-  }
-
-  #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form fieldset input {
-    min-height: 50px;
-    font-size: 16px !important;
-  }
-
-  #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title .wrap-btn .tf-btn,
-  #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title .btn-filter {
-    height: 54px !important;
-    width: 54px !important;
+    text-align: center;
+    font-size: clamp(0.9rem, 3.5vw, 1.2rem) !important;
   }
 }
 
