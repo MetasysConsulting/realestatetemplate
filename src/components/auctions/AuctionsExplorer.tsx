@@ -9,7 +9,6 @@ import {
   type AuctionProperty,
 } from "@/lib/generate-auction-properties";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
-import { PropertyPhoto } from "@/components/auctions/PropertyPhoto";
 
 const FILTER_OPTIONS = {
   assetType: ["All", "Foreclosure", "Bank Owned", "Short Sale", "Commercial"],
@@ -18,19 +17,13 @@ const FILTER_OPTIONS = {
   featured: ["All", "Featured Only"],
 };
 
-type AuctionsExplorerProps = {
-  pageTitle: string;
-  categoryKey: BuyCategoryKey;
-  properties: AuctionProperty[];
-};
-
 function PropertyCard({ property }: { property: AuctionProperty }) {
-  const alt = `${property.address}, ${property.city}, ${property.state}`;
-
   return (
     <article className="auctions-card">
       <div className="auctions-card__media">
-        <PropertyPhoto src={property.imageUrl} alt={alt} />
+        <div className="auctions-card__placeholder" aria-hidden>
+          <span className="auctions-card__placeholder-icon">🏠</span>
+        </div>
         {property.isNew ? <span className="auctions-card__badge">NEW</span> : null}
         <button type="button" className="auctions-card__favorite" aria-label="Save property">
           ♥
@@ -68,6 +61,12 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
     </article>
   );
 }
+
+type AuctionsExplorerProps = {
+  pageTitle: string;
+  categoryKey: BuyCategoryKey;
+  properties: AuctionProperty[];
+};
 
 export function AuctionsExplorer({
   pageTitle,

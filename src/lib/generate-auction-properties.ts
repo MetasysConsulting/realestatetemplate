@@ -1,5 +1,4 @@
 import type { BuyCategoryKey } from "@/lib/buy-categories";
-import { getPropertyImageUrl } from "@/lib/property-image";
 
 export type AuctionProperty = {
   id: string;
@@ -20,7 +19,6 @@ export type AuctionProperty = {
   status: string;
   lat: number;
   lng: number;
-  imageUrl: string;
 };
 
 const STREETS = [
@@ -172,7 +170,6 @@ export function generateAuctionProperties(
       status: isLive ? "Auction Event: Live Event" : "Auction Event: Upcoming",
       lat,
       lng,
-      imageUrl: getPropertyImageUrl(id, buyType),
     });
   }
 
