@@ -136,6 +136,33 @@ body {
   pointer-events: all !important;
 }
 
+/* Navbar auth: professional Log in button (replaces template user dropdown) */
+#template-root .reovana-header-auth {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+#template-root .reovana-login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding-left: 22px !important;
+  padding-right: 22px !important;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border-radius: 12px;
+  text-decoration: none;
+  line-height: 1;
+}
+
+#template-root .header-right .box-user {
+  display: none !important;
+}
+
 /* ── REOVANA hero: two-column, text bottom-left / search fills right ─────── */
 #template-root .page-title.home01.reovana-home-hero {
   padding: clamp(48px, 7vh, 88px) 0 clamp(48px, 6vh, 72px) !important;

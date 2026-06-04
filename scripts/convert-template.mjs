@@ -165,24 +165,41 @@ function stripHomeSearchDropdown(html) {
   );
 }
 
+const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Log in</a></div>`;
+
 /**
- * index.html ships two #header-main blocks (sticky clone + visible).
+ * Most template pages ship two headers (sticky clone + visible).
  * Keep one header with header-sticky so main.js scroll behavior still works.
  */
-function dedupeHomeHeaders(html) {
+function dedupeTemplateHeaders(html) {
   let out = html.replace(
-    /<header[^>]*class="header header-sticky"[^>]*>[\s\S]*?<\/header>\s*(?:<!-- \/\.header -->)?\s*/i,
+    /<header[^>]*class="[^"]*header-sticky[^"]*"[^>]*>[\s\S]*?<\/header>\s*(?:<!-- \/\.header -->)?\s*/gi,
     "",
   );
-  out = out.replace(
-    /<header id="header-main" class="header ">/,
-    '<header id="header-main" class="header header-sticky">',
-  );
+
+  if (!out.includes("header-sticky")) {
+    out = out.replace(
+      /<header id="header-main" class="header(\s+dashboard)?\s*">/i,
+      '<header id="header-main" class="header header-sticky$1">',
+    );
+    out = out.replace(
+      /<header class="header(\s+dashboard)?\s*">/i,
+      '<header id="header-main" class="header header-sticky$1">',
+    );
+  }
+
   return out;
 }
 
+function replaceHeaderLogin(html) {
+  return html.replace(
+    /<div class="box-user[^>]*>[\s\S]*?(?=<div class="btn-add">)/gi,
+    `${REOVANA_LOGIN_HTML}\n                                    `,
+  );
+}
+
 function applyReovanaHomeCopy(html) {
-  let out = dedupeHomeHeaders(html);
+  let out = html;
   out = out.replace(
     /<div class="page-title home01">/,
     '<div class="page-title home01 reovana-home-hero">',
@@ -207,6 +224,8 @@ function applyBranding(html, filename) {
 
   out = stripPhoneNumbers(out);
   out = stripPopupSettings(out);
+  out = dedupeTemplateHeaders(out);
+  out = replaceHeaderLogin(out);
 
   if (filename === "index.html") {
     out = applyReovanaHomeCopy(out);

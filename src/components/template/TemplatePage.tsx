@@ -9,6 +9,25 @@ type TemplatePageProps = {
   propertyGate?: boolean;
 };
 
+const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Log in</a></div>`;
+
+function fixTemplateHeader() {
+  const root = document.getElementById("template-root");
+  if (!root) return;
+
+  const headers = root.querySelectorAll("header");
+  if (headers.length > 1) {
+    headers[0].remove();
+  }
+
+  root.querySelectorAll(".box-user").forEach((box) => {
+    const wrap = document.createElement("div");
+    wrap.innerHTML = REOVANA_LOGIN_HTML.trim();
+    const auth = wrap.firstElementChild;
+    if (auth) box.replaceWith(auth);
+  });
+}
+
 function normalizeBodyClass(bodyClass: string): string {
   const classes = bodyClass
     .split(/\s+/)
@@ -37,6 +56,8 @@ export function TemplatePage({
       }
       document.body.classList.remove("popup-loader");
     };
+
+    fixTemplateHeader();
 
     hideLoader();
     const t = window.setTimeout(hideLoader, 800);
