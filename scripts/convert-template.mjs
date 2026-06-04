@@ -165,7 +165,9 @@ function stripHomeSearchDropdown(html) {
   );
 }
 
-const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Log in</a></div>`;
+const REOVANA_LOGIN_ICON = `<svg class="reovana-login-icon" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15.749 6C15.749 6.99456 15.3539 7.94839 14.6507 8.65165C13.9474 9.35491 12.9936 9.75 11.999 9.75C11.0044 9.75 10.0506 9.35491 9.34735 8.65165C8.64409 7.94839 8.249 6.99456 8.249 6C8.249 5.00544 8.64409 4.05161 9.34735 3.34835C10.0506 2.64509 11.0044 2.25 11.999 2.25C12.9936 2.25 13.9474 2.64509 14.6507 3.34835C15.3539 4.05161 15.749 5.00544 15.749 6ZM4.5 20.118C4.53213 18.1504 5.33634 16.2742 6.73918 14.894C8.14202 13.5139 10.0311 12.7405 11.999 12.7405C13.9669 12.7405 15.856 13.5139 17.2588 14.894C18.6617 16.2742 19.4659 18.1504 19.498 20.118C17.1454 21.1968 14.5871 21.7535 11.999 21.75C9.323 21.75 6.783 21.166 4.5 20.118Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="reovana-login-btn" data-bs-toggle="modal" aria-label="Log in"><span class="reovana-login-btn__icon">${REOVANA_LOGIN_ICON}</span><span class="reovana-login-tooltip" role="tooltip">Log in</span></a></div>`;
 
 /**
  * Most template pages ship two headers (sticky clone + visible).
@@ -198,6 +200,21 @@ function replaceHeaderLogin(html) {
   );
 }
 
+/** Keep login icon button flush beside Add property. */
+function groupHeaderActions(html) {
+  return html.replace(
+    /(<div class="reovana-header-auth">[\s\S]*?<\/div>)\s*(<div class="btn-add">[\s\S]*?<\/div>)/gi,
+    '<div class="reovana-header-actions">$1$2</div>',
+  );
+}
+
+function applyFooterLogo(html) {
+  return html.replace(
+    /<img\s+id="logo_footer"[^>]*>/gi,
+    `<img id="logo_footer" class="reovana-logo reovana-footer-logo" src="${REOVANA_LOGO}" alt="REOVANA">`,
+  );
+}
+
 function applyReovanaHomeCopy(html) {
   let out = html;
   out = out.replace(
@@ -226,6 +243,8 @@ function applyBranding(html, filename) {
   out = stripPopupSettings(out);
   out = dedupeTemplateHeaders(out);
   out = replaceHeaderLogin(out);
+  out = groupHeaderActions(out);
+  out = applyFooterLogo(out);
 
   if (filename === "index.html") {
     out = applyReovanaHomeCopy(out);
