@@ -254,7 +254,7 @@ body {
   align-items: flex-start;
   width: 100%;
   line-height: 0.88;
-  font-size: clamp(6.75rem, 15vw, 12rem);
+  font-size: clamp(5.05rem, 11.25vw, 9rem);
   font-weight: 800;
   margin-bottom: clamp(14px, 2.5vh, 24px) !important;
   text-align: left;
@@ -272,7 +272,7 @@ body {
 .reovana-tagline {
   width: 100%;
   margin: 0 !important;
-  font-size: clamp(1.5rem, 3.3vw, 2.25rem) !important;
+  font-size: clamp(1.125rem, 2.5vw, 1.7rem) !important;
   line-height: 1.4 !important;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -308,14 +308,14 @@ body {
   }
 
   .reovana-headline {
-    font-size: clamp(3.75rem, 16.5vw, 6rem);
+    font-size: clamp(2.8rem, 12.4vw, 4.5rem);
     align-items: center;
     text-align: center;
   }
 
   .reovana-tagline {
     text-align: center;
-    font-size: clamp(1.35rem, 5.25vw, 1.8rem) !important;
+    font-size: clamp(1rem, 3.9vw, 1.35rem) !important;
   }
 }
 
