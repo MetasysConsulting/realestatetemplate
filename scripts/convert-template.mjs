@@ -88,7 +88,6 @@ const REOVANA_HEADING_HTML = `<div class="heading-title reovana-heading-title">
                                     <span class="reovana-headline__line">PROPERTIES</span>
                                 </h1>
                                 <p class="h6 fw-4 reovana-tagline">FIND GREAT DEALS. CREATE REAL VALUE.</p>
-                                <a href="/listing/grid-full-width" class="tf-btn bg-color-primary pd-3 reovana-browse-cta">BROWSE PROPERTIES</a>
                             </div>
                             `;
 

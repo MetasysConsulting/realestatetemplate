@@ -139,9 +139,21 @@ body {
 #template-root .page-title.home01.reovana-home-hero {
   padding: 36px 0 40px !important;
   min-height: 0 !important;
-  background-image: none !important;
+  background-image: url(/images/reovana/hero-house.jpeg) !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
   background-attachment: scroll !important;
-  background-color: #232530;
+  background-color: #1a1a22;
+}
+
+#template-root .page-title.home01.reovana-home-hero::after {
+  background: rgba(0, 0, 0, 0.52) !important;
+}
+
+#template-root .page-title.home01.reovana-home-hero .tf-container {
+  position: relative;
+  z-index: 1;
 }
 
 #template-root .page-title.home01.reovana-home-hero .tf-container,
@@ -222,19 +234,6 @@ body {
   text-transform: uppercase;
   font-weight: 500 !important;
   text-align: center;
-}
-
-.reovana-browse-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  align-self: center;
-  margin: 0 auto;
-  padding: 16px 40px !important;
-  font-size: 15px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  font-weight: 700;
 }
 
 @media (max-width: 767px) {
