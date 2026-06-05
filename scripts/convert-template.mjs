@@ -4,7 +4,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { applyHomeListingImages } from "./auction-home-images.mjs";
+import { applyHomePageContent } from "./auction-home-images.mjs";
 import { replaceSiteNavigation } from "./reovana-navigation.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -262,7 +262,7 @@ function applyBranding(html, filename) {
 
   if (filename === "index.html") {
     out = applyReovanaHomeCopy(out);
-    out = applyHomeListingImages(out);
+    out = applyHomePageContent(out);
   }
 
   return out;
