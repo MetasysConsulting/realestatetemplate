@@ -62,29 +62,6 @@ const NEIGHBORHOOD_LOCATIONS = [
   },
 ];
 
-const OPEN_HOUSE_LISTINGS = [
-  {
-    oldImg: "box-house-list-1.jpg",
-    newImg: "21-duplex-side-by-side.jpg",
-    location: "Bonita Springs, Florida 34135",
-  },
-  {
-    oldImg: "box-house-list-2.jpg",
-    newImg: "22-urban-row-homes.jpg",
-    location: "Houston, Texas 77002",
-  },
-  {
-    oldImg: "box-house-list-3.jpg",
-    newImg: "23-snow-cape-cod.jpg",
-    location: "Denver, Colorado 80203",
-  },
-  {
-    oldImg: "box-house-list-4.jpg",
-    newImg: "24-pool-backyard-view.jpg",
-    location: "Atlanta, Georgia 30309",
-  },
-];
-
 function sliceSection(html, startMarker, endMarker) {
   const start = html.indexOf(startMarker);
   if (start < 0) return null;
@@ -148,24 +125,38 @@ function applyHomeCategoryLabels(html) {
   return out;
 }
 
-function applyOpenHouseListings(html) {
-  const block = sliceSection(html, "Open Houses Listings", "<!-- /.section-listing");
-  if (!block) return html;
+function removeSectionBetween(html, startComment, endComment) {
+  const start = html.indexOf(startComment);
+  if (start < 0) return html;
+  const end = html.indexOf(endComment, start);
+  if (end < 0) return html;
+  return html.slice(0, start) + html.slice(end + endComment.length);
+}
 
-  let { section } = block;
+function removeOpenHousesSection(html) {
+  const idx = html.indexOf("Open Houses Listings");
+  if (idx < 0) return html;
 
-  for (const listing of OPEN_HOUSE_LISTINGS) {
-    section = section.replaceAll(
-      `/images/section/${listing.oldImg}`,
-      `/images/auction-properties/${listing.newImg}`,
-    );
-    section = section.replace(
-      /<i class="icon-location"><\/i>\s*Los Angeles, California 91604/,
-      `<i class="icon-location"></i> ${listing.location}`,
-    );
-  }
+  const start = html.lastIndexOf("<!-- .section-listing", idx);
+  const end = html.indexOf("<!-- /.section-listing", idx);
+  if (start < 0 || end < 0) return html;
 
-  return html.slice(0, block.start) + section + html.slice(block.end);
+  return html.slice(0, start) + html.slice(end + "<!-- /.section-listing -->".length);
+}
+
+function stripLuxuryEnthusiastsText(html) {
+  return html.replace(
+    /<p class="text-1 split-text split-lines-transform">Thousands of luxury home[\s\S]*?<\/p>/gi,
+    "",
+  );
+}
+
+function stripHomeSections(html) {
+  let out = html;
+  out = removeOpenHousesSection(out);
+  out = removeSectionBetween(out, "<!-- section-work-together -->", "<!-- /.section-work-together -->");
+  out = removeSectionBetween(out, "<!-- .section-testimonials -->", "<!-- /.section-testimonials -->");
+  return out;
 }
 
 /** All homepage listing / neighborhood / open-house content updates. */
@@ -173,6 +164,7 @@ export function applyHomePageContent(html) {
   let out = applyHomeCategoryLabels(html);
   out = applyHomeListingImages(out);
   out = applyHomeNeighborhoods(out);
-  out = applyOpenHouseListings(out);
+  out = stripLuxuryEnthusiastsText(out);
+  out = stripHomeSections(out);
   return out;
 }
