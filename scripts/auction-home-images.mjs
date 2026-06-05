@@ -139,7 +139,6 @@ function applyHomeNeighborhoods(html) {
 function applyHomeCategoryLabels(html) {
   let out = html;
 
-  out = out.replace(/<i class="icon icon-villa">/g, '<i class="icon icon-house">');
   out = out.replace(/<h5>Villa<\/h5>/g, "<h5>House</h5>");
   out = out.replace(/<i class="icon icon-office1">/g, '<i class="icon icon-land">');
   out = out.replace(/<h5>Office<\/h5>/g, "<h5>Land</h5>");
