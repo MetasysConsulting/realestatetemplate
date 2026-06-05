@@ -447,6 +447,13 @@ body {
   height: 100% !important;
 }
 
+#template-root #footer,
+.reovana-site #footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+}
+
 .reovana-site #footer .footer-logo img.reovana-footer-logo {
   width: auto !important;
   height: 200px !important;
@@ -917,6 +924,13 @@ body.auctions-route .template-chrome-footer {
 }
 
 /* ── Homepage: Explore The Neighborhoods (proper overlay cards) ─────────── */
+.section-neighborhoods.reovana-neighborhoods {
+  padding-bottom: 72px;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
+}
+
 .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
