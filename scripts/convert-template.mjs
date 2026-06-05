@@ -5,6 +5,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { applyHomePageContent } from "./auction-home-images.mjs";
+import { applyReovanaBlogContent, applyReovanaFaqContent } from "./learn-pages.mjs";
 import { replaceSiteNavigation } from "./reovana-navigation.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -265,6 +266,14 @@ function applyBranding(html, filename) {
     out = applyHomePageContent(out);
   }
 
+  if (filename === "faq.html") {
+    out = applyReovanaFaqContent(out);
+  }
+
+  if (filename === "blog-grid.html") {
+    out = applyReovanaBlogContent(out);
+  }
+
   return out;
 }
 
@@ -317,8 +326,10 @@ function extractPage(html, filename) {
 
   chunk = transformHtml(chunk, filename);
 
-  const pageTitle =
-    filename === "index.html" ? "REOVANA — Foreclosed Homes" : title;
+  let pageTitle = title;
+  if (filename === "index.html") pageTitle = "REOVANA — Foreclosed Homes";
+  if (filename === "faq.html") pageTitle = "FAQ — REOVANA";
+  if (filename === "blog-grid.html") pageTitle = "Foreclosure Insights — REOVANA";
 
   return { bodyClass, title: pageTitle, html: chunk };
 }

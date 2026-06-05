@@ -17,8 +17,8 @@ const BUY_LINKS = [
 const LEARN_LINKS = [
   ["/blog/grid", "Blog"],
   ["/faq", "FAQ"],
-  ["#", "Glossary"],
-  ["/faq", "Help Center"],
+  ["/learn/glossary", "Glossary"],
+  ["/learn/help-center", "Help Center"],
 ];
 
 /** @type {[string, string][]} */

@@ -250,7 +250,7 @@ export const TEMPLATE_PAGES: TemplatePageMeta[] = [
     "route": "/blog/grid",
     "file": "blog-grid.html",
     "slug": "blog__grid",
-    "title": "Proty - Real Estate HTML Template",
+    "title": "Foreclosure Insights — REOVANA",
     "bodyClass": "theme-color-4"
   },
   {
@@ -292,7 +292,7 @@ export const TEMPLATE_PAGES: TemplatePageMeta[] = [
     "route": "/faq",
     "file": "faq.html",
     "slug": "faq",
-    "title": "Proty - Real Estate HTML Template",
+    "title": "FAQ — REOVANA",
     "bodyClass": "theme-color-4"
   },
   {
