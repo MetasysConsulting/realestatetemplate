@@ -62,4 +62,9 @@ export function fixReovanaHeader(root: ParentNode) {
     img.classList.add("reovana-logo", "reovana-footer-logo");
     img.alt = "REOVANA";
   });
+
+  /* Template .header-sticky defaults to off-screen until scroll; keep nav visible. */
+  scope.querySelectorAll(".header.header-sticky").forEach((header) => {
+    header.classList.add("reovana-nav-static");
+  });
 }

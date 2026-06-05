@@ -104,6 +104,50 @@ export type HelpTopic = {
   icon: string;
 };
 
+export type FeaturedListing = {
+  title: string;
+  location: string;
+  openingBid: string;
+  imageUrl: string;
+  href: string;
+  tag: string;
+};
+
+export const FEATURED_LISTINGS: FeaturedListing[] = [
+  {
+    title: "Suburban Two-Story",
+    location: "Tampa, Florida",
+    openingBid: "$142,500",
+    imageUrl: "/images/auction-properties/01-suburban-two-story.jpg",
+    href: "/auctions/foreclosure-homes",
+    tag: "Foreclosure",
+  },
+  {
+    title: "Brick Ranch Home",
+    location: "Austin, Texas",
+    openingBid: "$118,900",
+    imageUrl: "/images/auction-properties/04-brick-ranch.jpg",
+    href: "/auctions/bank-owned",
+    tag: "Bank Owned",
+  },
+  {
+    title: "Lakefront Cottage",
+    location: "Bonita Springs, Florida",
+    openingBid: "$205,000",
+    imageUrl: "/images/auction-properties/08-lakefront-cottage.jpg",
+    href: "/auctions/non-bank-owned",
+    tag: "New",
+  },
+  {
+    title: "Urban Row Homes",
+    location: "Atlanta, Georgia",
+    openingBid: "$167,400",
+    imageUrl: "/images/auction-properties/22-urban-row-homes.jpg",
+    href: "/auctions/short-sale",
+    tag: "Short Sale",
+  },
+];
+
 export const HELP_TOPICS: HelpTopic[] = [
   {
     title: "Browse Auctions",

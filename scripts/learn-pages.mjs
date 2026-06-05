@@ -134,9 +134,23 @@ ${buildFaqGroupsHtml()}
   );
 }
 
-/** REOVANA blog listing title/subtitle. */
+const BLOG_LISTING_IMAGES = [
+  "01-suburban-two-story.jpg",
+  "02-white-colonial.jpg",
+  "04-brick-ranch.jpg",
+  "05-craftsman-porch.jpg",
+  "06-mediterranean-stucco.jpg",
+  "07-yellow-victorian.jpg",
+  "08-lakefront-cottage.jpg",
+  "09-wood-siding-bungalow.jpg",
+  "10-red-brick-two-story.jpg",
+];
+
+/** REOVANA blog listing title/subtitle + auction property photos. */
 export function applyReovanaBlogContent(html) {
   let out = html;
+  let imageIndex = 0;
+
   out = out.replace(
     /<title>[^<]*<\/title>/i,
     "<title>Foreclosure Insights — REOVANA</title>",
@@ -149,5 +163,11 @@ export function applyReovanaBlogContent(html) {
     /<h1 class="title[^"]*">Blog<\/h1>/g,
     '<h1 class="title">Foreclosure Insights</h1>',
   );
+  out = out.replace(/\/images\/blog\/blog-grid-\d+\.jpg/g, () => {
+    const file = BLOG_LISTING_IMAGES[imageIndex % BLOG_LISTING_IMAGES.length];
+    imageIndex += 1;
+    return `/images/auction-properties/${file}`;
+  });
+
   return out;
 }

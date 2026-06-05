@@ -39,12 +39,22 @@ export function TemplatePage({
       document.body.classList.remove("popup-loader");
     };
 
-    const root = document.getElementById("template-root");
-    if (root) fixReovanaHeader(root);
+    const applyHeaderFix = () => {
+      const root = document.getElementById("template-root");
+      if (root) fixReovanaHeader(root);
+    };
+
+    applyHeaderFix();
+    const raf = window.requestAnimationFrame(applyHeaderFix);
+    const t1 = window.setTimeout(applyHeaderFix, 50);
 
     hideLoader();
     const t = window.setTimeout(hideLoader, 800);
-    return () => window.clearTimeout(t);
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(t1);
+      window.clearTimeout(t);
+    };
   }, [bodyClass, html]);
 
   return (

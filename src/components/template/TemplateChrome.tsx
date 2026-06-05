@@ -34,12 +34,25 @@ export function TemplateChrome({
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
 
-    const root = document.getElementById("template-chrome-root");
-    if (root) fixReovanaHeader(root);
+    const applyHeaderFix = () => {
+      const root = document.getElementById("template-chrome-root");
+      if (root) fixReovanaHeader(root);
+    };
+
+    applyHeaderFix();
+    const raf = window.requestAnimationFrame(applyHeaderFix);
+    const t1 = window.setTimeout(applyHeaderFix, 50);
+    const t2 = window.setTimeout(applyHeaderFix, 300);
 
     const loading = document.getElementById("loading");
     if (loading) loading.style.display = "none";
     document.body.classList.remove("popup-loader");
+
+    return () => {
+      window.cancelAnimationFrame(raf);
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
   }, [bodyClass, headerHtml, footerHtml, tailHtml]);
 
   return (

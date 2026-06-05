@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FeaturedListings } from "@/components/learn/FeaturedListings";
 import { HELP_TOPICS } from "@/lib/learn-content";
 
 const QUICK_LINKS = [
@@ -34,6 +35,8 @@ export function HelpCenterExplorer() {
             </Link>
           ))}
         </section>
+
+        <FeaturedListings />
 
         <section className="learn-panel">
           <h2>Popular topics</h2>

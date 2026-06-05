@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { FeaturedListings } from "@/components/learn/FeaturedListings";
 import { GLOSSARY_TERMS } from "@/lib/learn-content";
 
 const CATEGORIES = ["All", "Buying", "Property Types", "Auction", "Finance"] as const;
@@ -75,6 +76,8 @@ export function GlossaryExplorer() {
             <p className="learn-empty">No terms match your search.</p>
           ) : null}
         </div>
+
+        <FeaturedListings title="Browse auction listings" />
       </div>
     </div>
   );
