@@ -93,6 +93,10 @@ function applyHomeNeighborhoods(html) {
   let { section } = block;
 
   section = section.replace(
+    '<section class="section-neighborhoods ">',
+    '<section class="section-neighborhoods reovana-neighborhoods">',
+  );
+  section = section.replace(
     /Find your dream apartment with our\s+listing/g,
     "Browse auction and bank-owned homes across the United States",
   );
@@ -155,6 +159,7 @@ function stripHomeSections(html) {
   let out = html;
   out = removeOpenHousesSection(out);
   out = removeSectionBetween(out, "<!-- section-work-together -->", "<!-- /.section-work-together -->");
+  out = removeSectionBetween(out, "<!-- section-opinion -->", "<!-- /.section-opinion -->");
   out = removeSectionBetween(out, "<!-- .section-testimonials -->", "<!-- /.section-testimonials -->");
   return out;
 }

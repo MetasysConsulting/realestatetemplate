@@ -915,3 +915,91 @@ body.auctions-route .template-chrome-footer {
     min-height: 200px;
   }
 }
+
+/* ── Homepage: Explore The Neighborhoods (proper overlay cards) ─────────── */
+.section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: none;
+  grid-template-areas: none;
+  gap: 16px;
+}
+
+.section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods > [class*="item-"] {
+  grid-area: auto !important;
+}
+
+.section-neighborhoods.reovana-neighborhoods .box-location {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  min-height: 200px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.section-neighborhoods.reovana-neighborhoods .box-location .image-wrap {
+  position: absolute;
+  inset: 0;
+  min-height: 0;
+}
+
+.section-neighborhoods.reovana-neighborhoods .box-location .image-wrap a {
+  display: block;
+  height: 100%;
+}
+
+.section-neighborhoods.reovana-neighborhoods .box-location .image-wrap img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-width: none;
+  object-fit: cover;
+  display: block;
+}
+
+.section-neighborhoods.reovana-neighborhoods .box-location .content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  margin: 0;
+  padding: 16px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.82) 100%);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.section-neighborhoods.reovana-neighborhoods .box-location .content h6 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.section-neighborhoods.reovana-neighborhoods .box-location .tf-btn {
+  padding: 10px 16px;
+  height: auto;
+  min-height: 40px;
+  font-size: 13px;
+  border-radius: 10px;
+}
+
+@media (max-width: 1200px) {
+  .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
+    grid-template-columns: 1fr;
+  }
+}
