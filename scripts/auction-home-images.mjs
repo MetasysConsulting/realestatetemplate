@@ -136,6 +136,19 @@ function applyHomeNeighborhoods(html) {
   return html.slice(0, block.start) + section + html.slice(block.end);
 }
 
+function applyHomeCategoryLabels(html) {
+  let out = html;
+
+  out = out.replace(/<i class="icon icon-villa">/g, '<i class="icon icon-house">');
+  out = out.replace(/<h5>Villa<\/h5>/g, "<h5>House</h5>");
+  out = out.replace(/<i class="icon icon-office1">/g, '<i class="icon icon-land">');
+  out = out.replace(/<h5>Office<\/h5>/g, "<h5>Land</h5>");
+  out = out.replace(/Today’s Luxury Listings/g, "New Listings");
+  out = out.replace(/Today's Luxury Listings/g, "New Listings");
+
+  return out;
+}
+
 function applyOpenHouseListings(html) {
   const block = sliceSection(html, "Open Houses Listings", "<!-- /.section-listing");
   if (!block) return html;
@@ -158,7 +171,8 @@ function applyOpenHouseListings(html) {
 
 /** All homepage listing / neighborhood / open-house content updates. */
 export function applyHomePageContent(html) {
-  let out = applyHomeListingImages(html);
+  let out = applyHomeCategoryLabels(html);
+  out = applyHomeListingImages(out);
   out = applyHomeNeighborhoods(out);
   out = applyOpenHouseListings(out);
   return out;
