@@ -15,10 +15,11 @@ const BUY_LINKS = [
 
 /** @type {[string, string][]} */
 const LEARN_LINKS = [
-  ["/blog/grid", "Blog"],
-  ["/faq", "FAQ"],
+  ["/learn", "Overview"],
   ["/learn/glossary", "Glossary"],
   ["/learn/help-center", "Help Center"],
+  ["/learn/guides/beginners-guide", "Blog"],
+  ["/learn/faq", "FAQ"],
 ];
 
 /** @type {[string, string][]} */

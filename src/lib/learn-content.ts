@@ -1,239 +1,419 @@
+/** Content ported from reovana-learn-section.html */
+
+export type GlossaryPill = "REO" | "Filing" | "Stage";
+
 export type GlossaryTerm = {
   term: string;
+  pill?: GlossaryPill;
   definition: string;
-  category: "Buying" | "Property Types" | "Auction" | "Finance";
 };
 
 export const GLOSSARY_TERMS: GlossaryTerm[] = [
   {
+    term: "Bank-Owned (REO)",
+    pill: "REO",
+    definition:
+      "A property the lender has taken back after it failed to sell at auction. \"Real Estate Owned\" homes are sold by the bank and often resemble a standard purchase.",
+  },
+  {
+    term: "Deed in Lieu",
+    definition:
+      "An arrangement where an owner voluntarily transfers the property to the lender to avoid a full foreclosure process.",
+  },
+  {
+    term: "Deficiency Judgment",
+    definition:
+      "A court ruling that can hold a former owner responsible for the gap between what was owed and what the property sold for.",
+  },
+  {
+    term: "Distressed Property",
+    definition:
+      "Any home under financial or legal pressure — behind on payments, in foreclosure, or facing a forced sale.",
+  },
+  {
+    term: "Equity",
+    definition:
+      "The difference between a property's estimated market value and the amount still owed on it. Positive equity is what makes a deal attractive.",
+  },
+  {
     term: "Foreclosure",
-    category: "Property Types",
     definition:
-      "A legal process where a lender repossesses a home after the borrower fails to make mortgage payments. Foreclosed homes are often sold at auction or as bank-owned listings.",
+      "The legal process a lender uses to recover a loan balance when an owner stops paying, usually ending in a forced sale of the home.",
   },
   {
-    term: "Bank Owned (REO)",
-    category: "Property Types",
+    term: "Lien",
     definition:
-      "Real Estate Owned — property that did not sell at foreclosure auction and is now owned by the lender. REOVANA lists these as bank-owned auction opportunities.",
-  },
-  {
-    term: "Short Sale",
-    category: "Property Types",
-    definition:
-      "A sale where the homeowner sells for less than the mortgage balance, with lender approval. Can offer value but typically requires longer closing timelines.",
-  },
-  {
-    term: "Opening Bid",
-    category: "Auction",
-    definition:
-      "The starting price at an auction event. On REOVANA listings this appears as the estimated opening bid before live bidding begins.",
-  },
-  {
-    term: "Auction Event",
-    category: "Auction",
-    definition:
-      "A scheduled sale — online or in person — where qualified bidders compete for a property. Events may be live or upcoming on REOVANA.",
-  },
-  {
-    term: "Trustee Sale",
-    category: "Auction",
-    definition:
-      "A public foreclosure auction conducted by a trustee on the courthouse steps or online, depending on state law.",
-  },
-  {
-    term: "Second Chance Foreclosure",
-    category: "Buying",
-    definition:
-      "Properties that returned to the market after a prior foreclosure sale did not close or was cancelled, offering another purchase opportunity.",
-  },
-  {
-    term: "Non-Bank Owned",
-    category: "Property Types",
-    definition:
-      "Distressed or motivated sales not held by a lending institution — may include private sellers, estates, or investor liquidations.",
-  },
-  {
-    term: "Commercial Auction",
-    category: "Property Types",
-    definition:
-      "Auctions for office, retail, warehouse, or mixed-use assets rather than residential single-family homes.",
-  },
-  {
-    term: "Due Diligence",
-    category: "Buying",
-    definition:
-      "Research a buyer performs before bidding — title review, property condition, liens, occupancy, and local regulations. Auction sales are often as-is.",
-  },
-  {
-    term: "As-Is",
-    category: "Buying",
-    definition:
-      "The property is sold in its current condition with no seller repairs or warranties. Common for foreclosure and auction inventory.",
-  },
-  {
-    term: "Earnest Money Deposit",
-    category: "Finance",
-    definition:
-      "Funds submitted with an offer to show serious intent. Auction and REO contracts may require deposits within strict deadlines.",
+      "A legal claim against a property for an unpaid debt — a mortgage, taxes, or contractor bills — that typically must be cleared before a clean sale.",
   },
   {
     term: "Lis Pendens",
-    category: "Finance",
+    pill: "Filing",
     definition:
-      "A public notice that a property is subject to pending legal action, often filed when a foreclosure case begins.",
+      "Latin for \"suit pending.\" A public notice that a foreclosure lawsuit has been filed against a property — often the first visible sign of distress.",
   },
   {
-    term: "Occupancy Status",
-    category: "Buying",
+    term: "Notice of Default (NOD)",
+    pill: "Filing",
     definition:
-      "Whether a property is vacant, owner-occupied, or tenant-occupied. Eviction or cash-for-keys may be required after purchase.",
+      "A formal notice recorded when an owner has missed payments, marking an early stage of the foreclosure timeline.",
+  },
+  {
+    term: "Notice of Sale",
+    pill: "Filing",
+    definition:
+      "A recorded announcement that a property is scheduled for auction, including the date, time, and location.",
+  },
+  {
+    term: "Pre-Foreclosure",
+    pill: "Stage",
+    definition:
+      "The window after a default notice but before the auction. Owners can still sell or resolve the debt, and buyers can often deal with them directly.",
   },
   {
     term: "Redemption Period",
-    category: "Finance",
     definition:
-      "A window after foreclosure sale in some states where the former owner can reclaim the property by paying the sale price plus costs.",
+      "A timeframe in some states during which a former owner can reclaim the property by paying what's owed, even after a sale.",
+  },
+  {
+    term: "Short Sale",
+    pill: "Stage",
+    definition:
+      "A sale where the lender agrees to accept less than the full mortgage balance, usually to avoid the cost of foreclosure.",
+  },
+  {
+    term: "Sheriff's Sale",
+    definition:
+      "A public auction, often court-ordered, where a foreclosed property is sold to the highest bidder.",
+  },
+  {
+    term: "Tax Lien / Tax-Delinquent",
+    definition:
+      "A claim placed on a property for unpaid property taxes. Severe cases can lead to a tax sale of the home.",
+  },
+  {
+    term: "Trustee Sale",
+    definition:
+      "An auction conducted by a trustee in states that handle foreclosures outside of court (non-judicial).",
+  },
+  {
+    term: "Underwater Mortgage",
+    definition:
+      "When an owner owes more on the mortgage than the home is currently worth — a common driver of distress.",
   },
 ];
 
-export type HelpTopic = {
+export type LearnHubCard = {
   title: string;
   description: string;
   href: string;
   icon: string;
 };
 
-export type FeaturedListing = {
-  title: string;
-  location: string;
-  openingBid: string;
-  imageUrl: string;
-  href: string;
-  tag: string;
-};
-
-export const FEATURED_LISTINGS: FeaturedListing[] = [
+export const LEARN_HUB_CARDS: LearnHubCard[] = [
   {
-    title: "Suburban Two-Story",
-    location: "Tampa, Florida",
-    openingBid: "$142,500",
-    imageUrl: "/images/auction-properties/01-suburban-two-story.jpg",
-    href: "/auctions/foreclosure-homes",
-    tag: "Foreclosure",
+    title: "Glossary",
+    description:
+      "Lis pendens, REO, short sale — every foreclosure term defined in clear language.",
+    href: "/learn/glossary",
+    icon: "📖",
   },
   {
-    title: "Brick Ranch Home",
-    location: "Austin, Texas",
-    openingBid: "$118,900",
-    imageUrl: "/images/auction-properties/04-brick-ranch.jpg",
-    href: "/auctions/bank-owned",
-    tag: "Bank Owned",
+    title: "Help Center",
+    description:
+      "Step-by-step help for buying, bidding, unlocking listings, and selling your home.",
+    href: "/learn/help-center",
+    icon: "🛟",
   },
   {
-    title: "Lakefront Cottage",
-    location: "Bonita Springs, Florida",
-    openingBid: "$205,000",
-    imageUrl: "/images/auction-properties/08-lakefront-cottage.jpg",
-    href: "/auctions/non-bank-owned",
-    tag: "New",
-  },
-  {
-    title: "Urban Row Homes",
-    location: "Atlanta, Georgia",
-    openingBid: "$167,400",
-    imageUrl: "/images/auction-properties/22-urban-row-homes.jpg",
-    href: "/auctions/short-sale",
-    tag: "Short Sale",
-  },
-];
-
-export const HELP_TOPICS: HelpTopic[] = [
-  {
-    title: "Browse Auctions",
-    description: "Search foreclosure, bank-owned, and short-sale listings on the map.",
-    href: "/auctions",
-    icon: "icon-find-plus",
+    title: "Blog",
+    description: "Market insights and how-to guides for finding deals in distressed real estate.",
+    href: "/learn/guides/beginners-guide",
+    icon: "✍️",
   },
   {
     title: "FAQ",
-    description: "Answers to common questions about bidding, deposits, and closing.",
-    href: "/faq",
-    icon: "icon-MagnifyingGlass",
-  },
-  {
-    title: "Glossary",
-    description: "Plain-language definitions for foreclosure and auction terms.",
-    href: "/learn/glossary",
-    icon: "icon-HouseLine",
-  },
-  {
-    title: "Contact Us",
-    description: "Reach the REOVANA team for account or listing support.",
-    href: "/contact",
-    icon: "icon-mail",
+    description: "Quick answers about accounts, payments, data, and how REOVANA works.",
+    href: "/learn/faq",
+    icon: "❓",
   },
 ];
+
+export type FeaturedGuide = {
+  tag: string;
+  title: string;
+  description: string;
+  href: string;
+  imageUrl: string;
+};
+
+export const FEATURED_GUIDES: FeaturedGuide[] = [
+  {
+    tag: "Buying",
+    title: "A beginner's guide to buying foreclosed homes",
+    description:
+      "What to expect at each stage, from pre-foreclosure to auction to bank-owned.",
+    href: "/learn/guides/beginners-guide",
+    imageUrl: "/images/auction-properties/09-wood-siding-bungalow.jpg",
+  },
+  {
+    tag: "Help",
+    title: "How unlocking a property's full details works",
+    description: "What you see for free, what unlocking reveals, and how billing works.",
+    href: "/learn/help/unlocking-listing-details",
+    imageUrl: "/images/auction-properties/02-white-colonial.jpg",
+  },
+  {
+    tag: "Glossary",
+    title: "10 foreclosure terms every buyer should know",
+    description: "Skip the jargon — understand the words you'll see on every listing.",
+    href: "/learn/glossary",
+    imageUrl: "/images/auction-properties/05-craftsman-porch.jpg",
+  },
+];
+
+export type HelpCategory = {
+  icon: string;
+  title: string;
+  articles: { label: string; href: string }[];
+};
+
+export const HELP_CATEGORIES: HelpCategory[] = [
+  {
+    icon: "🚀",
+    title: "Getting Started",
+    articles: [
+      { label: "Creating your REOVANA account", href: "/learn/faq" },
+      { label: "Setting up search alerts", href: "/auctions" },
+      { label: "Understanding listing types", href: "/learn/glossary" },
+    ],
+  },
+  {
+    icon: "🔨",
+    title: "Buying & Bidding",
+    articles: [
+      {
+        label: "How unlocking a listing works",
+        href: "/learn/help/unlocking-listing-details",
+      },
+      { label: "How auctions are scheduled", href: "/auctions" },
+      { label: "Placing and tracking a bid", href: "/learn/faq" },
+    ],
+  },
+  {
+    icon: "🏠",
+    title: "Selling Your Home",
+    articles: [
+      { label: "Listing your property", href: "/add-property" },
+      { label: "Listing fees explained", href: "/learn/faq" },
+      { label: "Editing or removing a listing", href: "/contact" },
+    ],
+  },
+  {
+    icon: "💳",
+    title: "Account & Billing",
+    articles: [
+      { label: "Per-unlock vs. subscription", href: "/learn/help/unlocking-listing-details" },
+      { label: "Updating payment details", href: "/contact" },
+      { label: "Refunds and receipts", href: "/learn/faq" },
+    ],
+  },
+];
+
+export const POPULAR_HELP_ARTICLES = [
+  {
+    label: "How unlocking a property's full details works",
+    href: "/learn/help/unlocking-listing-details",
+  },
+  {
+    label: "What's the difference between pre-foreclosure, auction, and bank-owned?",
+    href: "/learn/faq",
+  },
+  {
+    label: "Where does REOVANA's listing data come from?",
+    href: "/learn/faq",
+  },
+  {
+    label: "How accurate are the equity estimates?",
+    href: "/learn/faq",
+  },
+];
+
+export type LearnArticleSection =
+  | { type: "p"; text: string }
+  | { type: "h2"; text: string }
+  | { type: "h3"; text: string }
+  | { type: "ul"; items: string[] }
+  | { type: "ol"; items: string[] }
+  | { type: "callout"; text: string };
+
+export type LearnArticle = {
+  slug: string;
+  meta: string;
+  title: string;
+  backHref: string;
+  backLabel: string;
+  heroImageUrl?: string;
+  sections: LearnArticleSection[];
+};
+
+export const HELP_ARTICLE_UNLOCKING: LearnArticle = {
+  slug: "unlocking-listing-details",
+  meta: "Help Center › Buying & Bidding · 3 min read",
+  title: "How unlocking a property's full details works",
+  backHref: "/learn/help-center",
+  backLabel: "Back to Help Center",
+  heroImageUrl: "/images/auction-properties/02-white-colonial.jpg",
+  sections: [
+    {
+      type: "p",
+      text: "Every REOVANA listing shows you a lot for free — the price estimate, distress stage, photos, neighborhood, and key dates. A few sensitive details are held back until you unlock them: the exact street address and the owner's contact information. Here's how that works.",
+    },
+    { type: "h2", text: "What you can see for free" },
+    {
+      type: "ul",
+      items: [
+        "Estimated value, amount owed, and equity",
+        "Distress stage and the full foreclosure timeline",
+        "Bedrooms, bathrooms, square footage, and photos",
+        "Approximate location and neighborhood",
+      ],
+    },
+    { type: "h2", text: "What unlocking reveals" },
+    {
+      type: "ul",
+      items: [
+        "The exact street address",
+        "Owner of record and direct contact details",
+        "Parcel ID and lender information",
+      ],
+    },
+    {
+      type: "callout",
+      text: "Unlocking a property is for your own research and outreach. Always follow applicable contact and privacy rules when reaching out to an owner.",
+    },
+    { type: "h2", text: "Two ways to unlock" },
+    {
+      type: "ol",
+      items: [
+        "Pay per property — unlock a single listing's full details for a one-time fee.",
+        "Subscribe — unlock unlimited listings while your plan is active, ideal for active investors.",
+      ],
+    },
+    { type: "h3", text: "Step by step" },
+    {
+      type: "ol",
+      items: [
+        "Open any listing and scroll to the locked panel.",
+        "Choose \"Unlock this property\" or \"Subscribe.\"",
+        "Complete secure checkout.",
+        "The address and owner contact appear instantly, and the property is saved to your unlocked list.",
+      ],
+    },
+  ],
+};
+
+export const BLOG_ARTICLE_BEGINNERS: LearnArticle = {
+  slug: "beginners-guide",
+  meta: "Blog · Buying · June 2026 · 6 min read",
+  title: "A beginner's guide to buying foreclosed homes",
+  backHref: "/learn",
+  backLabel: "Back to Learn",
+  heroImageUrl: "/images/auction-properties/09-wood-siding-bungalow.jpg",
+  sections: [
+    {
+      type: "p",
+      text: "Buying a distressed home can mean real value — but the process looks different from a typical purchase. Properties move through distinct stages, each with its own risks and opportunities. This guide walks through what to expect so you can decide where you're comfortable buying.",
+    },
+    { type: "h2", text: "The three stages of distress" },
+    { type: "h3", text: "1. Pre-foreclosure" },
+    {
+      type: "p",
+      text: "The owner has fallen behind on payments and a notice has been filed, but the home hasn't been sold yet. You're often dealing directly with the owner, which can mean more flexibility — and more time to inspect and arrange financing.",
+    },
+    { type: "h3", text: "2. Auction" },
+    {
+      type: "p",
+      text: "If the default isn't resolved, the property goes to public auction. Auctions can offer the steepest discounts, but they also carry the most risk: limited inspection, cash or fast financing required, and the chance of existing liens. Preparation matters more here than anywhere else.",
+    },
+    { type: "h3", text: "3. Bank-owned (REO)" },
+    {
+      type: "p",
+      text: "When a home doesn't sell at auction, the lender takes ownership and it becomes \"real estate owned.\" These sales feel closest to a normal transaction — you can usually inspect the home and use standard financing — though properties may need repairs.",
+    },
+    {
+      type: "callout",
+      text: "Rule of thumb: earlier stages offer more access and negotiation; later stages offer cleaner transactions. Match the stage to your risk tolerance and how much cash you can move quickly.",
+    },
+    { type: "h2", text: "Five steps to get started" },
+    {
+      type: "ol",
+      items: [
+        "Set your budget — include a cushion for repairs and back taxes or liens.",
+        "Get financing lined up — pre-approval, or proof of funds for auctions.",
+        "Research the property — value, equity, liens, and the foreclosure timeline.",
+        "Inspect what you can — even a drive-by tells you a lot before an auction.",
+        "Know your exit — live in it, rent it, or resell? Decide before you commit.",
+      ],
+    },
+    {
+      type: "p",
+      text: "Distressed buying rewards preparation. The more you understand each stage before you bid, the more confidently you can spot a genuine deal.",
+    },
+  ],
+};
 
 export type FaqItem = {
   question: string;
   answer: string;
-  group: string;
 };
 
 export const FAQ_ITEMS: FaqItem[] = [
   {
-    group: "Getting Started",
-    question: "What is REOVANA?",
+    question: "Where does REOVANA's listing data come from?",
     answer:
-      "REOVANA is a foreclosure and auction marketplace helping buyers discover distressed properties, bank-owned homes, short sales, and commercial assets across the United States.",
+      "Listings are aggregated from foreclosure and distressed-property data sources nationwide, then standardized into one format and refreshed on a regular schedule so the site stays current.",
   },
   {
-    group: "Getting Started",
-    question: "How do I search for properties?",
+    question: "What's the difference between pre-foreclosure, auction, and bank-owned?",
     answer:
-      "Use Buy in the navigation to open All Auction Homes or a category such as Foreclosure Homes. Filter by location on the map, asset type, and auction status.",
+      "They're stages of the same process. Pre-foreclosure is early, when the owner still holds the home; auction is the forced public sale; bank-owned (REO) is after the lender takes the property back.",
   },
   {
-    group: "Auctions & Bidding",
-    question: "What does estimated opening bid mean?",
+    question: "Why are some details blurred?",
     answer:
-      "It is the projected starting price for the auction event, not a final sale price. Live bidding may begin at or near this amount depending on the seller.",
+      "The price, photos, and key facts are free. The exact address and owner contact are unlocked with a payment, which keeps detailed data available to serious buyers and investors.",
   },
   {
-    group: "Auctions & Bidding",
-    question: "Do I need to register before bidding?",
+    question: "Do I pay per property or subscribe?",
     answer:
-      "Yes. Select Register on a listing to complete bidder verification, agree to auction terms, and submit any required deposit instructions for that event.",
+      "Both options exist. Unlock a single property for a one-time fee, or subscribe for unlimited unlocks while your plan is active.",
   },
   {
-    group: "Auctions & Bidding",
-    question: "Are auction properties sold as-is?",
+    question: "How accurate are the equity estimates?",
     answer:
-      "Most foreclosure and bank-owned auction sales are as-is. Buyers should complete due diligence on title, condition, and occupancy before placing a bid.",
+      "Estimates combine market value and the amount owed to give a useful starting signal. They're a guide for research, not a guaranteed figure — always verify before bidding.",
   },
   {
-    group: "Property Types",
-    question: "What is the difference between foreclosure and bank owned?",
+    question: "Can I sell my own property on REOVANA?",
     answer:
-      "Foreclosure homes are heading toward or in the foreclosure sale process. Bank-owned (REO) properties are already repossessed by the lender and offered for sale.",
+      "Yes. Use the Add Property option to list your home. Listing fees and options are shown during setup.",
   },
   {
-    group: "Property Types",
-    question: "What is a short sale?",
+    question: "Does REOVANA cover the whole country?",
     answer:
-      "A short sale is approved by the lender to accept less than the mortgage balance. These can take longer to close but may offer below-market pricing.",
+      "Coverage spans the U.S. and expands over time as more sources are added, with the broadest coverage in active foreclosure markets.",
   },
   {
-    group: "Account & Support",
-    question: "How do I save a property?",
+    question: "Is REOVANA giving legal or financial advice?",
     answer:
-      "Click the heart icon on any listing card to add it to your favorites once you are signed in to your REOVANA account.",
-  },
-  {
-    group: "Account & Support",
-    question: "Where can I get more help?",
-    answer:
-      "Visit the Help Center for guided topics, browse the Glossary for terminology, or contact our support team through the Contact page.",
+      "No. The guides and data are for education and research. For decisions on a specific property, consult a qualified professional in your state.",
   },
 ];
+
+export const LEARN_SUBNAV = [
+  { label: "Overview", href: "/learn" },
+  { label: "Glossary", href: "/learn/glossary" },
+  { label: "Help Center", href: "/learn/help-center" },
+  { label: "Blog", href: "/learn/guides/beginners-guide" },
+  { label: "FAQ", href: "/learn/faq" },
+] as const;
