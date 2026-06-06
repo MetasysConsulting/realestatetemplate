@@ -32,13 +32,13 @@ export function GlossaryExplorer() {
         <p className="learn-crumb">
           Learn › <strong>Glossary</strong>
         </p>
-        <header className="learn-hero learn-hero--compact">
+        <div className="learn-hero learn-hero--compact">
           <h1>Foreclosure &amp; Auction Glossary</h1>
           <p className="learn-lead">
             The vocabulary of distressed real estate, explained simply. These definitions
             are general education — always confirm specifics for your state.
           </p>
-        </header>
+        </div>
 
         <div className="learn-alpha" role="navigation" aria-label="Jump to letter">
           {letters.map((letter) => (

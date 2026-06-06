@@ -12,12 +12,12 @@ export function FaqExplorer() {
         <p className="learn-crumb">
           Learn › <strong>FAQ</strong>
         </p>
-        <header className="learn-hero learn-hero--compact">
+        <div className="learn-hero learn-hero--compact">
           <h1>Frequently asked questions</h1>
           <p className="learn-lead">
             Quick answers about how REOVANA works, our data, and getting started.
           </p>
-        </header>
+        </div>
 
         <div className="learn-faq">
           {FAQ_ITEMS.map((item, index) => {

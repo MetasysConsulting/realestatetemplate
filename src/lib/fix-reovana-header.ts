@@ -36,9 +36,21 @@ export function fixReovanaHeader(root: ParentNode) {
 
   if (!scope) return;
 
-  const headers = scope.querySelectorAll("header");
-  if (headers.length > 1) {
-    headers[0].remove();
+  /* Only dedupe the site nav header — not content <header> blocks on Learn pages. */
+  const chromeSlot = scope.querySelector(".template-chrome-header");
+  if (chromeSlot) {
+    const chromeHeaders = chromeSlot.querySelectorAll(":scope > header");
+    if (chromeHeaders.length > 1) {
+      chromeHeaders[0].remove();
+    }
+  } else {
+    const wrapper = scope.querySelector("#wrapper");
+    const navHeaders = wrapper
+      ? wrapper.querySelectorAll("header.header-sticky, header#header-main")
+      : scope.querySelectorAll("header.header-sticky, header#header-main");
+    if (navHeaders.length > 1) {
+      navHeaders[0].remove();
+    }
   }
 
   scope.querySelectorAll(".box-user").forEach((box) => {
@@ -80,7 +92,9 @@ export function fixReovanaHeader(root: ParentNode) {
   });
 
   /* Template .header-sticky defaults to off-screen until scroll; keep nav visible. */
-  scope.querySelectorAll(".header.header-sticky, header.header").forEach((header) => {
-    header.classList.add("reovana-nav-static", "is-sticky");
-  });
+  scope
+    .querySelectorAll("header#header-main, header.header.header-sticky")
+    .forEach((header) => {
+      header.classList.add("reovana-nav-static", "is-sticky");
+    });
 }
