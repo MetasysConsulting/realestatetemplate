@@ -316,7 +316,7 @@ export const BLOG_ARTICLE_BEGINNERS: LearnArticle = {
   slug: "beginners-guide",
   meta: "Blog · Buying · June 2026 · 6 min read",
   title: "A beginner's guide to buying foreclosed homes",
-  backHref: "/learn",
+  backHref: "/learn/overview",
   backLabel: "Back to Learn",
   heroImageUrl: "/images/auction-properties/09-wood-siding-bungalow.jpg",
   sections: [
@@ -409,11 +409,3 @@ export const FAQ_ITEMS: FaqItem[] = [
       "No. The guides and data are for education and research. For decisions on a specific property, consult a qualified professional in your state.",
   },
 ];
-
-export const LEARN_SUBNAV = [
-  { label: "Overview", href: "/learn" },
-  { label: "Glossary", href: "/learn/glossary" },
-  { label: "Help Center", href: "/learn/help-center" },
-  { label: "Blog", href: "/learn/guides/beginners-guide" },
-  { label: "FAQ", href: "/learn/faq" },
-] as const;

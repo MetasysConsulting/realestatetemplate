@@ -1351,46 +1351,7 @@ body.learn-route #template-chrome-root.reovana-site {
   color: var(--Heading, #161e2d);
 }
 
-/* Learn subnav, hub, articles, FAQ (ported from reovana-learn-section.html) */
-.learn-subnav {
-  background: #fff;
-  border-bottom: 1px solid var(--Line, #ececec);
-  position: sticky;
-  top: 0;
-  z-index: 40;
-}
-
-.learn-subnav__inner {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.learn-subnav__inner::-webkit-scrollbar {
-  display: none;
-}
-
-.learn-subnav a {
-  padding: 15px 4px;
-  margin-right: 20px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--Text, #5c5e61);
-  border-bottom: 2.5px solid transparent;
-  white-space: nowrap;
-  text-decoration: none;
-}
-
-.learn-subnav a:hover {
-  color: var(--Heading, #161e2d);
-}
-
-.learn-subnav a.on {
-  color: var(--Primary, #7695ff);
-  border-color: var(--Primary, #7695ff);
-}
-
+/* Learn hub, articles, FAQ (ported from reovana-learn-section.html) */
 .learn-hero-banner {
   background:
     radial-gradient(800px 360px at 82% -20%, rgba(118, 149, 255, 0.35), transparent 60%),

@@ -15,7 +15,7 @@ const BUY_LINKS = [
 
 /** @type {[string, string][]} */
 const LEARN_LINKS = [
-  ["/learn", "Overview"],
+  ["/learn/overview", "Overview"],
   ["/learn/glossary", "Glossary"],
   ["/learn/help-center", "Help Center"],
   ["/learn/guides/beginners-guide", "Blog"],

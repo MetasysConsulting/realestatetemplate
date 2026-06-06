@@ -1,4 +1,3 @@
-import { LearnSubnav } from "@/components/learn/LearnSubnav";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
@@ -20,7 +19,6 @@ export function LearnPageShell({ children }: LearnPageShellProps) {
       tailHtml={chrome.tailHtml}
       bodyClass="theme-color-4 learn-route"
     >
-      <LearnSubnav />
       {children}
     </TemplateChrome>
   );
