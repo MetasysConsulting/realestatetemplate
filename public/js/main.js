@@ -27,6 +27,10 @@
     var headerFixed = function () {
         if ($(".header-sticky").length) {
             const $header = $(".header-sticky");
+            if ($header.hasClass("reovana-nav-static")) {
+                $header.addClass("is-sticky");
+                return;
+            }
             let didScroll = false;
             const navbarHeight = $header.outerHeight();
             $(window).on("scroll", function () {

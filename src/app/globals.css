@@ -129,9 +129,12 @@ body {
  * - 258px bottom padding is empty space below the search bar
  */
 /* Site-wide navbar — template hides .header-sticky off-screen until scroll */
-.reovana-site .header.header-sticky:not(.is-sticky),
+.reovana-site .header.header-sticky,
 .reovana-site .header.reovana-nav-static,
-.reovana-site .header.reovana-nav-static.is-sticky {
+.reovana-site .header.reovana-nav-static.is-sticky,
+.reovana-site .header.reovana-nav-static:not(.is-sticky),
+body.learn-route .reovana-site .header,
+body.auctions-route .reovana-site .header {
   position: relative !important;
   top: auto !important;
   left: auto !important;

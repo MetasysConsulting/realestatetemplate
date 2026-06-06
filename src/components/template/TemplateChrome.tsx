@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { fixReovanaHeader } from "@/lib/fix-reovana-header";
+import { fixReovanaHeader, prepareChromeHeader } from "@/lib/fix-reovana-header";
 
 type TemplateChromeProps = {
   headerHtml: string;
@@ -31,6 +31,8 @@ export function TemplateChrome({
   bodyClass = "theme-color-4",
   children,
 }: TemplateChromeProps) {
+  const chromeHeaderHtml = prepareChromeHeader(headerHtml);
+
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
 
@@ -43,6 +45,10 @@ export function TemplateChrome({
     const raf = window.requestAnimationFrame(applyHeaderFix);
     const t1 = window.setTimeout(applyHeaderFix, 50);
     const t2 = window.setTimeout(applyHeaderFix, 300);
+    const t3 = window.setTimeout(applyHeaderFix, 800);
+
+    const onScroll = () => applyHeaderFix();
+    window.addEventListener("scroll", onScroll, { passive: true });
 
     const loading = document.getElementById("loading");
     if (loading) loading.style.display = "none";
@@ -52,15 +58,17 @@ export function TemplateChrome({
       window.cancelAnimationFrame(raf);
       window.clearTimeout(t1);
       window.clearTimeout(t2);
+      window.clearTimeout(t3);
+      window.removeEventListener("scroll", onScroll);
     };
-  }, [bodyClass, headerHtml, footerHtml, tailHtml]);
+  }, [bodyClass, chromeHeaderHtml, footerHtml, tailHtml]);
 
   return (
     <div id="template-chrome-root" className="reovana-site">
-      {headerHtml ? (
+      {chromeHeaderHtml ? (
         <div
           className="template-chrome-header"
-          dangerouslySetInnerHTML={{ __html: headerHtml }}
+          dangerouslySetInnerHTML={{ __html: chromeHeaderHtml }}
         />
       ) : null}
       {children}

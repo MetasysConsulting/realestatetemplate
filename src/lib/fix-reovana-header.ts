@@ -2,6 +2,22 @@ export const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#mo
 
 export const REOVANA_LOGO = "/images/reovana/logo.png";
 
+/** Keep chrome headers visible — template .header-sticky is hidden until scroll. */
+export function prepareChromeHeader(headerHtml: string): string {
+  if (!headerHtml) return headerHtml;
+
+  return headerHtml.replace(
+    /<header([^>]*?)class="([^"]*?)"/i,
+    (_match, before, classes) => {
+      const parts = new Set(classes.split(/\s+/).filter(Boolean));
+      parts.add("header-sticky");
+      parts.add("reovana-nav-static");
+      parts.add("is-sticky");
+      return `<header${before}class="${[...parts].join(" ")}"`;
+    },
+  );
+}
+
 /** Same header DOM fixes on every page (home template + auctions chrome). */
 export function fixReovanaHeader(root: ParentNode) {
   const container =
@@ -64,7 +80,7 @@ export function fixReovanaHeader(root: ParentNode) {
   });
 
   /* Template .header-sticky defaults to off-screen until scroll; keep nav visible. */
-  scope.querySelectorAll(".header.header-sticky").forEach((header) => {
-    header.classList.add("reovana-nav-static");
+  scope.querySelectorAll(".header.header-sticky, header.header").forEach((header) => {
+    header.classList.add("reovana-nav-static", "is-sticky");
   });
 }
