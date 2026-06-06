@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { LearnHeroBanner } from "@/components/learn/LearnHeroBanner";
 import {
   FAQ_ITEMS,
   FEATURED_GUIDES,
@@ -49,32 +50,28 @@ export function LearnHub() {
 
   return (
     <>
-      <div className="learn-hero-banner">
-        <div className="tf-container">
-          <p className="learn-kicker">Learn</p>
-          <h1>Everything you need to buy distressed property with confidence.</h1>
-          <p>
-            Plain-English guides, a foreclosure glossary, and answers to the questions
-            buyers and sellers ask most — built for first-timers and seasoned investors
-            alike.
-          </p>
-          <form
-            className="learn-search-bar"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSearch();
-            }}
-          >
-            <input
-              type="search"
-              placeholder="Search guides, terms, and help articles…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <button type="submit">Search</button>
-          </form>
-        </div>
-      </div>
+      <LearnHeroBanner
+        kicker="Learn"
+        title="Everything you need to buy distressed property with confidence."
+        description="Plain-English guides, a foreclosure glossary, and answers to the questions buyers and sellers ask most — built for first-timers and seasoned investors alike."
+        compact={false}
+      >
+        <form
+          className="learn-search-bar"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+          }}
+        >
+          <input
+            type="search"
+            placeholder="Search guides, terms, and help articles…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button type="submit">Search</button>
+        </form>
+      </LearnHeroBanner>
 
       <div className="learn-page learn-page--body">
         <div className="tf-container">

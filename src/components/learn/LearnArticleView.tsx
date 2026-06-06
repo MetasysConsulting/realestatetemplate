@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { LearnHeroBanner } from "@/components/learn/LearnHeroBanner";
 import type { LearnArticle, LearnArticleSection } from "@/lib/learn-content";
 
 function renderSection(section: LearnArticleSection, index: number) {
@@ -46,29 +47,35 @@ export function LearnArticleView({ article }: LearnArticleViewProps) {
   const rest = intro ? article.sections.slice(1) : article.sections;
 
   return (
-    <div className="learn-page learn-page--body">
-      <div className="tf-container">
-        <article className="learn-article">
-          <Link href={article.backHref} className="learn-backlink">
-            ← {article.backLabel}
-          </Link>
-          <p className="learn-article__meta">{article.meta}</p>
-          <h1>{article.title}</h1>
-          {article.heroImageUrl ? (
-            <div className="learn-article__hero">
-              <Image
-                src={article.heroImageUrl}
-                alt=""
-                fill
-                sizes="(max-width: 768px) 100vw, 760px"
-                priority
-              />
-            </div>
-          ) : null}
-          {intro ? <p>{intro.text}</p> : null}
-          {rest.map((section, index) => renderSection(section, index))}
-        </article>
+    <>
+      <LearnHeroBanner
+        kicker={article.heroKicker}
+        title={article.title}
+        description={article.meta}
+      />
+
+      <div className="learn-page learn-page--body">
+        <div className="tf-container">
+          <article className="learn-article">
+            <Link href={article.backHref} className="learn-backlink">
+              ← {article.backLabel}
+            </Link>
+            {article.heroImageUrl ? (
+              <div className="learn-article__hero">
+                <Image
+                  src={article.heroImageUrl}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 100vw, 760px"
+                  priority
+                />
+              </div>
+            ) : null}
+            {intro ? <p>{intro.text}</p> : null}
+            {rest.map((section, index) => renderSection(section, index))}
+          </article>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

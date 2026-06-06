@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { LearnHeroBanner } from "@/components/learn/LearnHeroBanner";
 import { HELP_CATEGORIES, POPULAR_HELP_ARTICLES } from "@/lib/learn-content";
 
 export function HelpCenterExplorer() {
@@ -32,27 +33,23 @@ export function HelpCenterExplorer() {
 
   return (
     <>
-      <div className="learn-hero-banner learn-hero-banner--compact">
-        <div className="tf-container">
-          <p className="learn-kicker">Help Center</p>
-          <h1>How can we help?</h1>
-          <form
-            className="learn-search-bar"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSearch();
-            }}
-          >
-            <input
-              type="search"
-              placeholder="Search help articles…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-            <button type="submit">Search</button>
-          </form>
-        </div>
-      </div>
+      <LearnHeroBanner kicker="Learn › Help Center" title="How can we help?">
+        <form
+          className="learn-search-bar"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSearch();
+          }}
+        >
+          <input
+            type="search"
+            placeholder="Search help articles…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <button type="submit">Search</button>
+        </form>
+      </LearnHeroBanner>
 
       <div className="learn-page learn-page--body">
         <div className="tf-container">

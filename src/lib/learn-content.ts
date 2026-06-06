@@ -248,6 +248,7 @@ export type LearnArticleSection =
 
 export type LearnArticle = {
   slug: string;
+  heroKicker: string;
   meta: string;
   title: string;
   backHref: string;
@@ -258,7 +259,8 @@ export type LearnArticle = {
 
 export const HELP_ARTICLE_UNLOCKING: LearnArticle = {
   slug: "unlocking-listing-details",
-  meta: "Help Center › Buying & Bidding · 3 min read",
+  heroKicker: "Learn › Help Center",
+  meta: "Buying & Bidding · 3 min read",
   title: "How unlocking a property's full details works",
   backHref: "/learn/help-center",
   backLabel: "Back to Help Center",
@@ -314,7 +316,8 @@ export const HELP_ARTICLE_UNLOCKING: LearnArticle = {
 
 export const BLOG_ARTICLE_BEGINNERS: LearnArticle = {
   slug: "beginners-guide",
-  meta: "Blog · Buying · June 2026 · 6 min read",
+  heroKicker: "Learn › Blog",
+  meta: "Buying · June 2026 · 6 min read",
   title: "A beginner's guide to buying foreclosed homes",
   backHref: "/learn/overview",
   backLabel: "Back to Learn",
