@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
+import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import {
   formatCurrency,
   getInventoryCount,
@@ -19,6 +20,7 @@ const FILTER_OPTIONS = {
 
 function PropertyCard({ property }: { property: AuctionProperty }) {
   const alt = `${property.address}, ${property.city}, ${property.state}`;
+  const [imageUrl, setImageUrl] = useState(property.imageUrl);
 
   return (
     <article className="auctions-card">
@@ -26,11 +28,12 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
         <div className="auctions-card__thumb">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={property.imageUrl}
+            src={imageUrl}
             alt={alt}
             className="auctions-card__photo"
             loading="lazy"
             decoding="async"
+            onError={() => setImageUrl(DEFAULT_AUCTION_PROPERTY_IMAGE)}
           />
         </div>
         {property.isNew ? <span className="auctions-card__badge">NEW</span> : null}

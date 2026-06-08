@@ -172,7 +172,7 @@ export function generateAuctionProperties(
       status: isLive ? "Auction Event: Live Event" : "Auction Event: Upcoming",
       lat,
       lng,
-      imageUrl: getAuctionPropertyImageUrl(id, buyType),
+      imageUrl: getAuctionPropertyImageUrl(id, buyType, i),
     });
   }
 

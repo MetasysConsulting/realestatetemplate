@@ -1,12 +1,7 @@
-/** First six approved residential photos for the homepage luxury carousel. */
-export const HOME_LISTING_IMAGES = [
-  "01-suburban-two-story.jpg",
-  "02-white-colonial.jpg",
-  "04-brick-ranch.jpg",
-  "05-craftsman-porch.jpg",
-  "06-mediterranean-stucco.jpg",
-  "07-yellow-victorian.jpg",
-];
+import { APPROVED_AUCTION_IMAGE_FILES } from "./approved-auction-images.mjs";
+
+/** First six approved residential photos for the homepage carousel. */
+export const HOME_LISTING_IMAGES = APPROVED_AUCTION_IMAGE_FILES.slice(0, 6);
 
 const TEMPLATE_LISTING_IMAGES = [
   "box-house.jpg",
@@ -106,11 +101,19 @@ function applyHomeNeighborhoods(html) {
       `/images/section/${loc.oldImg}`,
       `/images/auction-properties/${loc.newImg}`,
     );
+
+    const imgPath = `/images/auction-properties/${loc.newImg}`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     section = section.replace(
-      /<h6 class="text_white">New York<\/h6>/,
-      `<h6 class="text_white">${loc.city}</h6>`,
+      new RegExp(`(${imgPath}[\\s\\S]*?<h6 class="text_white">)[^<]*(</h6>)`, "i"),
+      `$1${loc.city}$2`,
     );
-    section = section.replace(/2\.491\s*Properties/, `${loc.count} Properties`);
+    section = section.replace(
+      new RegExp(
+        `(${imgPath}[\\s\\S]*?<a href="/auctions"[^>]*>)[\\s\\S]*?(</a>)`,
+        "i",
+      ),
+      `$1${loc.count} Properties <i class="icon-arrow-right"></i>$2`,
+    );
     section = section.replace(/href="#"/, 'href="/auctions"');
   }
 

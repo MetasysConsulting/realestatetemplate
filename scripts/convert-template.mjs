@@ -5,6 +5,10 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { applyHomePageContent } from "./auction-home-images.mjs";
+import {
+  applyListingPageImages,
+  isListingTemplateFile,
+} from "./auction-listing-images.mjs";
 import { applyReovanaBlogContent, applyReovanaFaqContent } from "./learn-pages.mjs";
 import { replaceSiteNavigation } from "./reovana-navigation.mjs";
 
@@ -272,6 +276,10 @@ function applyBranding(html, filename) {
 
   if (filename === "blog-grid.html") {
     out = applyReovanaBlogContent(out);
+  }
+
+  if (isListingTemplateFile(filename)) {
+    out = applyListingPageImages(out);
   }
 
   return out;

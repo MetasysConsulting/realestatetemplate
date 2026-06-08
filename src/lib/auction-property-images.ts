@@ -76,8 +76,14 @@ function poolForBuyType(buyType: BuyCategoryKey): ApprovedImage[] {
 }
 
 /** Public URL for an approved auction listing thumbnail. */
-export function getAuctionPropertyImageUrl(propertyId: string, buyType: BuyCategoryKey): string {
+export function getAuctionPropertyImageUrl(
+  propertyId: string,
+  buyType: BuyCategoryKey,
+  listingIndex = 0,
+): string {
   const pool = poolForBuyType(buyType);
-  const index = hashString(propertyId) % pool.length;
+  const index = (hashString(propertyId) + listingIndex) % pool.length;
   return `/images/auction-properties/${pool[index].file}`;
 }
+
+export const DEFAULT_AUCTION_PROPERTY_IMAGE = `/images/auction-properties/${APPROVED_AUCTION_IMAGES[0]?.file ?? "01-suburban-two-story.jpg"}`;

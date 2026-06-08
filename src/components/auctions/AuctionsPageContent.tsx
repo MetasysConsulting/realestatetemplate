@@ -12,7 +12,7 @@ type AuctionsPageContentProps = {
 
 export function AuctionsPageContent({ categoryKey }: AuctionsPageContentProps) {
   const config = BUY_CATEGORIES[categoryKey];
-  const properties = generateAuctionProperties(categoryKey, 32);
+  const properties = generateAuctionProperties(categoryKey, 48);
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)
