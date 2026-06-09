@@ -6,6 +6,7 @@
 const BUY_LINKS = [
   ["/auctions", "All Auction Homes"],
   ["/auctions/foreclosure-homes", "Foreclosure Homes"],
+  ["/auctions/hud-homes", "HUD Homes"],
   ["/auctions/bank-owned", "Bank Owned"],
   ["/auctions/second-chance-foreclosure", "2nd Chance Foreclosure"],
   ["/auctions/short-sale", "Short Sale"],

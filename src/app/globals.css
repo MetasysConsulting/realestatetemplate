@@ -962,6 +962,12 @@ body.auctions-route .template-chrome-footer {
   background: #e2e8f0;
 }
 
+.hud-status {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--Primary);
+}
+
 @media (max-width: 1100px) {
   .auctions-layout {
     grid-template-columns: 1fr;

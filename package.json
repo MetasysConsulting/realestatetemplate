@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "convert-template": "node scripts/convert-template.mjs",
-    "scrape-gsa": "node scripts/scrape-gsa-dispositions.mjs"
+    "scrape-gsa": "node scripts/scrape-gsa-dispositions.mjs",
+    "scrape-hud": "node scripts/scrape-hud-listings.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
