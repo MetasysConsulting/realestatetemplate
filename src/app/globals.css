@@ -913,6 +913,55 @@ body.auctions-route .template-chrome-footer {
   box-shadow: 0 6px 20px rgba(118, 149, 255, 0.35);
 }
 
+.gsa-attribution {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--Sub-primary-1, #f2f5ff);
+  border: 1px solid rgba(118, 149, 255, 0.25);
+}
+
+.gsa-attribution p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--Text, #5c5e61);
+}
+
+.gsa-attribution a {
+  color: var(--Primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.gsa-card__title {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.gsa-status {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.gsa-status--available {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.gsa-status--contract {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.gsa-status--sold {
+  color: #475569;
+  background: #e2e8f0;
+}
+
 @media (max-width: 1100px) {
   .auctions-layout {
     grid-template-columns: 1fr;

@@ -10,6 +10,7 @@ const BUY_LINKS = [
   ["/auctions/second-chance-foreclosure", "2nd Chance Foreclosure"],
   ["/auctions/short-sale", "Short Sale"],
   ["/auctions/commercial", "Commercial"],
+  ["/auctions/government-disposition", "Government Disposition"],
   ["/auctions/non-bank-owned", "Non-Bank Owned"],
 ];
 

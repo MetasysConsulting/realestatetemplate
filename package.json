@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "convert-template": "node scripts/convert-template.mjs"
+    "convert-template": "node scripts/convert-template.mjs",
+    "scrape-gsa": "node scripts/scrape-gsa-dispositions.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",
