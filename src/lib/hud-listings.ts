@@ -79,3 +79,12 @@ export function formatHudScrapedDate(iso: string): string {
     year: "numeric",
   });
 }
+
+export function getHudListingByCaseNumber(caseNumber: string): HudListing | null {
+  const listings = loadHudListings().listings;
+  return listings.find((l) => l.caseNumber === caseNumber) ?? null;
+}
+
+export function getAllHudCaseNumbers(): string[] {
+  return loadHudListings().listings.map((l) => l.caseNumber);
+}

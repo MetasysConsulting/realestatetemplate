@@ -968,6 +968,126 @@ body.auctions-route .template-chrome-footer {
   color: var(--Primary);
 }
 
+body.hud-detail-route {
+  overflow: auto;
+  height: auto;
+}
+
+body.hud-detail-route #template-chrome-root.reovana-site {
+  height: auto;
+  overflow: visible;
+}
+
+.hud-detail-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.hud-detail-page__breadcrumb {
+  margin-bottom: 20px;
+}
+
+.hud-detail-page__breadcrumb a {
+  color: var(--Primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.hud-detail-page__layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.hud-detail-page__photo {
+  width: 100%;
+  border-radius: 14px;
+  object-fit: cover;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(145deg, #e8ecf8 0%, #d4dcf5 100%);
+}
+
+.hud-detail-page__price {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 8px 0 12px;
+  color: var(--Heading, #161e2d);
+}
+
+.hud-detail-page__address {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 16px;
+}
+
+.hud-detail-page__specs {
+  margin-bottom: 20px;
+}
+
+.hud-detail-page__meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+  margin: 0 0 24px;
+}
+
+.hud-detail-page__meta dt {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--Note, #a8abae);
+  margin-bottom: 2px;
+}
+
+.hud-detail-page__meta dd {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--Heading, #161e2d);
+}
+
+.hud-detail-page__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.hud-detail-page__cta {
+  min-height: 44px !important;
+  padding: 0 24px !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hud-detail-page__help-link {
+  color: var(--Primary);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.hud-detail-page__disclaimer {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--Note, #a8abae);
+  margin: 0;
+  padding: 12px;
+  border-radius: 10px;
+  background: var(--Sub-primary-1, #f2f5ff);
+}
+
+@media (max-width: 900px) {
+  .hud-detail-page__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1100px) {
   .auctions-layout {
     grid-template-columns: 1fr;

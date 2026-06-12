@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
+import { hudDetailPath } from "@/lib/property-categories";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import {
@@ -40,7 +42,7 @@ function HudPropertyCard({ listing }: { listing: HudListing }) {
           {listing.listingPeriod ? (
             <span className="auctions-card__tag">{listing.listingPeriod}</span>
           ) : null}
-          <span className="auctions-card__tag">Foreclosure</span>
+          <span className="auctions-card__tag">HUD Home</span>
         </div>
         <p className="auctions-card__category">Case #{listing.caseNumber}</p>
         <h3 className="auctions-card__address">
@@ -59,14 +61,12 @@ function HudPropertyCard({ listing }: { listing: HudListing }) {
         </p>
         <div className="auctions-card__footer">
           <span className="hud-status">{listing.propertyStatus || "Active"}</span>
-          <a
-            href={listing.detailUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={hudDetailPath(listing.caseNumber)}
             className="auctions-card__register tf-btn bg-color-primary"
           >
-            View on HUD
-          </a>
+            View Details
+          </Link>
         </div>
       </div>
     </article>
@@ -102,10 +102,9 @@ function toMapProperties(listings: HudListing[]): AuctionProperty[] {
 type HudHomesExplorerProps = {
   listings: HudListing[];
   scrapedAt: string;
-  sourceUrl: string;
 };
 
-export function HudHomesExplorer({ listings, scrapedAt, sourceUrl }: HudHomesExplorerProps) {
+export function HudHomesExplorer({ listings, scrapedAt }: HudHomesExplorerProps) {
   const [state, setState] = useState("All");
   const [propertyType, setPropertyType] = useState("All");
   const [listingPeriod, setListingPeriod] = useState("All");
@@ -194,12 +193,8 @@ export function HudHomesExplorer({ listings, scrapedAt, sourceUrl }: HudHomesExp
             </p>
             <div className="gsa-attribution hud-attribution">
               <p>
-                Data sourced from{" "}
-                <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
-                  HUD HomeStore
-                </a>
-                . Last updated {formatHudScrapedDate(scrapedAt)}. Bids require a HUD-registered
-                broker.
+                {listings.length.toLocaleString()} HUD homes hosted on REOVANA. Last updated{" "}
+                {formatHudScrapedDate(scrapedAt)}. Bids require a HUD-registered broker.
               </p>
             </div>
             <div className="auctions-list-head__actions">
