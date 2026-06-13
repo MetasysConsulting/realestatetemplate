@@ -176,6 +176,16 @@ function stripHomeSearchDropdown(html) {
   );
 }
 
+/** Client request: remove "Discover how we can help" Buying/Rating/Selling block from homepage. */
+function stripHomeHelpSection(html) {
+  return html
+    .replace(
+      /<section class="section-help[\s\S]*?<!-- \/\.section-help -->\s*/gi,
+      "",
+    )
+    .replace(/<!--\s*section-help\s*-->\s*/gi, "");
+}
+
 const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Login</a></div>`;
 
 /**
@@ -268,6 +278,7 @@ function applyBranding(html, filename) {
   if (filename === "index.html") {
     out = applyReovanaHomeCopy(out);
     out = applyHomePageContent(out);
+    out = stripHomeHelpSection(out);
   }
 
   if (filename === "faq.html") {
