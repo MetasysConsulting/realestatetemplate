@@ -4,8 +4,6 @@
 
 /** @type {[string, string][]} */
 const BUY_LINKS = [
-  ["/auctions", "All Auction Homes"],
-  ["/properties/motivated-seller", "Motivated Seller Property"],
   ["/properties/off-market", "Off-Market Property"],
   ["/properties/foreclosure", "Foreclosure"],
   ["/properties/pre-foreclosure", "Pre-Foreclosure"],
@@ -14,16 +12,7 @@ const BUY_LINKS = [
   ["/properties/sheriffs-sale", "Sheriff's Sale Property"],
   ["/properties/tax-delinquent", "Tax Delinquent Property"],
   ["/properties/hud-home", "HUD Home"],
-  ["/auctions/foreclosure-homes", "Foreclosure Homes"],
-  ["/auctions/homesteps", "Freddie Mac HomeSteps"],
-  ["/auctions/federal-property-auctions", "Federal Property Auctions"],
-  ["/auctions/va-reo", "VA REO Homes"],
-  ["/auctions/bank-owned", "Bank Owned (Auctions)"],
-  ["/auctions/second-chance-foreclosure", "2nd Chance Foreclosure"],
-  ["/auctions/short-sale", "Short Sale"],
   ["/auctions/commercial", "Commercial"],
-  ["/auctions/government-disposition", "Government Disposition"],
-  ["/auctions/non-bank-owned", "Non-Bank Owned"],
 ];
 
 /** @type {[string, string][]} */
