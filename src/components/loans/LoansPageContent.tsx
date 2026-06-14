@@ -4,7 +4,6 @@ import Link from "next/link";
 import {
   LOAN_FEATURES,
   LOAN_SOLUTIONS,
-  LOAN_STATS,
 } from "@/lib/loans-content";
 
 function LoanIcon({ type }: { type: string }) {
@@ -135,15 +134,6 @@ export function LoansPageContent() {
               REOVANA.com connects real estate investors with private lenders and offers
               fast funding solutions for distressed property deals.
             </p>
-
-            <div className="loans-hero__stats">
-              {LOAN_STATS.map((stat) => (
-                <div key={stat.label} className="loans-hero__stat">
-                  <strong>{stat.value}</strong>
-                  <span>{stat.label}</span>
-                </div>
-              ))}
-            </div>
 
             <div className="loans-hero__actions">
               <Link href="/contact" className="loans-btn loans-btn--primary">

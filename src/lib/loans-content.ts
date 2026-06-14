@@ -1,9 +1,3 @@
-export const LOAN_STATS = [
-  { value: "10,000+", label: "Active Lenders" },
-  { value: "25,000+", label: "Loans Funded" },
-  { value: "5 Days", label: "Fast Closings" },
-] as const;
-
 export const LOAN_FEATURES = [
   {
     title: "Trusted Lenders",
