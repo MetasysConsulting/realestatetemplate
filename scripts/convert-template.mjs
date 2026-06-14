@@ -11,6 +11,7 @@ import {
 } from "./auction-listing-images.mjs";
 import { applyReovanaBlogContent, applyReovanaFaqContent } from "./learn-pages.mjs";
 import { replaceSiteNavigation } from "./reovana-navigation.mjs";
+import { replaceSiteFooter } from "./reovana-footer.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -274,6 +275,7 @@ function applyBranding(html, filename) {
   out = repairHeaderRight(out);
   out = applyFooterLogo(out);
   out = replaceSiteNavigation(out);
+  out = replaceSiteFooter(out);
 
   if (filename === "index.html") {
     out = applyReovanaHomeCopy(out);

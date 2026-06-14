@@ -2408,3 +2408,567 @@ body.learn-route #template-chrome-root.reovana-site {
   margin: 0;
   line-height: 1.65;
 }
+
+/* ── Loans landing page (/loans) ─────────────────────────────────────────── */
+body.loans-route #loading {
+  display: none !important;
+}
+
+.loans-page {
+  background: #f6f7fb;
+}
+
+.loans-hero {
+  position: relative;
+  overflow: hidden;
+  background-image: url(/images/reovana/hero-house.jpeg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+}
+
+.loans-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(15, 22, 38, 0.92) 0%, rgba(15, 22, 38, 0.72) 55%, rgba(15, 22, 38, 0.45) 100%),
+    rgba(15, 22, 38, 0.35);
+}
+
+.loans-hero__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: clamp(28px, 4vw, 48px);
+  align-items: center;
+  padding: clamp(56px, 8vw, 96px) 0 clamp(64px, 9vw, 104px);
+}
+
+.loans-hero__eyebrow {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #b8c8f0;
+}
+
+.loans-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4.8vw, 3.35rem);
+  line-height: 1.12;
+  font-weight: 800;
+  max-width: 14ch;
+  color: #fff;
+}
+
+.loans-hero__accent {
+  color: var(--Primary, #7695ff);
+}
+
+.loans-hero__lead {
+  margin: 18px 0 0;
+  max-width: 52ch;
+  font-size: clamp(1rem, 1.6vw, 1.125rem);
+  line-height: 1.65;
+  color: #d5dff5;
+  font-weight: 300;
+}
+
+.loans-hero__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 28px;
+  margin-top: 28px;
+}
+
+.loans-hero__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.loans-hero__stat strong {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fff;
+}
+
+.loans-hero__stat span {
+  font-size: 0.9rem;
+  color: #c5d0e8;
+}
+
+.loans-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 30px;
+}
+
+.loans-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.loans-btn:hover {
+  transform: translateY(-1px);
+}
+
+.loans-btn--primary {
+  background: var(--Primary, #7695ff);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(118, 149, 255, 0.35);
+}
+
+.loans-btn--primary:hover {
+  background: #5f82f5;
+  color: #fff;
+}
+
+.loans-btn--secondary {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.loans-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.loans-calculator-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 28px 26px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  color: var(--Heading, #161e2d);
+}
+
+.loans-calculator-card h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.loans-calculator-card > p {
+  margin: 8px 0 22px;
+  color: #5c6b82;
+  font-size: 0.95rem;
+}
+
+.loans-calculator-card__option {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 14px;
+  padding: 18px 0;
+  border-top: 1px solid #eceef4;
+}
+
+.loans-calculator-card__option:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.loans-calculator-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loans-calculator-card__icon--blue {
+  background: rgba(118, 149, 255, 0.12);
+  color: var(--Primary, #7695ff);
+}
+
+.loans-calculator-card__icon--accent {
+  background: rgba(22, 30, 45, 0.08);
+  color: #161e2d;
+}
+
+.loans-calculator-card__option h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.loans-calculator-card__option p {
+  margin: 6px 0 12px;
+  font-size: 0.88rem;
+  color: #5c6b82;
+  line-height: 1.5;
+}
+
+.loans-calculator-card__cta {
+  display: inline-flex;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.loans-calculator-card__cta--blue {
+  background: var(--Primary, #7695ff);
+  color: #fff;
+}
+
+.loans-calculator-card__cta--accent {
+  background: #161e2d;
+  color: #fff;
+}
+
+.loans-feature-bar {
+  background: #161e2d;
+  color: #fff;
+  padding: 28px 0;
+}
+
+.loans-feature-bar__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.loans-feature-bar__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.loans-feature-bar__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(118, 149, 255, 0.18);
+  color: var(--Primary, #7695ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.loans-feature-bar__item strong {
+  display: block;
+  font-size: 0.95rem;
+  margin-bottom: 2px;
+}
+
+.loans-feature-bar__item span {
+  display: block;
+  font-size: 0.82rem;
+  color: #b8c4dc;
+  line-height: 1.45;
+}
+
+.loans-solutions {
+  padding: clamp(56px, 7vw, 88px) 0 clamp(72px, 8vw, 96px);
+}
+
+.loans-solutions__header {
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto 40px;
+}
+
+.loans-solutions__header h2 {
+  margin: 0;
+  font-size: clamp(1.75rem, 3.5vw, 2.35rem);
+  font-weight: 800;
+  color: var(--Heading, #161e2d);
+}
+
+.loans-solutions__header p {
+  margin: 12px 0 0;
+  color: #5c6b82;
+  font-size: 1rem;
+  line-height: 1.65;
+}
+
+.loans-solutions__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.loans-solution-card {
+  background: #fff;
+  border: 1px solid #e8ebf2;
+  border-radius: 16px;
+  padding: 26px 24px;
+  box-shadow: 0 8px 24px rgba(22, 30, 45, 0.04);
+}
+
+.loans-solution-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(118, 149, 255, 0.1);
+  color: var(--Primary, #7695ff);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.loans-solution-card h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--Heading, #161e2d);
+}
+
+.loans-solution-card p {
+  margin: 10px 0 16px;
+  color: #5c6b82;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  min-height: 2.9em;
+}
+
+.loans-solution-card__link {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--Primary, #7695ff);
+  text-decoration: none;
+}
+
+.loans-solution-card__link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 991px) {
+  .loans-hero__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .loans-hero h1 {
+    max-width: none;
+  }
+
+  .loans-feature-bar__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .loans-solutions__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .loans-hero__actions {
+    flex-direction: column;
+  }
+
+  .loans-btn {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .loans-feature-bar__grid,
+  .loans-solutions__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── REOVANA footer (site-wide) ──────────────────────────────────────────── */
+.reovana-footer {
+  position: relative;
+  overflow: hidden;
+  background: #161e2d;
+  color: #e8edf7;
+  margin-top: 0 !important;
+}
+
+.reovana-footer__bg {
+  position: absolute;
+  inset: 0;
+  background-image: url(/images/reovana/hero-house.jpeg);
+  background-size: cover;
+  background-position: center;
+  opacity: 0.22;
+}
+
+.reovana-footer__bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(22, 30, 45, 0.88) 0%, rgba(22, 30, 45, 0.96) 100%);
+}
+
+.reovana-footer__inner {
+  position: relative;
+  z-index: 1;
+  padding: clamp(48px, 6vw, 72px) 0 28px;
+}
+
+.reovana-footer__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reovana-footer__brand {
+  max-width: 360px;
+}
+
+.reovana-footer__logo-link {
+  display: inline-flex;
+  align-items: center;
+}
+
+.reovana-footer .reovana-footer-logo {
+  width: auto !important;
+  height: 72px !important;
+  max-width: none !important;
+  object-fit: contain !important;
+  filter: brightness(1.05);
+}
+
+.reovana-footer__tagline {
+  margin: 12px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #b8c4dc;
+}
+
+.reovana-footer__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+
+.reovana-footer__contact-link {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.reovana-footer__contact-link:hover {
+  color: var(--Primary, #7695ff);
+}
+
+.reovana-footer__links {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 20px;
+  padding: 32px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reovana-footer__col h6 {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.reovana-footer__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reovana-footer__col a {
+  color: #b8c4dc;
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.reovana-footer__col a:hover {
+  color: #fff;
+}
+
+.reovana-footer__disclaimers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  padding: 28px 0;
+}
+
+.reovana-footer__disclaimer {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px 16px;
+}
+
+.reovana-footer__disclaimer--highlight {
+  border-color: rgba(118, 149, 255, 0.35);
+  background: rgba(118, 149, 255, 0.08);
+}
+
+.reovana-footer__disclaimer h6 {
+  margin: 0 0 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.reovana-footer__disclaimer p {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: #b8c4dc;
+}
+
+.reovana-footer__bottom {
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.reovana-footer__bottom p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #8fa0be;
+}
+
+.reovana-footer__bottom strong {
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Hide legacy footer blocks when new footer is active */
+.reovana-footer .footer-top,
+.reovana-footer .footer-main,
+.reovana-footer .footer-bottom {
+  display: none !important;
+}
+
+@media (max-width: 991px) {
+  .reovana-footer__links,
+  .reovana-footer__disclaimers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .reovana-footer__links,
+  .reovana-footer__disclaimers {
+    grid-template-columns: 1fr;
+  }
+}
