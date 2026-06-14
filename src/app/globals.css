@@ -1051,31 +1051,6 @@ body.auctions-route .template-chrome-footer {
   background: #f8fafc;
 }
 
-.map-options-panel__toggle {
-  position: absolute;
-  top: 50%;
-  left: 300px;
-  transform: translateY(-50%);
-  z-index: 601;
-  width: 22px;
-  height: 48px;
-  border: 1px solid #e2e8f0;
-  border-left: none;
-  border-radius: 0 8px 8px 0;
-  background: #fff;
-  color: #64748b;
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: 2px 0 8px rgba(15, 23, 42, 0.08);
-}
-
-.map-options-panel__toggle.is-collapsed {
-  left: 0;
-  border-left: 1px solid #e2e8f0;
-  border-radius: 0 8px 8px 0;
-}
-
 .auctions-map-root.has-layer-active .leaflet-tile-pane {
   filter: saturate(0.85) brightness(0.95);
 }
