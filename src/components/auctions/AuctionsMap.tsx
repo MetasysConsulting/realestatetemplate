@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import { MapPropertyPopup } from "@/components/auctions/MapPropertyPopup";
 
 /** Continental US — pan/zoom constrained to this region */
 const US_BOUNDS: [[number, number], [number, number]] = [
@@ -25,8 +26,20 @@ type LeafletModules = {
   divIcon: typeof import("leaflet").divIcon;
 };
 
+function createMarkerIcon(divIcon: LeafletModules["divIcon"], color: string, active: boolean) {
+  const ring = active ? "box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(22,30,45,0.25);" : "";
+  return divIcon({
+    className: `auctions-leaflet-marker${active ? " is-active" : ""}`,
+    html: `<span style="background:${color};${ring}"></span>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+}
+
 export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
   const [leaflet, setLeaflet] = useState<LeafletModules | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [markerColor, setMarkerColor] = useState("#7695ff");
 
   useEffect(() => {
     void import("leaflet/dist/leaflet.css");
@@ -35,13 +48,7 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
       const primary =
         getComputedStyle(document.documentElement).getPropertyValue("--Primary").trim() ||
         "#7695ff";
-
-      const markerIcon = L.divIcon({
-        className: "auctions-leaflet-marker",
-        html: `<span style="background:${primary}"></span>`,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
-      });
+      setMarkerColor(primary);
 
       setLeaflet({
         MapContainer: rl.MapContainer,
@@ -49,7 +56,7 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
         Marker: rl.Marker,
         Popup: rl.Popup,
         useMap: rl.useMap,
-        divIcon: () => markerIcon,
+        divIcon: L.divIcon,
       });
     });
   }, []);
@@ -67,12 +74,19 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
       ? "&copy; Esri"
       : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-  if (!leaflet) {
+  const icons = useMemo(() => {
+    if (!leaflet) return null;
+    return {
+      default: createMarkerIcon(leaflet.divIcon, markerColor, false),
+      active: createMarkerIcon(leaflet.divIcon, markerColor, true),
+    };
+  }, [leaflet, markerColor]);
+
+  if (!leaflet || !icons) {
     return <div className="auctions-map-loading">Loading map…</div>;
   }
 
-  const { MapContainer, TileLayer, Marker, Popup, useMap, divIcon } = leaflet;
-  const icon = divIcon();
+  const { MapContainer, TileLayer, Marker, Popup, useMap } = leaflet;
 
   function BoundsLock() {
     const map = useMap();
@@ -95,11 +109,23 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
       <BoundsLock />
       <TileLayer attribution={tileAttribution} url={tileUrl} />
       {properties.map((p) => (
-        <Marker key={p.id} position={[p.lat, p.lng]} icon={icon}>
-          <Popup>
-            <strong>{p.address}</strong>
-            <br />
-            {p.city}, {p.state}
+        <Marker
+          key={p.id}
+          position={[p.lat, p.lng]}
+          icon={activeId === p.id ? icons.active : icons.default}
+          eventHandlers={{
+            click: () => setActiveId(p.id),
+            popupclose: () => setActiveId((id) => (id === p.id ? null : id)),
+          }}
+        >
+          <Popup
+            className="map-property-popup-container"
+            closeButton={false}
+            offset={[0, -12]}
+            minWidth={248}
+            maxWidth={268}
+          >
+            <MapPropertyPopup property={p} />
           </Popup>
         </Marker>
       ))}

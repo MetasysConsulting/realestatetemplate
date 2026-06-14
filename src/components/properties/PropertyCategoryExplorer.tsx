@@ -91,6 +91,7 @@ function toMapProperties(listings: PropertyListing[]): AuctionProperty[] {
       lat: l.lat,
       lng: l.lng,
       imageUrl: l.imageUrl,
+      detailUrl: l.detailPath,
     }));
 }
 

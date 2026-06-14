@@ -96,6 +96,7 @@ function toMapProperties(listings: HudListing[]): AuctionProperty[] {
       lat: l.lat,
       lng: l.lng,
       imageUrl: l.displayImageUrl,
+      detailUrl: hudDetailPath(l.caseNumber),
     }));
 }
 

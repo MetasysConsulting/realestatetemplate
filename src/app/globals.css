@@ -898,6 +898,137 @@ body.auctions-route .template-chrome-footer {
   border-radius: 50%;
   border: 2px solid #fff;
   box-shadow: 0 2px 8px rgba(22, 30, 45, 0.35);
+  transition: box-shadow 0.15s ease;
+}
+
+.auctions-leaflet-marker.is-active span {
+  width: 16px;
+  height: 16px;
+}
+
+/* Map property photo popup (Zillow-style) */
+.leaflet-popup.map-property-popup-container {
+  margin-bottom: 14px;
+}
+
+.leaflet-popup.map-property-popup-container .leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: 12px;
+  background: transparent;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.35);
+  overflow: hidden;
+}
+
+.leaflet-popup.map-property-popup-container .leaflet-popup-content {
+  margin: 0;
+  width: 248px !important;
+  line-height: 1.3;
+}
+
+.leaflet-popup.map-property-popup-container .leaflet-popup-tip-container {
+  display: none;
+}
+
+.map-property-popup__link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.map-property-popup {
+  position: relative;
+  width: 248px;
+  height: 168px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0f172a;
+}
+
+.map-property-popup__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.map-property-popup__shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.05) 35%,
+    rgba(15, 23, 42, 0.55) 68%,
+    rgba(15, 23, 42, 0.88) 100%
+  );
+  pointer-events: none;
+}
+
+.map-property-popup__label {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.95);
+  color: #0f172a;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.map-property-popup__fav {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: #334155;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+}
+
+.map-property-popup__fav.is-saved {
+  color: #ef4444;
+}
+
+.map-property-popup__info {
+  position: absolute;
+  left: 12px;
+  right: 48px;
+  bottom: 10px;
+  z-index: 2;
+  color: #fff;
+}
+
+.map-property-popup__was {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: line-through;
+}
+
+.map-property-popup__price {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.map-property-popup__specs,
+.map-property-popup__lot {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.92);
 }
 
 .auctions-map-search-area {

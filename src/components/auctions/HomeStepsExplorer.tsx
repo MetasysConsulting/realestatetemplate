@@ -79,6 +79,7 @@ function toMapProperties(listings: HomeStepsListing[]): AuctionProperty[] {
       lat: l.lat,
       lng: l.lng,
       imageUrl: l.displayImageUrl,
+      detailUrl: l.detailUrl,
     }));
 }
 

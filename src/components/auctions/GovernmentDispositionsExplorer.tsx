@@ -90,6 +90,7 @@ function toMapProperties(listings: GsaDispositionListing[]): AuctionProperty[] {
     lat: l.lat,
     lng: l.lng,
     imageUrl: l.displayImageUrl,
+    detailUrl: l.sourceUrl,
   }));
 }
 

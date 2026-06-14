@@ -86,6 +86,7 @@ function toMapProperties(listings: VrmListing[]): AuctionProperty[] {
     lat: l.lat,
     lng: l.lng,
     imageUrl: l.displayImageUrl,
+    detailUrl: l.detailUrl,
   }));
 }
 

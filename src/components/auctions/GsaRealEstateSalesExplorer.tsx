@@ -78,6 +78,7 @@ function toMapProperties(listings: GsaRealEstateSale[]): AuctionProperty[] {
     lat: l.lat,
     lng: l.lng,
     imageUrl: l.displayImageUrl,
+    detailUrl: l.detailUrl,
   }));
 }
 

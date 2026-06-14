@@ -21,6 +21,9 @@ export type AuctionProperty = {
   lat: number;
   lng: number;
   imageUrl: string;
+  previousPrice?: number;
+  lotAcres?: number;
+  detailUrl?: string;
 };
 
 const STREETS = [
@@ -143,6 +146,8 @@ export function generateAuctionProperties(
       : 900 + Math.floor(rng() * 2200);
     const openingBid =
       (meta.commercial ? 180000 : 75000) + Math.floor(rng() * (meta.commercial ? 600000 : 380000));
+    const previousPrice = Math.round(openingBid * (1.03 + rng() * 0.05));
+    const lotAcres = Number((0.1 + rng() * 0.55).toFixed(2));
     const mode = pick(rng, AUCTION_MODES);
     const isLive = rng() > 0.35;
     const id = `${buyType}-${i + 1}-${hashString(`${categoryKey}-${i}`).toString(36).slice(0, 6)}`;
@@ -173,6 +178,9 @@ export function generateAuctionProperties(
       lat,
       lng,
       imageUrl: getAuctionPropertyImageUrl(id, buyType, i),
+      previousPrice,
+      lotAcres,
+      detailUrl: "/property/detail/v1",
     });
   }
 
