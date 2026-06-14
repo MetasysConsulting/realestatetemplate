@@ -19,14 +19,20 @@ export function AuctionsMapToolbar({
         <button
           type="button"
           className={mapView === "map" ? "is-active" : ""}
-          onClick={() => onMapViewChange("map")}
+          onClick={() => {
+            onMapViewChange("map");
+            onLayersOpenChange(false);
+          }}
         >
           Map
         </button>
         <button
           type="button"
           className={mapView === "satellite" ? "is-active" : ""}
-          onClick={() => onMapViewChange("satellite")}
+          onClick={() => {
+            onMapViewChange("satellite");
+            onLayersOpenChange(false);
+          }}
         >
           Satellite
         </button>
