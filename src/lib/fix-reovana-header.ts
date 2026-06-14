@@ -1,6 +1,7 @@
 export const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Login</a></div>`;
 
 export const REOVANA_LOGO = "/images/reovana/logo.png";
+export const REOVANA_LOGO_DARK = "/images/reovana/logo-dark.jpeg";
 
 /** Keep chrome headers visible — template .header-sticky is hidden until scroll. */
 export function prepareChromeHeader(headerHtml: string): string {
@@ -89,6 +90,18 @@ export function fixReovanaHeader(root: ParentNode) {
     img.src = REOVANA_LOGO;
     img.classList.add("reovana-logo", "reovana-footer-logo");
     img.alt = "REOVANA";
+  });
+
+  scope.querySelectorAll("#logo_header, .header-logo img.logo_header, .header-logo img.reovana-logo").forEach((img) => {
+    if (!(img instanceof HTMLImageElement)) return;
+    img.classList.add("reovana-logo", "logo_header");
+    img.removeAttribute("width");
+    img.removeAttribute("height");
+    if (!img.getAttribute("src")?.includes("/images/reovana/")) {
+      img.src = REOVANA_LOGO;
+    }
+    img.setAttribute("data-light", REOVANA_LOGO);
+    img.setAttribute("data-dark", REOVANA_LOGO_DARK);
   });
 
   /* Template .header-sticky defaults to off-screen until scroll; keep nav visible. */

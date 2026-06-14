@@ -456,7 +456,8 @@ body.auctions-route .reovana-site .header {
   overflow: visible !important;
   display: flex !important;
   align-items: center !important;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
+  min-width: 0;
 }
 
 .reovana-site .header .header-logo a.site-logo {
@@ -464,12 +465,16 @@ body.auctions-route .reovana-site .header {
   align-items: center !important;
   overflow: visible !important;
   height: 100% !important;
+  flex-shrink: 0 !important;
 }
 
-.reovana-site .header .header-logo img.reovana-logo {
+.reovana-site .header .header-logo img.reovana-logo,
+.reovana-site .header .header-logo img#logo_header,
+.reovana-site .header .header-logo img.logo_header {
   width: auto !important;
   height: 200px !important;  /* ~5× from 42px */
   max-width: none !important;
+  min-width: 0 !important;
   object-fit: contain !important;
   position: relative;
   z-index: 1;

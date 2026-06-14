@@ -235,6 +235,22 @@ function applyFooterLogo(html) {
   );
 }
 
+/** Dashboard pages use id="logo_header" with fixed 136×42 — normalize to main-site logo. */
+function normalizeHeaderLogo(html) {
+  const logoMarkup = `<img class="logo_header reovana-logo" alt="REOVANA" src="${REOVANA_LOGO}" data-light="${REOVANA_LOGO}" data-dark="${REOVANA_LOGO_DARK}">`;
+
+  let out = html.replace(/<img\s+id="logo_header"[^>]*>/gi, logoMarkup);
+  out = out.replace(
+    /<img\s+class="logo_header"(?![^>]*reovana-logo)[^>]*>/gi,
+    logoMarkup,
+  );
+  out = out.replace(
+    /<img\s+class="logo_header reovana-logo"[^>]*\s(?:width|height)="[^"]*"[^>]*>/gi,
+    logoMarkup,
+  );
+  return out;
+}
+
 /** Fix header-right accidentally closed when phone-number strip matched nested </div>. */
 function repairHeaderRight(html) {
   return html.replace(
@@ -265,6 +281,7 @@ function applyBranding(html, filename) {
   out = out.replace(/data-light="\/images\/logo\/logo@2x\.png"/g, `data-light="${REOVANA_LOGO}"`);
   out = out.replace(/data-dark="\/images\/logo\/logo-2@2x\.png"/g, `data-dark="${REOVANA_LOGO_DARK}"`);
   out = out.replace(/alt="logo-footer"/g, 'alt="REOVANA"');
+  out = normalizeHeaderLogo(out);
   out = out.replace(/class="logo_header"/g, 'class="logo_header reovana-logo"');
 
   out = stripPhoneNumbers(out);
