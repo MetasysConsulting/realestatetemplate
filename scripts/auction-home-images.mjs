@@ -167,11 +167,39 @@ function stripHomeSections(html) {
   return out;
 }
 
+const HERO_HOUSE_IMAGE = "/images/reovana/hero-house.jpeg";
+
+function applyHomePreApprovedSection(html) {
+  const block = sliceSection(html, "<!-- .section-pre-approved -->", "<!-- /.section-pre-approved -->");
+  if (!block) return html;
+
+  let { section } = block;
+
+  section = section.replace(
+    '<section class="section-pre-approved tf-spacing-1">',
+    '<section class="section-pre-approved reovana-pre-approved tf-spacing-1">',
+  );
+
+  section = section.replace(
+    /Do you need a home loan\?\s*<br>\s*Get pre-approved/gi,
+    "Do you need a loan? <br>\n                                        Get pre-approved",
+  );
+
+  section = section.replace(
+    /<div class="image-wrap img-animation wow animate__animated">\s*<img[^>]*>/,
+    `<div class="image-wrap reovana-pre-approved-photo">
+                                <img src="${HERO_HOUSE_IMAGE}" alt="REOVANA home" loading="lazy">`,
+  );
+
+  return html.slice(0, block.start) + section + html.slice(block.end);
+}
+
 /** All homepage listing / neighborhood / open-house content updates. */
 export function applyHomePageContent(html) {
   let out = applyHomeCategoryLabels(html);
   out = applyHomeListingImages(out);
   out = applyHomeNeighborhoods(out);
+  out = applyHomePreApprovedSection(out);
   out = stripLuxuryEnthusiastsText(out);
   out = stripHomeSections(out);
   return out;

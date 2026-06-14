@@ -413,6 +413,37 @@ body.auctions-route .reovana-site .header {
   }
 }
 
+/* ── REOVANA loan pre-approval: hero house photo, no clip/parallax hide ─── */
+#template-root .section-pre-approved.reovana-pre-approved .image-wrap {
+  min-height: clamp(420px, 52vw, 620px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ececf0;
+}
+
+#template-root .section-pre-approved.reovana-pre-approved .image-wrap img {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  object-fit: contain;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 991px) {
+  #template-root .section-pre-approved.reovana-pre-approved .image-wrap {
+    min-height: 320px;
+    margin-top: 48px;
+  }
+
+  #template-root .section-pre-approved.reovana-pre-approved .image-wrap img {
+    object-fit: contain;
+    max-height: none;
+    height: auto;
+  }
+}
+
 /*
  * Logo 5× size without growing the navbar bar.
  * The bar height is set by the nav links. We fix header-logo to that same
