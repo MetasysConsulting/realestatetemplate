@@ -476,30 +476,21 @@ body.auctions-route .reovana-site .header {
 }
 
 /*
- * Footer logo: same asset + enlarging treatment as navbar (not dark variant).
+ * Footer logo: same 5× enlargement treatment as navbar.
  */
-.reovana-site #footer .footer-logo {
+.reovana-site #footer.reovana-footer .reovana-footer__brand {
   overflow: visible !important;
+  max-width: 320px;
+}
+
+.reovana-site #footer.reovana-footer .reovana-footer__logo-link {
   display: flex !important;
   align-items: center !important;
+  overflow: visible !important;
   height: 78px !important;
-  flex-shrink: 0;
 }
 
-.reovana-site #footer .footer-logo a {
-  display: flex !important;
-  align-items: center !important;
-  overflow: visible !important;
-  height: 100% !important;
-}
-
-#template-root #footer,
-.reovana-site #footer {
-  position: relative;
-  z-index: 2;
-  margin-top: 0;
-}
-
+.reovana-site #footer.reovana-footer .reovana-footer-logo,
 .reovana-site #footer .footer-logo img.reovana-footer-logo {
   width: auto !important;
   height: 200px !important;
@@ -507,6 +498,17 @@ body.auctions-route .reovana-site .header {
   object-fit: contain !important;
   position: relative;
   z-index: 1;
+}
+
+#template-root #footer.reovana-footer,
+.reovana-site #footer.reovana-footer {
+  position: relative;
+  z-index: 2;
+  margin-top: 0;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  padding-top: 0 !important;
+  color: var(--Heading, #161e2d) !important;
 }
 
 .reovana-site .phone-number {
@@ -2795,14 +2797,17 @@ body.loans-route #loading {
 }
 
 /* ── REOVANA footer (site-wide) ──────────────────────────────────────────── */
-.reovana-footer {
+.reovana-footer,
+#footer.reovana-footer {
   position: relative;
-  overflow: hidden;
-  background: #f4f5f8;
+  overflow: visible;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
   color: var(--Heading, #161e2d);
   margin-top: 0 !important;
   font-family: var(--font-main);
   border-top: 1px solid #e4e7ee;
+  padding-top: 0 !important;
 }
 
 .reovana-footer__inner {
@@ -2817,21 +2822,17 @@ body.loans-route #loading {
 }
 
 .reovana-footer__brand {
-  max-width: 280px;
+  max-width: 320px;
+  overflow: visible;
+  padding-top: 12px;
+  margin-bottom: 12px;
 }
 
 .reovana-footer__logo-link {
   display: inline-flex;
   align-items: center;
-}
-
-.reovana-site .reovana-footer .reovana-footer-logo,
-.reovana-footer .reovana-footer-logo {
-  width: auto !important;
-  height: 56px !important;
-  max-width: 200px !important;
-  object-fit: contain !important;
-  filter: none;
+  overflow: visible;
+  height: 78px;
 }
 
 .reovana-footer__desc {
