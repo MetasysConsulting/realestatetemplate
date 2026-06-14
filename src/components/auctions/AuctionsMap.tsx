@@ -5,8 +5,10 @@ import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import { MapPropertyPopup } from "@/components/auctions/MapPropertyPopup";
 import { MapLayerLegend, MapOptionsPanel } from "@/components/auctions/MapOptionsPanel";
 import {
+  buildLayerGrid,
   getLayerValues,
   getMockLayerValue,
+  getPropertyBounds,
   layerValueToColor,
   type MapLayerKey,
 } from "@/lib/map-layers";
@@ -29,9 +31,11 @@ type LeafletModules = {
   TileLayer: typeof import("react-leaflet").TileLayer;
   Marker: typeof import("react-leaflet").Marker;
   Circle: typeof import("react-leaflet").Circle;
+  Rectangle: typeof import("react-leaflet").Rectangle;
   Popup: typeof import("react-leaflet").Popup;
   useMap: typeof import("react-leaflet").useMap;
   divIcon: typeof import("leaflet").divIcon;
+  latLngBounds: typeof import("leaflet").latLngBounds;
 };
 
 function createMarkerIcon(
@@ -40,13 +44,17 @@ function createMarkerIcon(
   active: boolean,
   layered: boolean,
 ) {
-  const ring = active ? "box-shadow:0 0 0 3px #fff,0 0 0 5px rgba(22,30,45,0.25);" : "";
-  const size = layered ? 12 : 14;
+  const ring = active
+    ? "box-shadow:0 0 0 3px #fff,0 0 0 6px rgba(22,30,45,0.3);"
+    : layered
+      ? "box-shadow:0 0 0 2px #fff;"
+      : "";
+  const size = layered ? 14 : 14;
   return divIcon({
     className: `auctions-leaflet-marker${active ? " is-active" : ""}${layered ? " is-layered" : ""}`,
-    html: `<span style="background:${color};width:${size}px;height:${size}px;${ring}"></span>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
+    html: `<span style="background:${color};width:${size}px;height:${size}px;border:2px solid #fff;${ring}"></span>`,
+    iconSize: [size + 4, size + 4],
+    iconAnchor: [(size + 4) / 2, (size + 4) / 2],
   });
 }
 
@@ -71,9 +79,11 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
         TileLayer: rl.TileLayer,
         Marker: rl.Marker,
         Circle: rl.Circle,
+        Rectangle: rl.Rectangle,
         Popup: rl.Popup,
         useMap: rl.useMap,
         divIcon: L.divIcon,
+        latLngBounds: L.latLngBounds,
       });
     });
   }, []);
@@ -93,6 +103,11 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
 
   const layerValues = useMemo(
     () => (selectedLayer ? getLayerValues(properties, selectedLayer) : []),
+    [properties, selectedLayer],
+  );
+
+  const gridCells = useMemo(
+    () => (selectedLayer ? buildLayerGrid(properties, selectedLayer) : []),
     [properties, selectedLayer],
   );
 
@@ -119,7 +134,8 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
     return <div className="auctions-map-loading">Loading map…</div>;
   }
 
-  const { MapContainer, TileLayer, Marker, Circle, Popup, useMap } = leaflet;
+  const { MapContainer, TileLayer, Marker, Circle, Rectangle, Popup, useMap, latLngBounds } =
+    leaflet;
 
   function BoundsLock() {
     const map = useMap();
@@ -131,8 +147,18 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
     return null;
   }
 
+  function FitLayerBounds() {
+    const map = useMap();
+    useEffect(() => {
+      if (!selectedLayer || properties.length === 0) return;
+      const bounds = latLngBounds(getPropertyBounds(properties));
+      map.fitBounds(bounds, { padding: [48, 48], maxZoom: 8, animate: true });
+    }, [map, selectedLayer, properties]);
+    return null;
+  }
+
   return (
-    <div className="auctions-map-root">
+    <div className={`auctions-map-root${selectedLayer ? " has-layer-active" : ""}`}>
       <MapOptionsPanel
         selectedLayer={selectedLayer}
         onSelectLayer={setSelectedLayer}
@@ -156,7 +182,28 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
         zoomControl
       >
         <BoundsLock />
+        <FitLayerBounds />
         <TileLayer attribution={tileAttribution} url={tileUrl} />
+
+        {selectedLayer
+          ? gridCells.map((cell, i) => (
+              <Rectangle
+                key={`grid-${i}`}
+                bounds={[
+                  [cell.south, cell.west],
+                  [cell.north, cell.east],
+                ]}
+                pathOptions={{
+                  fillColor: cell.color,
+                  fillOpacity: 0.62,
+                  color: cell.color,
+                  weight: 0.5,
+                  opacity: 0.35,
+                }}
+                interactive={false}
+              />
+            ))
+          : null}
 
         {selectedLayer
           ? properties.map((p) => {
@@ -164,16 +211,17 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
               if (!style) return null;
               return (
                 <Circle
-                  key={`layer-${p.id}`}
+                  key={`halo-${p.id}`}
                   center={[p.lat, p.lng]}
-                  radius={18000}
+                  radius={28000}
                   pathOptions={{
                     fillColor: style.color,
-                    fillOpacity: 0.42,
-                    color: style.color,
-                    weight: 1,
-                    opacity: 0.55,
+                    fillOpacity: 0.72,
+                    color: "#ffffff",
+                    weight: 2,
+                    opacity: 0.9,
                   }}
+                  interactive={false}
                 />
               );
             })
@@ -183,12 +231,7 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
           const layered = Boolean(selectedLayer);
           const layerColor = propertyStyles.get(p.id)?.color ?? markerColor;
           const icon = layered
-            ? createMarkerIcon(
-                leaflet.divIcon,
-                layerColor,
-                activeId === p.id,
-                true,
-              )
+            ? createMarkerIcon(leaflet.divIcon, layerColor, activeId === p.id, true)
             : activeId === p.id
               ? defaultIcons.active
               : defaultIcons.default;
@@ -198,6 +241,7 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
               key={p.id}
               position={[p.lat, p.lng]}
               icon={icon}
+              zIndexOffset={activeId === p.id ? 1000 : 500}
               eventHandlers={{
                 click: () => setActiveId(p.id),
                 popupclose: () => setActiveId((id) => (id === p.id ? null : id)),

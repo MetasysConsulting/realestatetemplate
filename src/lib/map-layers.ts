@@ -308,3 +308,117 @@ export function buildHistogramBins(values: number[], binCount = 12): number[] {
   const max = Math.max(...bins, 1);
   return bins.map((b) => b / max);
 }
+
+export type LayerGridCell = {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+  value: number;
+  color: string;
+};
+
+/** Regional mock value for map grid cells (stable per lat/lng). */
+export function getMockGridLayerValue(
+  lat: number,
+  lng: number,
+  layerKey: MapLayerKey,
+): number {
+  const rng = mulberry32(hashString(`grid:${lat.toFixed(3)},${lng.toFixed(3)}:${layerKey}`));
+  let v = rng();
+
+  // Light geographic bias so regions look different on the map
+  const coastal = Math.abs(lng + 82) < 12 || Math.abs(lng + 118) < 8;
+  const southern = lat < 33;
+  const western = lng < -100;
+
+  if (layerKey.startsWith("env-flood")) v = Math.min(1, v * 0.55 + (coastal ? 0.38 : 0.08));
+  if (layerKey === "env-wildfire") v = Math.min(1, v * 0.5 + (western ? 0.42 : 0.1));
+  if (layerKey === "env-wind") v = Math.min(1, v * 0.5 + (coastal ? 0.4 : 0.12));
+  if (layerKey === "env-heat") v = Math.min(1, v * 0.45 + (southern ? 0.45 : 0.1));
+  if (layerKey.startsWith("value-")) v = Math.min(1, v * 0.5 + (coastal ? 0.25 : 0) + (lat > 40 ? 0.15 : 0));
+  if (layerKey.startsWith("market-")) v = Math.min(1, v * 0.55 + (coastal ? 0.3 : 0.05));
+
+  return Math.min(1, Math.max(0, v));
+}
+
+/** Colored regional grid covering listing areas (mock choropleth). */
+export function buildLayerGrid(
+  properties: AuctionProperty[],
+  layerKey: MapLayerKey,
+  maxCells = 160,
+): LayerGridCell[] {
+  if (properties.length === 0) return [];
+
+  let minLat = Infinity;
+  let maxLat = -Infinity;
+  let minLng = Infinity;
+  let maxLng = -Infinity;
+
+  properties.forEach((p) => {
+    minLat = Math.min(minLat, p.lat);
+    maxLat = Math.max(maxLat, p.lat);
+    minLng = Math.min(minLng, p.lng);
+    maxLng = Math.max(maxLng, p.lng);
+  });
+
+  const latPad = Math.max((maxLat - minLat) * 0.15, 0.35);
+  const lngPad = Math.max((maxLng - minLng) * 0.15, 0.35);
+  minLat -= latPad;
+  maxLat += latPad;
+  minLng -= lngPad;
+  maxLng += lngPad;
+
+  const latSpan = maxLat - minLat || 1;
+  const lngSpan = maxLng - minLng || 1;
+  const aspect = lngSpan / latSpan;
+  const rows = Math.max(4, Math.round(Math.sqrt(maxCells / aspect)));
+  const cols = Math.max(4, Math.round(maxCells / rows));
+  const latStep = latSpan / rows;
+  const lngStep = lngSpan / cols;
+
+  const cells: LayerGridCell[] = [];
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const south = minLat + r * latStep;
+      const north = south + latStep;
+      const west = minLng + c * lngStep;
+      const east = west + lngStep;
+      const centerLat = (south + north) / 2;
+      const centerLng = (west + east) / 2;
+
+      const inCell = properties.filter(
+        (p) => p.lat >= south && p.lat <= north && p.lng >= west && p.lng <= east,
+      );
+
+      let value = getMockGridLayerValue(centerLat, centerLng, layerKey);
+      if (inCell.length > 0) {
+        const propAvg =
+          inCell.reduce((sum, p) => sum + getMockLayerValue(p, layerKey), 0) / inCell.length;
+        value = value * 0.35 + propAvg * 0.65;
+      }
+
+      // Skip empty ocean cells far from any listing
+      const hasNearby = properties.some(
+        (p) => Math.abs(p.lat - centerLat) < latStep * 1.2 && Math.abs(p.lng - centerLng) < lngStep * 1.2,
+      );
+      if (!hasNearby) continue;
+
+      cells.push({
+        south,
+        west,
+        north,
+        east,
+        value,
+        color: layerValueToColor(value),
+      });
+    }
+  }
+
+  return cells;
+}
+
+export function getPropertyBounds(properties: AuctionProperty[]): [number, number][] {
+  return properties.map((p) => [p.lat, p.lng] as [number, number]);
+}
