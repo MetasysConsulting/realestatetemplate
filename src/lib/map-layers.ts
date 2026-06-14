@@ -1,11 +1,6 @@
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 
-export type MapLayerCategory =
-  | "value"
-  | "home"
-  | "environment"
-  | "market"
-  | "transportation";
+export type MapLayerCategory = "value" | "home" | "market";
 
 export type MapLayerKey =
   | "value-estimate"
@@ -14,18 +9,10 @@ export type MapLayerKey =
   | "home-lot-slope"
   | "home-size"
   | "home-year-built"
-  | "env-flood"
-  | "env-wildfire"
-  | "env-heat"
-  | "env-wind"
-  | "env-air"
-  | "env-noise"
   | "market-hotness"
   | "market-sold-vs-list"
   | "market-sold-sqft"
-  | "market-dom"
-  | "transit-public"
-  | "transit-bike";
+  | "market-dom";
 
 export type MapLayerOption = {
   key: MapLayerKey;
@@ -101,55 +88,6 @@ export const MAP_LAYER_GROUPS: MapLayerGroup[] = [
     ],
   },
   {
-    id: "environment",
-    title: "Environment",
-    icon: "🌿",
-    options: [
-      {
-        key: "env-flood",
-        label: "Flood",
-        description: "Mock flood risk exposure for the parcel.",
-        scaleMin: "Low risk",
-        scaleMax: "High risk",
-      },
-      {
-        key: "env-wildfire",
-        label: "Wildfire",
-        description: "Mock wildfire hazard index.",
-        scaleMin: "Low",
-        scaleMax: "High",
-      },
-      {
-        key: "env-heat",
-        label: "Heat",
-        description: "Mock extreme heat exposure.",
-        scaleMin: "Cooler",
-        scaleMax: "Hotter",
-      },
-      {
-        key: "env-wind",
-        label: "Wind",
-        description: "Mock wind/storm exposure.",
-        scaleMin: "Sheltered",
-        scaleMax: "Exposed",
-      },
-      {
-        key: "env-air",
-        label: "Air",
-        description: "Mock air quality score.",
-        scaleMin: "Poor",
-        scaleMax: "Good",
-      },
-      {
-        key: "env-noise",
-        label: "Noise",
-        description: "Mock noise pollution level.",
-        scaleMin: "Quiet",
-        scaleMax: "Loud",
-      },
-    ],
-  },
-  {
     id: "market",
     title: "Market",
     icon: "📈",
@@ -181,27 +119,6 @@ export const MAP_LAYER_GROUPS: MapLayerGroup[] = [
         description: "Mock average days on market.",
         scaleMin: "Fast (<14d)",
         scaleMax: "Slow (90d+)",
-      },
-    ],
-  },
-  {
-    id: "transportation",
-    title: "Transportation",
-    icon: "🚌",
-    options: [
-      {
-        key: "transit-public",
-        label: "Public transit",
-        description: "Mock access to bus, rail, and transit stops.",
-        scaleMin: "Limited",
-        scaleMax: "Excellent",
-      },
-      {
-        key: "transit-bike",
-        label: "Bike lanes",
-        description: "Mock bike lane and trail connectivity.",
-        scaleMin: "Few lanes",
-        scaleMax: "Bike-friendly",
       },
     ],
   },
@@ -329,13 +246,7 @@ export function getMockGridLayerValue(
 
   // Light geographic bias so regions look different on the map
   const coastal = Math.abs(lng + 82) < 12 || Math.abs(lng + 118) < 8;
-  const southern = lat < 33;
-  const western = lng < -100;
 
-  if (layerKey.startsWith("env-flood")) v = Math.min(1, v * 0.55 + (coastal ? 0.38 : 0.08));
-  if (layerKey === "env-wildfire") v = Math.min(1, v * 0.5 + (western ? 0.42 : 0.1));
-  if (layerKey === "env-wind") v = Math.min(1, v * 0.5 + (coastal ? 0.4 : 0.12));
-  if (layerKey === "env-heat") v = Math.min(1, v * 0.45 + (southern ? 0.45 : 0.1));
   if (layerKey.startsWith("value-")) v = Math.min(1, v * 0.5 + (coastal ? 0.25 : 0) + (lat > 40 ? 0.15 : 0));
   if (layerKey.startsWith("market-")) v = Math.min(1, v * 0.55 + (coastal ? 0.3 : 0.05));
 

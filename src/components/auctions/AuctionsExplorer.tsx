@@ -10,6 +10,7 @@ import {
   type AuctionProperty,
 } from "@/lib/generate-auction-properties";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
+import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 
 const FILTER_OPTIONS = {
   assetType: ["All", "Foreclosure", "Bank Owned", "Short Sale", "Commercial"],
@@ -90,6 +91,7 @@ export function AuctionsExplorer({
   const [auctionStatus, setAuctionStatus] = useState("All");
   const [featured, setFeatured] = useState("All");
   const [mapView, setMapView] = useState<"map" | "satellite">("map");
+  const [layersOpen, setLayersOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
@@ -204,26 +206,14 @@ export function AuctionsExplorer({
         </section>
 
         <section className="auctions-map-panel" aria-label="Property map">
-          <div className="auctions-map-toolbar">
-            <div className="auctions-map-toggle">
-              <button
-                type="button"
-                className={mapView === "map" ? "is-active" : ""}
-                onClick={() => setMapView("map")}
-              >
-                Map
-              </button>
-              <button
-                type="button"
-                className={mapView === "satellite" ? "is-active" : ""}
-                onClick={() => setMapView("satellite")}
-              >
-                Satellite
-              </button>
-            </div>
-          </div>
+          <AuctionsMapToolbar
+            mapView={mapView}
+            onMapViewChange={setMapView}
+            layersOpen={layersOpen}
+            onLayersOpenChange={setLayersOpen}
+          />
           <div className="auctions-map-wrap">
-            <AuctionsMap properties={filtered} mapView={mapView} />
+            <AuctionsMap properties={filtered} mapView={mapView} layersPanelOpen={layersOpen} />
             <button type="button" className="auctions-map-search-area tf-btn bg-color-primary">
               Search This Area
             </button>

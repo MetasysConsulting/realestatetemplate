@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
+import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { PropertyListing } from "@/lib/load-category-listings";
@@ -109,6 +110,7 @@ export function PropertyCategoryExplorer({
   const [state, setState] = useState("All");
   const [sortBy, setSortBy] = useState("price-desc");
   const [mapView, setMapView] = useState<"map" | "satellite">("map");
+  const [layersOpen, setLayersOpen] = useState(false);
 
   const states = useMemo(
     () => [...new Set(listings.map((l) => l.state))].sort(),
@@ -173,26 +175,14 @@ export function PropertyCategoryExplorer({
         </section>
 
         <section className="auctions-map-panel" aria-label="Property map">
-          <div className="auctions-map-toolbar">
-            <div className="auctions-map-toggle">
-              <button
-                type="button"
-                className={mapView === "map" ? "is-active" : ""}
-                onClick={() => setMapView("map")}
-              >
-                Map
-              </button>
-              <button
-                type="button"
-                className={mapView === "satellite" ? "is-active" : ""}
-                onClick={() => setMapView("satellite")}
-              >
-                Satellite
-              </button>
-            </div>
-          </div>
+          <AuctionsMapToolbar
+            mapView={mapView}
+            onMapViewChange={setMapView}
+            layersOpen={layersOpen}
+            onLayersOpenChange={setLayersOpen}
+          />
           <div className="auctions-map-wrap">
-            <AuctionsMap properties={toMapProperties(filtered)} mapView={mapView} />
+            <AuctionsMap properties={toMapProperties(filtered)} mapView={mapView} layersPanelOpen={layersOpen} />
           </div>
         </section>
       </div>

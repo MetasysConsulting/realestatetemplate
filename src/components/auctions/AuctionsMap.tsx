@@ -24,6 +24,7 @@ const US_CENTER: [number, number] = [39.8283, -98.5795];
 type AuctionsMapProps = {
   properties: AuctionProperty[];
   mapView: "map" | "satellite";
+  layersPanelOpen: boolean;
 };
 
 type LeafletModules = {
@@ -58,12 +59,11 @@ function createMarkerIcon(
   });
 }
 
-export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
+export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMapProps) {
   const [leaflet, setLeaflet] = useState<LeafletModules | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [markerColor, setMarkerColor] = useState("#7695ff");
   const [selectedLayer, setSelectedLayer] = useState<MapLayerKey | null>(null);
-  const [panelOpen, setPanelOpen] = useState(true);
 
   useEffect(() => {
     void import("leaflet/dist/leaflet.css");
@@ -162,8 +162,7 @@ export function AuctionsMap({ properties, mapView }: AuctionsMapProps) {
       <MapOptionsPanel
         selectedLayer={selectedLayer}
         onSelectLayer={setSelectedLayer}
-        open={panelOpen}
-        onToggleOpen={() => setPanelOpen((v) => !v)}
+        open={layersPanelOpen}
       />
 
       {selectedLayer ? (

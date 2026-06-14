@@ -11,21 +11,17 @@ type MapOptionsPanelProps = {
   selectedLayer: MapLayerKey | null;
   onSelectLayer: (key: MapLayerKey | null) => void;
   open: boolean;
-  onToggleOpen: () => void;
 };
 
 export function MapOptionsPanel({
   selectedLayer,
   onSelectLayer,
   open,
-  onToggleOpen,
 }: MapOptionsPanelProps) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({
     value: true,
     home: true,
-    environment: true,
     market: true,
-    transportation: true,
   });
 
   const activeOption: MapLayerOption | null = selectedLayer
@@ -36,8 +32,10 @@ export function MapOptionsPanel({
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const panel = (
-    <aside className={`map-options-panel${open ? "" : " is-collapsed"}`}>
+  if (!open) return null;
+
+  return (
+    <aside className="map-options-panel">
       <div className="map-options-panel__tabs">
         <button type="button" className="is-active">
           Map Options
@@ -99,20 +97,6 @@ export function MapOptionsPanel({
         Reset
       </button>
     </aside>
-  );
-
-  return (
-    <>
-      {open ? panel : null}
-      <button
-        type="button"
-        className={`map-options-panel__toggle${open ? "" : " is-collapsed"}`}
-        onClick={onToggleOpen}
-        aria-label={open ? "Hide map options" : "Show map options"}
-      >
-        {open ? "‹" : "›"}
-      </button>
-    </>
   );
 }
 
