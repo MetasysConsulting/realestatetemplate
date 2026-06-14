@@ -437,8 +437,9 @@ body.auctions-route .reovana-site .header {
 
 .reovana-site .header .header-logo img.reovana-logo {
   width: auto !important;
-  height: 200px !important;  /* ~5× from 42px */
-  max-width: none !important;
+  height: auto !important;
+  max-height: 56px !important;
+  max-width: min(240px, 52vw) !important;
   object-fit: contain !important;
   position: relative;
   z-index: 1;
@@ -471,8 +472,9 @@ body.auctions-route .reovana-site .header {
 
 .reovana-site #footer .footer-logo img.reovana-footer-logo {
   width: auto !important;
-  height: 200px !important;
-  max-width: none !important;
+  height: auto !important;
+  max-height: 72px !important;
+  max-width: min(280px, 70vw) !important;
   object-fit: contain !important;
   position: relative;
   z-index: 1;
@@ -480,6 +482,14 @@ body.auctions-route .reovana-site .header {
 
 .reovana-site .phone-number {
   display: none !important;
+}
+
+.reovana-site #loading .icon img {
+  width: auto !important;
+  height: auto !important;
+  max-height: 64px !important;
+  max-width: 200px !important;
+  object-fit: contain !important;
 }
 
 /* Template floating settings / RTL / theme toggle panel */
