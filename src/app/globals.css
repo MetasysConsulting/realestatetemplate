@@ -2798,46 +2798,26 @@ body.loans-route #loading {
 .reovana-footer {
   position: relative;
   overflow: hidden;
-  background: #161e2d;
-  color: #e8edf7;
+  background: #f4f5f8;
+  color: var(--Heading, #161e2d);
   margin-top: 0 !important;
   font-family: var(--font-main);
-}
-
-.reovana-footer__bg {
-  position: absolute;
-  inset: 0;
-  background-image: url(/images/reovana/hero-house.jpeg);
-  background-size: cover;
-  background-position: center;
-  opacity: 0.22;
-}
-
-.reovana-footer__bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(22, 30, 45, 0.88) 0%, rgba(22, 30, 45, 0.96) 100%);
+  border-top: 1px solid #e4e7ee;
 }
 
 .reovana-footer__inner {
-  position: relative;
-  z-index: 1;
-  padding: clamp(48px, 6vw, 72px) 0 28px;
+  padding: clamp(40px, 5vw, 56px) 0 0;
 }
 
-.reovana-footer__top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 24px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+.reovana-footer__main {
+  display: grid;
+  grid-template-columns: 1.35fr repeat(4, minmax(0, 1fr)) 1.2fr;
+  gap: clamp(20px, 2.5vw, 32px);
+  align-items: start;
 }
 
 .reovana-footer__brand {
-  max-width: 360px;
+  max-width: 280px;
 }
 
 .reovana-footer__logo-link {
@@ -2845,54 +2825,72 @@ body.loans-route #loading {
   align-items: center;
 }
 
+.reovana-site .reovana-footer .reovana-footer-logo,
 .reovana-footer .reovana-footer-logo {
   width: auto !important;
-  height: 72px !important;
-  max-width: none !important;
+  height: 56px !important;
+  max-width: 200px !important;
   object-fit: contain !important;
-  filter: brightness(1.05);
+  filter: none;
 }
 
-.reovana-footer__tagline {
-  margin: 12px 0 0;
-  font-size: 16px;
+.reovana-footer__desc {
+  margin: 14px 0 18px;
+  font-size: 14px;
   line-height: 1.6;
-  color: #b8c4dc;
+  color: var(--Text, #5c5e61);
   font-weight: 300;
 }
 
-.reovana-footer__contact {
+.reovana-footer__highlights {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.reovana-footer__contact-link {
-  color: #fff;
-  font-weight: 600;
-  text-decoration: none;
-  font-size: 16px;
+.reovana-footer__highlights li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--Text, #5c5e61);
 }
 
-.reovana-footer__contact-link:hover {
-  color: var(--Primary, #7695ff);
-}
-
-.reovana-footer__links {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 28px 20px;
-  padding: 32px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.reovana-footer__col h6 {
-  margin: 0 0 14px;
-  font-size: 14px;
+.reovana-footer__highlights strong {
+  color: var(--Heading, #161e2d);
   font-weight: 700;
-  letter-spacing: 0.08em;
+}
+
+.reovana-footer__highlight-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(118, 149, 255, 0.12);
+  color: var(--Primary, #7695ff);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.reovana-footer__highlight-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.reovana-footer__col h6,
+.reovana-footer__newsletter h6,
+.reovana-footer__legal-block h6 {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #fff;
+  color: var(--Heading, #161e2d);
 }
 
 .reovana-footer__col ul {
@@ -2901,70 +2899,186 @@ body.loans-route #loading {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
 }
 
 .reovana-footer__col a {
-  color: #b8c4dc;
+  color: var(--Text, #5c5e61);
   text-decoration: none;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
+  line-height: 1.4;
 }
 
 .reovana-footer__col a:hover {
-  color: #fff;
+  color: var(--Primary, #7695ff);
 }
 
-.reovana-footer__disclaimers {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  padding: 28px 0;
-}
-
-.reovana-footer__disclaimer {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 18px 16px;
-}
-
-.reovana-footer__disclaimer--highlight {
-  border-color: rgba(118, 149, 255, 0.35);
-  background: rgba(118, 149, 255, 0.08);
-}
-
-.reovana-footer__disclaimer h6 {
-  margin: 0 0 8px;
+.reovana-footer__newsletter p {
+  margin: 0 0 14px;
   font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #fff;
-}
-
-.reovana-footer__disclaimer p {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #b8c4dc;
+  line-height: 1.55;
+  color: var(--Text, #5c5e61);
   font-weight: 300;
 }
 
-.reovana-footer__bottom {
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+.reovana-footer__subscribe {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.reovana-footer__bottom p {
-  margin: 0;
+.reovana-footer__subscribe input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #d8dce6;
+  border-radius: 8px;
+  padding: 0 14px;
   font-size: 14px;
-  color: #8fa0be;
+  font-family: inherit;
+  background: #fff;
+  color: var(--Heading, #161e2d);
 }
 
-.reovana-footer__bottom strong {
+.reovana-footer__subscribe input::placeholder {
+  color: #9aa3b2;
+}
+
+.reovana-footer__subscribe-btn {
+  height: 44px;
+  border: none;
+  border-radius: 8px;
+  background: #161e2d;
   color: #fff;
+  font-size: 14px;
   font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.reovana-footer__subscribe-btn:hover {
+  background: #2a3347;
+}
+
+.reovana-footer__divider {
+  height: 1px;
+  background: #dde1ea;
+  margin: clamp(28px, 4vw, 40px) 0;
+}
+
+.reovana-footer__legal-row {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr 1.2fr 1.2fr 1.1fr;
+  gap: clamp(18px, 2.5vw, 28px);
+  padding-bottom: clamp(24px, 3vw, 32px);
+}
+
+.reovana-footer__contact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reovana-footer__contact-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--Text, #5c5e61);
+}
+
+.reovana-footer__contact-list i {
+  color: var(--Primary, #7695ff);
+  font-size: 16px;
+}
+
+.reovana-footer__contact-list a {
+  color: var(--Text, #5c5e61);
+  text-decoration: none;
+}
+
+.reovana-footer__contact-list a:hover {
+  color: var(--Primary, #7695ff);
+}
+
+.reovana-footer__social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reovana-footer__social a {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #d8dce6;
+  background: #fff;
+  color: #161e2d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 14px;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.reovana-footer__social a:hover {
+  border-color: var(--Primary, #7695ff);
+  color: var(--Primary, #7695ff);
+}
+
+.reovana-footer__yt-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.reovana-footer__legal-block p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--Text, #5c5e61);
+  font-weight: 300;
+}
+
+.reovana-footer__fair-housing {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reovana-footer__eho {
+  width: 40px;
+  height: 40px;
+  color: #161e2d;
+}
+
+.reovana-footer__eho svg {
+  width: 100%;
+  height: 100%;
+}
+
+.reovana-footer__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 16px;
+  padding: 16px 0 22px;
+  border-top: 1px solid #dde1ea;
+  font-size: 13px;
+  color: #7a8496;
+  text-align: center;
+}
+
+.reovana-footer__bar-sep {
+  color: #c5cad6;
 }
 
 /* Hide legacy footer blocks when new footer is active */
@@ -2974,16 +3088,33 @@ body.loans-route #loading {
   display: none !important;
 }
 
-@media (max-width: 991px) {
-  .reovana-footer__links,
-  .reovana-footer__disclaimers {
+@media (max-width: 1199px) {
+  .reovana-footer__main {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .reovana-footer__brand {
+    grid-column: 1 / -1;
+    max-width: 520px;
+  }
+
+  .reovana-footer__legal-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 640px) {
-  .reovana-footer__links,
-  .reovana-footer__disclaimers {
+@media (max-width: 767px) {
+  .reovana-footer__main,
+  .reovana-footer__legal-row {
     grid-template-columns: 1fr;
+  }
+
+  .reovana-footer__bar {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .reovana-footer__bar-sep {
+    display: none;
   }
 }
