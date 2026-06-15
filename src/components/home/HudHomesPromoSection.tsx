@@ -9,7 +9,7 @@ const HUD_PARTNERS = [
   "Freddie Mac",
 ];
 
-const PROMO_HOUSE_IMAGE = "/images/reovana/hero-house.jpeg";
+const PROMO_HOUSE_IMAGE = "/images/reovana/loan-steps-house.png";
 
 export function HudHomesPromoSection() {
   return (
