@@ -126,13 +126,15 @@ export function buildReovanaFooter() {
                     </div>
 
                     <div class="reovana-footer__legal-block reovana-footer__fair-housing">
-                        <div class="reovana-footer__eho" aria-hidden="true">
-                            <svg viewBox="0 0 64 72" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M32 2 4 24v46h56V24L32 2Zm0 11.6L14.5 28.2V64h35V28.2L32 13.6Z"/>
-                                <rect fill="currentColor" x="18" y="36" width="28" height="5" rx="1"/>
-                                <rect fill="currentColor" x="18" y="48" width="28" height="5" rx="1"/>
-                            </svg>
-                        </div>
+                        <img
+                            class="reovana-footer__eho-logo"
+                            src="/images/reovana/equal-housing-opportunity.png"
+                            alt="Equal Housing Opportunity"
+                            width="72"
+                            height="72"
+                            loading="lazy"
+                            decoding="async"
+                        >
                         <p>REOVANA.com supports the principles of the Fair Housing Act and Equal Opportunity Housing.</p>
                     </div>
                 </div>
