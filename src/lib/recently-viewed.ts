@@ -1,3 +1,8 @@
+import { generateAuctionProperties } from "@/lib/generate-auction-properties";
+import type { PropertyListing } from "@/lib/load-category-listings";
+import { PROPERTY_CATEGORIES } from "@/lib/property-categories";
+import type { BuyCategoryKey } from "@/lib/buy-categories";
+
 export type RecentlyViewedListing = {
   id: string;
   address: string;
@@ -40,4 +45,37 @@ export function recordRecentlyViewed(item: Omit<RecentlyViewedListing, "viewedAt
   } catch {
     /* private browsing */
   }
+}
+
+const DEMO_BUY_TYPE_PATHS: Partial<Record<BuyCategoryKey, string>> = {
+  "foreclosure-homes": PROPERTY_CATEGORIES.foreclosure.path,
+  "bank-owned": PROPERTY_CATEGORIES["bank-owned"].path,
+  "second-chance-foreclosure": PROPERTY_CATEGORIES["pre-foreclosure"].path,
+  "short-sale": PROPERTY_CATEGORIES.foreclosure.path,
+  commercial: PROPERTY_CATEGORIES["auction-property"].path,
+  "non-bank-owned": PROPERTY_CATEGORIES["motivated-seller"].path,
+};
+
+/** Placeholder row for homepage demo — not tied to real view history yet. */
+export function getRecentlyViewedDemoListings(): PropertyListing[] {
+  return generateAuctionProperties("all", 6).map((mock) => ({
+    id: mock.id,
+    address: mock.address,
+    city: mock.city,
+    state: mock.state,
+    zip: mock.zip,
+    price: mock.openingBid,
+    priceLabel: "Est. Opening Bid",
+    bedrooms: mock.beds,
+    bathrooms: mock.baths,
+    squareFootage: mock.sqft,
+    propertyType: "Recently Viewed",
+    status: mock.status,
+    tags: mock.tags,
+    imageUrl: mock.imageUrl,
+    detailPath: DEMO_BUY_TYPE_PATHS[mock.buyType] ?? PROPERTY_CATEGORIES.foreclosure.path,
+    lat: mock.lat,
+    lng: mock.lng,
+    isNew: mock.isNew,
+  }));
 }

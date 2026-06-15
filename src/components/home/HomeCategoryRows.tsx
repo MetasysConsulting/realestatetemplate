@@ -10,8 +10,7 @@ import {
 import { HudHomesPromoSection } from "@/components/home/HudHomesPromoSection";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import {
-  getRecentlyViewed,
-  type RecentlyViewedListing,
+  getRecentlyViewedDemoListings,
 } from "@/lib/recently-viewed";
 
 function formatPrice(value: number) {
@@ -50,29 +49,6 @@ function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
       </div>
     </Link>
   );
-}
-
-function recentlyViewedToListing(item: RecentlyViewedListing): PropertyListing {
-  return {
-    id: item.id,
-    address: item.address,
-    city: item.city,
-    state: item.state,
-    zip: item.zip,
-    price: item.price,
-    priceLabel: item.priceLabel,
-    bedrooms: 0,
-    bathrooms: 0,
-    squareFootage: 0,
-    propertyType: "Recently Viewed",
-    status: "Viewed",
-    tags: [],
-    imageUrl: item.imageUrl,
-    detailPath: item.detailPath,
-    lat: 0,
-    lng: 0,
-    isNew: false,
-  };
 }
 
 function CategoryRow({ title, listings }: { title: string; listings: PropertyListing[] }) {
@@ -172,18 +148,7 @@ function CategoryRow({ title, listings }: { title: string; listings: PropertyLis
 }
 
 export function HomeCategoryRows() {
-  const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedListing[]>([]);
-
-  useEffect(() => {
-    const sync = () => setRecentlyViewed(getRecentlyViewed());
-    sync();
-    window.addEventListener("reovana:recently-viewed", sync);
-    window.addEventListener("storage", sync);
-    return () => {
-      window.removeEventListener("reovana:recently-viewed", sync);
-      window.removeEventListener("storage", sync);
-    };
-  }, []);
+  const recentListings = useMemo(() => getRecentlyViewedDemoListings(), []);
 
   const categoryRows = useMemo(
     () =>
@@ -194,13 +159,9 @@ export function HomeCategoryRows() {
     [],
   );
 
-  const recentListings = recentlyViewed.map(recentlyViewedToListing);
-
   return (
     <div className="reovana-home-category-rows">
-      {recentListings.length > 0 ? (
-        <CategoryRow title="Recently Viewed" listings={recentListings} />
-      ) : null}
+      <CategoryRow title="Recently Viewed" listings={recentListings} />
       {categoryRows.map((row) => (
         <div key={row.key} className="reovana-home-category-row-group">
           <CategoryRow title={row.title} listings={row.listings} />
