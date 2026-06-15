@@ -208,7 +208,7 @@ function applyHomeNeighborhoods(html) {
 
   if (!section.includes("reovana-neighborhoods__more")) {
     section = section.replace(
-      /(\s*<\/div>\s*\n\s*<\/div>\s*\n\s*<\/div>\s*\n\s*<\/section><!-- \/.section-neighborhoods -->)/,
+      /(\s*<\/div>\s*\n\s*<\/div>\s*\n\s*<\/section>)\s*$/,
       `
                         <div class="reovana-neighborhoods__more">
                             <a href="/auctions" class="tf-btn bg-color-primary pd-23 reovana-neighborhoods__more-btn">More</a>
