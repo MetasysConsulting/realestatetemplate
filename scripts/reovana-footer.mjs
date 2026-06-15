@@ -2,7 +2,6 @@
  * REOVANA site footer — multi-column layout with legal disclaimers.
  */
 
-const REOVANA_LOGO = "/images/reovana/logo.png";
 const YEAR = new Date().getFullYear();
 
 function footerLinkList(items) {
@@ -16,9 +15,6 @@ export function buildReovanaFooter() {
             <div class="tf-container reovana-footer__inner">
                 <div class="reovana-footer__main">
                     <div class="reovana-footer__brand">
-                        <a href="/" class="reovana-footer__logo-link">
-                            <img id="logo_footer" class="reovana-logo reovana-footer-logo" src="${REOVANA_LOGO}" alt="REOVANA">
-                        </a>
                         <ul class="reovana-footer__highlights">
                             <li>
                                 <span class="reovana-footer__highlight-icon" aria-hidden="true">

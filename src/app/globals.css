@@ -1101,28 +1101,19 @@ body.auctions-route .reovana-site .header {
 }
 
 /*
- * Footer logo: same 5× enlargement treatment as navbar.
+ * Footer brand column: trust highlights only (no logo).
  */
 .reovana-site #footer.reovana-footer .reovana-footer__brand {
   overflow: visible !important;
-  max-width: 320px;
+  max-width: 280px;
+  padding-top: 0;
+  margin-top: -8px;
+  margin-left: -16px;
+  margin-bottom: 0;
 }
 
-.reovana-site #footer.reovana-footer .reovana-footer__logo-link {
-  display: flex !important;
-  align-items: center !important;
-  overflow: visible !important;
-  height: 78px !important;
-}
-
-.reovana-site #footer.reovana-footer .reovana-footer-logo,
-.reovana-site #footer .footer-logo img.reovana-footer-logo {
-  width: auto !important;
-  height: 200px !important;
-  max-width: none !important;
-  object-fit: contain !important;
-  position: relative;
-  z-index: 1;
+.reovana-site #footer.reovana-footer .reovana-footer__highlights {
+  margin-top: 0;
 }
 
 #template-root #footer.reovana-footer,
@@ -3546,17 +3537,16 @@ body.loans-route #loading {
 }
 
 .reovana-footer__brand {
-  max-width: 320px;
+  max-width: 280px;
   overflow: visible;
-  padding-top: 12px;
-  margin-bottom: 12px;
+  padding-top: 0;
+  margin-top: -8px;
+  margin-left: -16px;
+  margin-bottom: 0;
 }
 
 .reovana-footer__logo-link {
-  display: inline-flex;
-  align-items: center;
-  overflow: visible;
-  height: 78px;
+  display: none;
 }
 
 .reovana-footer__desc {
