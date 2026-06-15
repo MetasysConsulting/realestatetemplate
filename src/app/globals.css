@@ -1576,6 +1576,22 @@ body.hud-detail-route #template-chrome-root.reovana-site {
   border-radius: 10px;
 }
 
+.reovana-neighborhoods__more {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.reovana-neighborhoods__more-btn {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 36px !important;
+  font-size: 15px !important;
+  font-weight: 700;
+  border-radius: 12px;
+}
+
 @media (max-width: 1200px) {
   .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
     grid-template-columns: repeat(3, minmax(0, 1fr));

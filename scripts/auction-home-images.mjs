@@ -57,6 +57,30 @@ const NEIGHBORHOOD_LOCATIONS = [
   },
 ];
 
+const EIGHTH_NEIGHBORHOOD = {
+  newImg: "21-duplex-side-by-side.jpg",
+  city: "Miami, Florida",
+  count: "1,894",
+};
+
+function neighborhoodCardMarkup(itemClass, img, city, count) {
+  const imgPath = `/images/auction-properties/${img}`;
+  return `
+                            <div class="box-location hover-img ${itemClass}">
+                                <div class="image-wrap">
+                                    <a href="/auctions">
+                                        <img class="lazyload" data-src="${imgPath}"
+                                            src="${imgPath}" alt="${city}">
+                                    </a>
+                                </div>
+                                <div class="content">
+                                    <h6 class="text_white">${city}</h6>
+                                    <a href="/auctions"
+                                        class="text-1 tf-btn style-border pd-23 text_white">${count} Properties <i class="icon-arrow-right"></i></a>
+                                </div>
+                            </div>`;
+}
+
 function sliceSection(html, startMarker, endMarker) {
   const start = html.indexOf(startMarker);
   if (start < 0) return null;
@@ -115,6 +139,28 @@ function applyHomeNeighborhoods(html) {
       `$1${loc.count} Properties <i class="icon-arrow-right"></i>$2`,
     );
     section = section.replace(/href="#"/, 'href="/auctions"');
+  }
+
+  if (!section.includes("item-8")) {
+    section = section.replace(
+      /(<div class="box-location hover-img item-7">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*)/,
+      `$1${neighborhoodCardMarkup(
+        "item-8",
+        EIGHTH_NEIGHBORHOOD.newImg,
+        EIGHTH_NEIGHBORHOOD.city,
+        EIGHTH_NEIGHBORHOOD.count,
+      )}`,
+    );
+  }
+
+  if (!section.includes("reovana-neighborhoods__more")) {
+    section = section.replace(
+      /(<div class="box-location hover-img item-8">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*)/,
+      `$1
+                        <div class="reovana-neighborhoods__more">
+                            <a href="/auctions" class="tf-btn bg-color-primary pd-23 reovana-neighborhoods__more-btn">More</a>
+                        </div>`,
+    );
   }
 
   return html.slice(0, block.start) + section + html.slice(block.end);
