@@ -2,6 +2,7 @@
  * REOVANA site footer — multi-column layout with legal disclaimers.
  */
 
+const REOVANA_LOGO = "/images/reovana/logo.png";
 const YEAR = new Date().getFullYear();
 
 function footerLinkList(items) {
@@ -15,26 +16,9 @@ export function buildReovanaFooter() {
             <div class="tf-container reovana-footer__inner">
                 <div class="reovana-footer__main">
                     <div class="reovana-footer__brand">
-                        <ul class="reovana-footer__highlights">
-                            <li>
-                                <span class="reovana-footer__highlight-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l8 3v6c0 5-3.5 8.5-8 9-4.5-.5-8-4-8-9V6l8-3z"/></svg>
-                                </span>
-                                <span><strong>Trusted Lenders</strong> — Vetted lenders you can trust.</span>
-                            </li>
-                            <li>
-                                <span class="reovana-footer__highlight-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L4 14h7l-1 8 10-14h-7l0-6z"/></svg>
-                                </span>
-                                <span><strong>Fast Closings</strong> — Close in as little as 5 days.</span>
-                            </li>
-                            <li>
-                                <span class="reovana-footer__highlight-icon" aria-hidden="true">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/></svg>
-                                </span>
-                                <span><strong>Secure Process</strong> — Safe, secure, and confidential.</span>
-                            </li>
-                        </ul>
+                        <a href="/" class="reovana-footer__logo-link">
+                            <img id="logo_footer" class="reovana-logo reovana-footer-logo" src="${REOVANA_LOGO}" alt="REOVANA">
+                        </a>
                     </div>
 
                     <div class="reovana-footer__col">
