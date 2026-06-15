@@ -7,6 +7,7 @@ import {
   HOME_CATEGORY_ROWS,
   getHomeCategoryRowListings,
 } from "@/lib/home-category-rows";
+import { HudHomesPromoSection } from "@/components/home/HudHomesPromoSection";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import {
   getRecentlyViewed,
@@ -201,7 +202,10 @@ export function HomeCategoryRows() {
         <CategoryRow title="Recently Viewed" listings={recentListings} />
       ) : null}
       {categoryRows.map((row) => (
-        <CategoryRow key={row.key} title={row.title} listings={row.listings} />
+        <div key={row.key} className="reovana-home-category-row-group">
+          <CategoryRow title={row.title} listings={row.listings} />
+          {row.key === "hud-home" ? <HudHomesPromoSection /> : null}
+        </div>
       ))}
     </div>
   );
