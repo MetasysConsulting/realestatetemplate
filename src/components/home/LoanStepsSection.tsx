@@ -142,8 +142,8 @@ export function LoanStepsSection() {
         >
           <div className="reovana-loan-steps-section__img-wrap">
             <Image
-              src="/images/reovana/loan-steps-house.png"
-              alt="Beautiful home available through REOVANA"
+              src="/images/reovana/loan-steps-house-distressed.png"
+              alt="Distressed property available through REOVANA"
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="reovana-loan-steps-section__img"
