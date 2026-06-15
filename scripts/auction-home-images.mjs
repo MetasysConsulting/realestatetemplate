@@ -115,6 +115,10 @@ function removeSectionBetween(html, startComment, endComment) {
   return html.slice(0, start) + html.slice(end + endComment.length);
 }
 
+function removeCategoriesSection(html) {
+  return removeSectionBetween(html, "<!-- .Categories -->", "<!-- /.Categories -->");
+}
+
 function removeOpenHousesSection(html) {
   const idx = html.indexOf("Open Houses Listings");
   if (idx < 0) return html;
@@ -135,6 +139,7 @@ function stripLuxuryEnthusiastsText(html) {
 
 function stripHomeSections(html) {
   let out = html;
+  out = removeCategoriesSection(out);
   out = removeOpenHousesSection(out);
   out = removeSectionBetween(out, "<!-- section-work-together -->", "<!-- /.section-work-together -->");
   out = removeSectionBetween(out, "<!-- section-opinion -->", "<!-- /.section-opinion -->");
