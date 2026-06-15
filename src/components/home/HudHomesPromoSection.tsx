@@ -1,33 +1,17 @@
 import Link from "next/link";
 
-const HUD_PARTNERS = [
-  "HUD",
-  "FHA",
-  "USDA",
-  "VA Loans",
-  "Fannie Mae",
-  "Freddie Mac",
-];
-
-const PROMO_HOUSE_IMAGE = "/images/reovana/loan-steps-house.png";
+const APPRAISAL_AGENT_IMAGE = "/images/reovana/appraisal-agent.png";
 
 export function HudHomesPromoSection() {
   return (
-    <section className="section-work-together reovana-hud-promo" aria-label="HUD homes resources">
+    <section className="section-work-together reovana-hud-promo" aria-label="Partner and appraisal call to action">
       <div className="wg-partner tf-spacing-1">
         <div className="tf-container">
-          <div className="heading-section text-center mb-48">
+          <div className="heading-section text-center mb-48 reovana-hud-promo__intro">
             <h2 className="title text_white">Let&apos;s Work Together</h2>
             <p className="text-1 text_white">
               Thousands of luxury home enthusiasts just like you visit our website.
             </p>
-          </div>
-          <div className="reovana-hud-promo__partners">
-            {HUD_PARTNERS.map((name) => (
-              <div key={name} className="partner-item style-2 reovana-hud-promo__partner">
-                <span>{name}</span>
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -48,9 +32,9 @@ export function HudHomesPromoSection() {
             <Link href="/contact" className="tf-btn bg-color-primary fw-7 pd-11">
               Request your free appraisal
             </Link>
-            <div className="person reovana-hud-promo__house">
+            <div className="person reovana-hud-promo__agent">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={PROMO_HOUSE_IMAGE} alt="" loading="lazy" decoding="async" />
+              <img src={APPRAISAL_AGENT_IMAGE} alt="" loading="lazy" decoding="async" />
             </div>
           </div>
         </div>
