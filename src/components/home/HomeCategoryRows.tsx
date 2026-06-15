@@ -25,12 +25,16 @@ function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
   const [imageUrl, setImageUrl] = useState(listing.imageUrl);
 
   return (
-    <article className="reovana-home-category-card">
+    <Link
+      href={listing.detailPath}
+      className="reovana-home-category-card"
+      aria-label={`View ${listing.address}, ${listing.city}, ${listing.state}`}
+    >
       <div className="reovana-home-category-card__media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
-          alt={`${listing.address}, ${listing.city}, ${listing.state}`}
+          alt=""
           loading="lazy"
           decoding="async"
           onError={() => setImageUrl(DEFAULT_AUCTION_PROPERTY_IMAGE)}
@@ -42,11 +46,8 @@ function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
         <h4 className="reovana-home-category-card__address">
           {listing.address}, {listing.city}, {listing.state}
         </h4>
-        <Link href={listing.detailPath} className="tf-btn bg-color-primary reovana-home-category-card__more">
-          More
-        </Link>
       </div>
-    </article>
+    </Link>
   );
 }
 
