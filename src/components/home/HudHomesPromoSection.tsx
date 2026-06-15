@@ -17,7 +17,7 @@ export function HudHomesPromoSection() {
                 Renting Your Property?
               </h2>
               <p className="text-1">
-                Thousands of luxury home enthusiasts just like you visit our website.
+                Thousands of investors visit our website.
               </p>
             </div>
             <Link href="/contact" className="tf-btn bg-color-primary fw-7 pd-11">
