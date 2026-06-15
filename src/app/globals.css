@@ -3433,9 +3433,10 @@ body.loans-route #loading {
 }
 
 .reovana-footer__eho {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 50px;
   color: #161e2d;
+  flex-shrink: 0;
 }
 
 .reovana-footer__eho svg {
