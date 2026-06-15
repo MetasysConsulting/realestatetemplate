@@ -1078,9 +1078,9 @@ body.auctions-route .reovana-site .header {
  */
 .reovana-site #footer.reovana-footer .reovana-footer__brand {
   overflow: visible !important;
-  max-width: 320px;
-  margin-top: -12px;
-  margin-left: -8px;
+  max-width: 260px;
+  margin-top: -8px;
+  margin-left: -6px;
 }
 
 .reovana-site #footer.reovana-footer .reovana-footer__logo-link {
@@ -1093,7 +1093,7 @@ body.auctions-route .reovana-site .header {
 .reovana-site #footer.reovana-footer .reovana-footer-logo,
 .reovana-site #footer .footer-logo img.reovana-footer-logo {
   width: auto !important;
-  height: 200px !important;
+  height: 150px !important;
   max-width: none !important;
   object-fit: contain !important;
   position: relative;
