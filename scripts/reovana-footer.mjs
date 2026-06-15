@@ -19,7 +19,6 @@ export function buildReovanaFooter() {
                         <a href="/" class="reovana-footer__logo-link">
                             <img id="logo_footer" class="reovana-logo reovana-footer-logo" src="${REOVANA_LOGO}" alt="REOVANA">
                         </a>
-                        <p class="reovana-footer__desc">Connecting real estate investors with private lenders to provide fast funding solutions for distressed properties nationwide.</p>
                         <ul class="reovana-footer__highlights">
                             <li>
                                 <span class="reovana-footer__highlight-icon" aria-hidden="true">
