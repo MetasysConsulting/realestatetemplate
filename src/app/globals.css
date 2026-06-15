@@ -980,17 +980,20 @@ body.auctions-route .reovana-site .header {
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   margin-top: 12px;
+  background-color: var(--Secondary);
 }
 
 .reovana-hud-promo .wg-partner {
   padding-top: 0;
   padding-bottom: 240px;
   min-height: 0;
+  background-color: var(--Secondary);
 }
 
 .reovana-hud-promo .wg-appraisal {
   margin-top: -240px;
-  padding-bottom: 72px;
+  padding-bottom: 200px;
+  background-color: var(--Secondary);
 }
 
 .reovana-hud-promo .wg-appraisal .content {
@@ -1019,6 +1022,7 @@ body.auctions-route .reovana-site .header {
 
   .reovana-hud-promo .wg-appraisal {
     margin-top: -176px;
+    padding-bottom: 140px;
   }
 
   .reovana-hud-promo .wg-appraisal .content {
