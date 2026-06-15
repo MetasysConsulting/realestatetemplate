@@ -83,7 +83,7 @@ function applyHomeNeighborhoods(html) {
   );
   section = section.replace(
     '<div class="tf-container full">',
-    '<div class="tf-container xl">',
+    '<div class="tf-container">',
   );
   section = section.replace(/\s*<div class="reovana-neighborhoods__more">[\s\S]*?<\/div>\s*/g, "");
   section = replaceWrapNeighborhoodsWithMount(section);

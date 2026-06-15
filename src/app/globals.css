@@ -2009,10 +2009,19 @@ body.hud-detail-route #template-chrome-root.reovana-site {
   z-index: 1;
 }
 
+.section-neighborhoods.reovana-neighborhoods .tf-container {
+  width: 1280px;
+  max-width: calc(100% - 96px);
+  padding-left: 48px;
+  padding-right: 48px;
+}
+
 .reovana-neighborhoods-carousel {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .reovana-neighborhoods-row + .reovana-neighborhoods-row {
@@ -2069,8 +2078,7 @@ body.hud-detail-route #template-chrome-root.reovana-site {
 .reovana-neighborhoods-row__track {
   display: grid;
   grid-auto-flow: column;
-  /* ~3 full cards + half of the 4th peeking */
-  grid-auto-columns: calc((100% - 48px) / 3.5);
+  grid-auto-columns: calc((100% - 32px) / 3);
   gap: 16px;
   overflow-x: auto;
   padding-bottom: 4px;
@@ -2178,8 +2186,14 @@ body.hud-detail-route #template-chrome-root.reovana-site {
 }
 
 @media (max-width: 1100px) {
+  .section-neighborhoods.reovana-neighborhoods .tf-container {
+    max-width: calc(100% - 64px);
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
   .reovana-neighborhoods-row__track {
-    grid-auto-columns: calc((100% - 32px) / 3.35);
+    grid-auto-columns: calc((100% - 32px) / 3);
   }
 }
 
