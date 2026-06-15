@@ -631,6 +631,53 @@ body.auctions-route .reovana-site .header {
   line-height: 1.25;
 }
 
+.reovana-home-category-row__carousel {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.reovana-home-category-row__carousel--plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.reovana-home-category-row__arrow {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #d8dce6;
+  background: #fff;
+  color: var(--Heading, #161e2d);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  padding: 0 0 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  transition: border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.reovana-home-category-row__arrow span {
+  display: block;
+  margin-top: -2px;
+}
+
+.reovana-home-category-row__arrow:hover:not(:disabled) {
+  border-color: var(--Primary, #7695ff);
+  color: var(--Primary, #7695ff);
+}
+
+.reovana-home-category-row__arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .reovana-home-category-row__track {
   display: grid;
   grid-auto-flow: column;
@@ -639,8 +686,13 @@ body.auctions-route .reovana-site .header {
   overflow-x: auto;
   padding-bottom: 8px;
   scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
+  scrollbar-width: none;
+}
+
+.reovana-home-category-row__track::-webkit-scrollbar {
+  display: none;
 }
 
 .reovana-home-category-card {
@@ -727,8 +779,23 @@ body.auctions-route .reovana-site .header {
 }
 
 @media (max-width: 768px) {
+  .reovana-home-category-row__carousel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .reovana-home-category-row__arrow {
+    display: none;
+  }
+
   .reovana-home-category-row__track {
     grid-auto-columns: calc((100% - 16px) / 2);
+    scrollbar-width: thin;
+  }
+
+  .reovana-home-category-row__track::-webkit-scrollbar {
+    display: block;
+    height: 6px;
   }
 }
 
