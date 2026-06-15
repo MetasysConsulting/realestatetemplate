@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import { formatHudPrice, formatHudScrapedDate, type HudListing } from "@/lib/hud-listings";
+import { hudDetailPath } from "@/lib/property-categories";
 
 type HudDetailContentProps = {
   listing: HudListing;
@@ -15,6 +17,17 @@ export function HudDetailContent({ listing, scrapedAt }: HudDetailContentProps) 
 
   return (
     <div className="hud-detail-page">
+      <RecordRecentlyViewed
+        id={`hud-${listing.caseNumber}`}
+        address={listing.address}
+        city={listing.city}
+        state={listing.state}
+        zip={listing.zip}
+        price={listing.listPrice}
+        priceLabel="List Price"
+        imageUrl={listing.displayImageUrl}
+        detailPath={hudDetailPath(listing.caseNumber)}
+      />
       <div className="hud-detail-page__breadcrumb">
         <Link href="/properties/hud-home">← Back to HUD Homes</Link>
       </div>

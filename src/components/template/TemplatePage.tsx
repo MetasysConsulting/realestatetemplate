@@ -2,12 +2,14 @@
 
 import { useEffect } from "react";
 import { PropertyUnlockGate } from "@/components/template/PropertyUnlockGate";
+import { HomeCategoryRowsMount } from "@/components/home/HomeCategoryRowsMount";
 import { fixReovanaHeader } from "@/lib/fix-reovana-header";
 
 type TemplatePageProps = {
   html: string;
   bodyClass: string;
   propertyGate?: boolean;
+  showHomeCategoryRows?: boolean;
 };
 
 function normalizeBodyClass(bodyClass: string): string {
@@ -27,6 +29,7 @@ export function TemplatePage({
   html,
   bodyClass,
   propertyGate = false,
+  showHomeCategoryRows = false,
 }: TemplatePageProps) {
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
@@ -60,6 +63,7 @@ export function TemplatePage({
   return (
     <>
       <PropertyUnlockGate enabled={propertyGate} />
+      {showHomeCategoryRows ? <HomeCategoryRowsMount /> : null}
       <div
         id="template-root"
         className="reovana-site"

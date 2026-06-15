@@ -58,6 +58,7 @@ export default async function TemplateRoutePage({ params }: PageProps) {
       html={data.html}
       bodyClass={data.bodyClass}
       propertyGate={isPropertyDetailRoute(route)}
+      showHomeCategoryRows={route === "/"}
     />
   );
 }

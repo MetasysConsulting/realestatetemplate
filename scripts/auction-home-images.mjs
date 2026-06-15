@@ -291,12 +291,26 @@ function applyHomePreApprovedSection(html) {
   return html.slice(0, block.start) + section + html.slice(block.end);
 }
 
+function injectHomeCategoryRowsMount(html) {
+  const marker = "</section><!-- /.section-pre-approved -->";
+  if (!html.includes(marker) || html.includes('id="reovana-home-category-rows"')) {
+    return html;
+  }
+
+  return html.replace(
+    marker,
+    `${marker}
+            <div id="reovana-home-category-rows" class="reovana-home-category-rows-anchor" aria-hidden="true"></div>`,
+  );
+}
+
 /** All homepage listing / neighborhood / open-house content updates. */
 export function applyHomePageContent(html) {
   let out = applyHomeCategoryLabels(html);
   out = applyHomeListingImages(out);
   out = applyHomeNeighborhoods(out);
   out = applyHomePreApprovedSection(out);
+  out = injectHomeCategoryRowsMount(out);
   out = stripLuxuryEnthusiastsText(out);
   out = stripHomeSections(out);
   return out;

@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { UNLOCK_STORAGE_KEY } from "@/lib/property-gate";
+import { recordRecentlyViewed } from "@/lib/recently-viewed";
+import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 
 type PropertyUnlockGateProps = {
   enabled: boolean;
@@ -167,11 +169,45 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
     const t = window.setTimeout(run, 100);
     const t2 = window.setTimeout(run, 800);
     const t3 = window.setTimeout(run, 2000);
+    const recordTimer = window.setTimeout(() => {
+      const root = document.getElementById("template-root");
+      if (!root) return;
+
+      const location =
+        root.querySelector(".wg-property.box-overview .location")?.textContent?.trim() ||
+        root.querySelector(".wg-property .title")?.textContent?.trim() ||
+        "Property listing";
+      const priceText =
+        root.querySelector(".wg-property.box-overview .price")?.textContent?.trim() || "$0";
+      const price = Number(priceText.replace(/[^0-9.]/g, "")) || 0;
+      const imageUrl =
+        root.querySelector<HTMLImageElement>(".wg-property .swiper-slide img")?.src ||
+        DEFAULT_AUCTION_PROPERTY_IMAGE;
+      const parts = location.split(",").map((part) => part.trim());
+      const address = parts[0] || location;
+      const city = parts[1] || "";
+      const stateZip = parts[2]?.split(/\s+/) ?? [];
+      const state = stateZip[0] || "";
+      const zip = stateZip[1] || "";
+
+      recordRecentlyViewed({
+        id: window.location.pathname,
+        address,
+        city,
+        state,
+        zip,
+        price,
+        priceLabel: "Listing Price",
+        imageUrl,
+        detailPath: window.location.pathname,
+      });
+    }, 900);
 
     return () => {
       window.clearTimeout(t);
       window.clearTimeout(t2);
       window.clearTimeout(t3);
+      window.clearTimeout(recordTimer);
     };
   }, [enabled]);
 
