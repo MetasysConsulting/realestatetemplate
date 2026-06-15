@@ -177,6 +177,14 @@ function stripHomeSearchDropdown(html) {
   );
 }
 
+/** Homepage hero: remove filter toggle — search input + Search button only. */
+function stripHomeSearchFilterButton(html) {
+  return html.replace(
+    /<div class="btn-filter[^"]*"[^>]*>[\s\S]*?<\/div>\s*<\/div>\s*(?=<a[^>]*class="[^"]*tf-btn)/i,
+    "",
+  );
+}
+
 /** Client request: remove "Discover how we can help" Buying/Rating/Selling block from homepage. */
 function stripHomeHelpSection(html) {
   return html
@@ -269,7 +277,7 @@ function applyReovanaHomeCopy(html) {
     /<div class="heading-title">\s*<h1 class="title">Search Luxury Homes<\/h1>[\s\S]*?<\/div>\s*(?=<div class="wg-filter">)/i,
     REOVANA_HEADING_HTML,
   );
-  return stripHomeSearchDropdown(out);
+  return stripHomeSearchFilterButton(stripHomeSearchDropdown(out));
 }
 
 function applyBranding(html, filename) {

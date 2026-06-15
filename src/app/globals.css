@@ -320,8 +320,7 @@ body.auctions-route .reovana-site .header {
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title .btn-filter {
-  height: 52px !important;
-  width: 52px !important;
+  display: none !important;
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title .wrap-btn .tf-btn {
