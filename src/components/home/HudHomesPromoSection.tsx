@@ -4,17 +4,8 @@ const APPRAISAL_AGENT_IMAGE = "/images/reovana/appraisal-agent.png";
 
 export function HudHomesPromoSection() {
   return (
-    <section className="section-work-together reovana-hud-promo" aria-label="Partner and appraisal call to action">
-      <div className="wg-partner tf-spacing-1">
-        <div className="tf-container">
-          <div className="heading-section text-center mb-48 reovana-hud-promo__intro">
-            <h2 className="title text_white">Let&apos;s Work Together</h2>
-            <p className="text-1 text_white">
-              Thousands of luxury home enthusiasts just like you visit our website.
-            </p>
-          </div>
-        </div>
-      </div>
+    <section className="section-work-together reovana-hud-promo" aria-label="Appraisal call to action">
+      <div className="wg-partner reovana-hud-promo__grey-band" aria-hidden="true" />
 
       <div className="wg-appraisal">
         <div className="tf-container">

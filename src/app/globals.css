@@ -983,28 +983,19 @@ body.auctions-route .reovana-site .header {
 }
 
 .reovana-hud-promo .wg-partner {
-  padding-bottom: 95px;
-}
-
-.reovana-hud-promo__intro {
-  max-width: 640px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 20px !important;
-}
-
-.reovana-hud-promo__intro .title,
-.reovana-hud-promo__intro .text-1 {
-  text-align: center;
+  padding-top: 0;
+  padding-bottom: 72px;
+  min-height: 0;
 }
 
 .reovana-hud-promo .wg-appraisal {
-  margin-top: calc(-15% - 64px);
+  margin-top: -72px;
   padding-bottom: 72px;
 }
 
 .reovana-hud-promo .wg-appraisal .content {
   padding: 72px 0 72px 48px;
+  overflow: visible;
 }
 
 .reovana-hud-promo .wg-appraisal .content .person.reovana-hud-promo__agent {
@@ -1023,11 +1014,11 @@ body.auctions-route .reovana-site .header {
 
 @media (max-width: 991px) {
   .reovana-hud-promo .wg-partner {
-    padding-bottom: 80px;
+    padding-bottom: 56px;
   }
 
   .reovana-hud-promo .wg-appraisal {
-    margin-top: calc(-12% - 52px);
+    margin-top: -56px;
   }
 
   .reovana-hud-promo .wg-appraisal .content {
