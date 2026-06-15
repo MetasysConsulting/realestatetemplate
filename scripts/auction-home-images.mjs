@@ -99,6 +99,10 @@ function applyHomeCategoryLabels(html) {
   out = out.replace(/<h5>Office<\/h5>/g, "<h5>Land</h5>");
   out = out.replace(/Today’s Luxury Listings/g, "New Listings");
   out = out.replace(/Today's Luxury Listings/g, "New Listings");
+  out = out.replace(
+    '<section class="tf-spacing-1 section-categories pb-0">',
+    '<section class="tf-spacing-1 section-categories reovana-categories pb-0">',
+  );
 
   return out;
 }

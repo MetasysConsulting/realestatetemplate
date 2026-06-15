@@ -745,6 +745,28 @@ body.auctions-route .reovana-site .header {
   }
 }
 
+/* ── Homepage: Try Searching For category cards ─────────────────────────── */
+.section-categories.reovana-categories .categories-item {
+  padding: 20px 16px 18px;
+  gap: 16px;
+  border-radius: 14px;
+}
+
+.section-categories.reovana-categories .categories-item .icon-box .icon {
+  font-size: 52px;
+  line-height: 1;
+}
+
+.section-categories.reovana-categories .categories-item .content h5 {
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.section-categories.reovana-categories .categories-item .content p.text-1 {
+  font-size: 13px;
+  line-height: 1.35;
+}
+
 /* ── Homepage category rows (under loan steps) ───────────────────────────── */
 .reovana-home-category-rows {
   background: #f6f7fb;
