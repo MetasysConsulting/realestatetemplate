@@ -270,22 +270,10 @@ function applyHomePreApprovedSection(html) {
 
   let { section } = block;
 
+  // Replace entire inner content with a single mount point for the React component
   section = section.replace(
-    '<section class="section-pre-approved tf-spacing-1">',
-    '<section class="section-pre-approved reovana-pre-approved tf-spacing-1">',
-  );
-
-  section = section.replace(
-    /<div class="content">[\s\S]*?<\/div>\s*(?=<\/div>\s*<div class="col-lg-6">)/,
-    `<div class="content reovana-loan-steps">${PRE_APPROVED_STEPS_HTML}
-                            </div>
-                        `,
-  );
-
-  section = section.replace(
-    /<div class="image-wrap img-animation wow animate__animated">\s*<img[^>]*>/,
-    `<div class="image-wrap reovana-pre-approved-photo">
-                                <img src="${HERO_HOUSE_IMAGE}" alt="REOVANA home" loading="lazy">`,
+    /<section class="section-pre-approved[^"]*"[^>]*>[\s\S]*?<\/section>/,
+    `<section class="section-pre-approved reovana-pre-approved tf-spacing-1" style="padding:0;background:transparent"><div id="reovana-loan-steps-mount"></div></section>`,
   );
 
   return html.slice(0, block.start) + section + html.slice(block.end);

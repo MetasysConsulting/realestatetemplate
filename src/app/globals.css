@@ -412,6 +412,138 @@ body.auctions-route .reovana-site .header {
   }
 }
 
+/* ── REOVANA loan steps section (React component, animated) ──────────────── */
+
+@keyframes loanStepIn {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(64px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes fadeUpCopy {
+  from {
+    opacity: 0;
+    transform: translateY(36px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reovana-loan-steps-section {
+  background: #fff;
+  padding: clamp(56px, 7vw, 96px) 0;
+  overflow: hidden;
+}
+
+.reovana-loan-steps-section__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(40px, 6vw, 88px);
+  align-items: center;
+}
+
+.reovana-loan-steps-section__copy {
+  opacity: 0;
+}
+
+.reovana-loan-steps-section__copy.is-visible {
+  animation: fadeUpCopy 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
+}
+
+.reovana-loan-steps__kicker {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--Primary, #7695ff);
+}
+
+.reovana-loan-steps__headline {
+  margin: 0 0 14px;
+  font-size: clamp(28px, 3.2vw, 42px) !important;
+  font-weight: 800;
+  line-height: 1.18;
+  color: var(--Heading, #161e2d);
+  max-width: 20ch;
+}
+
+.reovana-loan-steps__lead {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--Text, #5c5e61);
+  font-weight: 300;
+  max-width: 48ch;
+}
+
+/* Media: right column */
+.reovana-loan-steps-section__media {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.reovana-loan-steps-section__media.is-visible {
+  animation: slideFromRight 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.reovana-loan-steps-section__img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 32px 80px rgba(15, 23, 42, 0.16), 0 8px 20px rgba(15, 23, 42, 0.08);
+}
+
+.reovana-loan-steps-section__img {
+  object-fit: cover;
+  object-position: center;
+  transition: transform 8s ease;
+}
+
+.reovana-loan-steps-section__img-wrap:hover .reovana-loan-steps-section__img {
+  transform: scale(1.04);
+}
+
+@media (max-width: 900px) {
+  .reovana-loan-steps-section__inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .reovana-loan-steps-section__media {
+    order: -1;
+  }
+
+  .reovana-loan-steps-section__img-wrap {
+    aspect-ratio: 16 / 9;
+    border-radius: 18px;
+  }
+
+  .reovana-loan-steps__headline {
+    max-width: none;
+  }
+}
+
 /* ── REOVANA loan pre-approval: steps + hero house photo ─────────────────── */
 #template-root .section-pre-approved.reovana-pre-approved .content.reovana-loan-steps {
   max-width: 560px;
