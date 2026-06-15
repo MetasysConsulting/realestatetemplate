@@ -9,6 +9,8 @@ const HUD_PARTNERS = [
   "Freddie Mac",
 ];
 
+const PROMO_HOUSE_IMAGE = "/images/reovana/hero-house.jpeg";
+
 export function HudHomesPromoSection() {
   return (
     <section className="section-work-together reovana-hud-promo" aria-label="HUD homes resources">
@@ -17,8 +19,7 @@ export function HudHomesPromoSection() {
           <div className="heading-section text-center mb-48">
             <h2 className="title text_white">Let&apos;s Work Together</h2>
             <p className="text-1 text_white">
-              REOVANA connects buyers with HUD foreclosure inventory and the tools to bid with
-              confidence.
+              Thousands of luxury home enthusiasts just like you visit our website.
             </p>
           </div>
           <div className="reovana-hud-promo__partners">
@@ -36,21 +37,20 @@ export function HudHomesPromoSection() {
           <div className="content">
             <div className="heading-section mb-30">
               <h2 className="title">
-                Ready to Buy a
+                Are You Selling Or
                 <br />
-                HUD Foreclosure?
+                Renting Your Property?
               </h2>
               <p className="text-1">
-                Browse FHA-insured HUD homes nationwide. Bids require a HUD-registered broker — we
-                help you find properties and understand the process.
+                Thousands of luxury home enthusiasts just like you visit our website.
               </p>
             </div>
-            <Link href="/properties/hud-home" className="tf-btn bg-color-primary fw-7 pd-11">
-              Browse HUD homes
+            <Link href="/contact" className="tf-btn bg-color-primary fw-7 pd-11">
+              Request your free appraisal
             </Link>
-            <div className="person">
+            <div className="person reovana-hud-promo__house">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/section/person-1.png" alt="" loading="lazy" decoding="async" />
+              <img src={PROMO_HOUSE_IMAGE} alt="" loading="lazy" decoding="async" />
             </div>
           </div>
         </div>
