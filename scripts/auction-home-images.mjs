@@ -220,7 +220,7 @@ const PRE_APPROVED_STEPS_HTML = `
                                     <h2 class="title">Confidently pursue distressed deals with verified financing.</h2>
                                     <p class="text-1">REOVANA connects investors with lenders who specialize in foreclosures, REO properties, and auction purchases.</p>
                                 </div>
-                                <a href="/loans" class="tf-btn bg-color-primary reovana-find-lenders-btn">Find lenders</a>
+                                <button type="button" class="tf-btn bg-color-primary reovana-find-lenders-btn reovana-cta--pending" disabled>Find lenders</button>
                                 <ol class="reovana-loan-steps__list">
                                     <li class="reovana-loan-steps__item is-active">
                                         <span class="reovana-loan-steps__marker" aria-hidden="true">1</span>

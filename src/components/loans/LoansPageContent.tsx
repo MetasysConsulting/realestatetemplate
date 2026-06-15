@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   LOAN_FEATURES,
   LOAN_SOLUTIONS,
@@ -136,14 +135,14 @@ export function LoansPageContent() {
             </p>
 
             <div className="loans-hero__actions">
-              <Link href="/contact" className="loans-btn loans-btn--primary">
+              <button type="button" className="loans-btn loans-btn--primary loans-cta--pending" disabled>
                 Find a Loan — Get Matched with Lenders
                 <span aria-hidden="true">→</span>
-              </Link>
-              <Link href="/properties/foreclosure" className="loans-btn loans-btn--secondary">
+              </button>
+              <button type="button" className="loans-btn loans-btn--secondary loans-cta--pending" disabled>
                 Browse Distressed Properties
                 <span aria-hidden="true">→</span>
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -158,9 +157,13 @@ export function LoansPageContent() {
               <div>
                 <h3>Residential Loan Calculator</h3>
                 <p>Estimate payments for fix &amp; flip, rental, and bridge loans.</p>
-                <Link href="/" className="loans-calculator-card__cta loans-calculator-card__cta--blue">
+                <button
+                  type="button"
+                  className="loans-calculator-card__cta loans-calculator-card__cta--blue loans-cta--pending"
+                  disabled
+                >
                   Calculate Now
-                </Link>
+                </button>
               </div>
             </div>
 
@@ -171,9 +174,13 @@ export function LoansPageContent() {
               <div>
                 <h3>Commercial Loan Calculator</h3>
                 <p>Model terms for office, retail, and mixed-use investments.</p>
-                <Link href="/auctions/commercial" className="loans-calculator-card__cta loans-calculator-card__cta--accent">
+                <button
+                  type="button"
+                  className="loans-calculator-card__cta loans-calculator-card__cta--accent loans-cta--pending"
+                  disabled
+                >
                   Calculate Now
-                </Link>
+                </button>
               </div>
             </div>
           </aside>
@@ -216,9 +223,9 @@ export function LoansPageContent() {
                 </div>
                 <h3>{solution.title}</h3>
                 <p>{solution.description}</p>
-                <Link href="/contact" className="loans-solution-card__link">
+                <button type="button" className="loans-solution-card__link loans-cta--pending" disabled>
                   Learn More <span aria-hidden="true">→</span>
-                </Link>
+                </button>
               </article>
             ))}
           </div>
