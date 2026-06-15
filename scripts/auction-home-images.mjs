@@ -12,86 +12,6 @@ const TEMPLATE_LISTING_IMAGES = [
   "box-house-6.jpg",
 ];
 
-const NEIGHBORHOOD_LOCATIONS = [
-  {
-    oldImg: "location-9.jpg",
-    newImg: "tampa-florida.jpg",
-    city: "Tampa, Florida",
-    count: "1,842",
-  },
-  {
-    oldImg: "location-10.jpg",
-    newImg: "austin-texas.jpg",
-    city: "Austin, Texas",
-    count: "2,156",
-  },
-  {
-    oldImg: "location-11.jpg",
-    newImg: "phoenix-arizona.jpg",
-    city: "Phoenix, Arizona",
-    count: "1,973",
-  },
-  {
-    oldImg: "location-12.jpg",
-    newImg: "denver-colorado.jpg",
-    city: "Denver, Colorado",
-    count: "1,508",
-  },
-  {
-    oldImg: "location-13.jpg",
-    newImg: "atlanta-georgia.jpg",
-    city: "Atlanta, Georgia",
-    count: "2,304",
-  },
-  {
-    oldImg: "location-14.jpg",
-    newImg: "houston-texas.jpg",
-    city: "Houston, Texas",
-    count: "2,617",
-  },
-  {
-    oldImg: "location-15.jpg",
-    newImg: "cleveland-ohio.jpg",
-    city: "Cleveland, Ohio",
-    count: "1,126",
-  },
-];
-
-const OLD_NEIGHBORHOOD_PROPERTY_IMAGES = [
-  "08-lakefront-cottage.jpg",
-  "09-wood-siding-bungalow.jpg",
-  "10-red-brick-two-story.jpg",
-  "12-gray-siding-split-level.jpg",
-  "13-farmhouse-white.jpg",
-  "14-condo-townhome-row.jpg",
-  "20-vacant-lot-house.jpg",
-  "21-duplex-side-by-side.jpg",
-];
-
-const EIGHTH_NEIGHBORHOOD = {
-  newImg: "miami-florida.jpg",
-  city: "Miami, Florida",
-  count: "1,894",
-};
-
-function neighborhoodCardMarkup(itemClass, img, city, count) {
-  const imgPath = `/images/neighborhoods/${img}`;
-  return `
-                            <div class="box-location hover-img ${itemClass}">
-                                <div class="image-wrap">
-                                    <a href="/auctions">
-                                        <img class="lazyload" data-src="${imgPath}"
-                                            src="${imgPath}" alt="${city}">
-                                    </a>
-                                </div>
-                                <div class="content">
-                                    <h6 class="text_white">${city}</h6>
-                                    <a href="/auctions"
-                                        class="text-1 tf-btn style-border pd-23 text_white">${count} Properties <i class="icon-arrow-right"></i></a>
-                                </div>
-                            </div>`;
-}
-
 function sliceSection(html, startMarker, endMarker) {
   const start = html.indexOf(startMarker);
   if (start < 0) return null;
@@ -116,17 +36,13 @@ function applyHomeListingImages(html) {
   return out;
 }
 
-function insertNeighborhoodItem8(section, item8Block) {
-  section = section.replace(
-    /\s*<div class="box-location hover-img item-8">[\s\S]*?<\/div>\s*<\/div>\s*/g,
-    "",
-  );
-
+function replaceWrapNeighborhoodsWithMount(section) {
   const wrapIdx = section.indexOf('<div class="wrap-neighborhoods">');
   if (wrapIdx < 0) return section;
 
   let i = section.indexOf(">", wrapIdx) + 1;
   let depth = 1;
+  const start = wrapIdx;
 
   while (i < section.length) {
     const nextOpen = section.indexOf("<div", i);
@@ -141,7 +57,8 @@ function insertNeighborhoodItem8(section, item8Block) {
 
     depth -= 1;
     if (depth === 0) {
-      return `${section.slice(0, nextClose)}\n${item8Block}${section.slice(nextClose)}`;
+      const end = nextClose + 6;
+      return `${section.slice(0, start)}<div id="reovana-neighborhoods-mount" class="reovana-neighborhoods-mount"></div>${section.slice(end)}`;
     }
 
     i = nextClose + 6;
@@ -164,57 +81,12 @@ function applyHomeNeighborhoods(html) {
     /Find your dream apartment with our\s+listing/g,
     "Browse auction and bank-owned homes across the United States",
   );
-
-  for (const loc of NEIGHBORHOOD_LOCATIONS) {
-    section = section.replaceAll(
-      `/images/section/${loc.oldImg}`,
-      `/images/neighborhoods/${loc.newImg}`,
-    );
-
-    const imgPath = `/images/neighborhoods/${loc.newImg}`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    section = section.replace(
-      new RegExp(`(${imgPath}[\\s\\S]*?<h6 class="text_white">)[^<]*(</h6>)`, "i"),
-      `$1${loc.city}$2`,
-    );
-    section = section.replace(
-      new RegExp(
-        `(${imgPath}[\\s\\S]*?<a href="/auctions"[^>]*>)[\\s\\S]*?(</a>)`,
-        "i",
-      ),
-      `$1${loc.count} Properties <i class="icon-arrow-right"></i>$2`,
-    );
-    section = section.replace(/href="#"/, 'href="/auctions"');
-  }
-
-  for (const [index, oldFile] of OLD_NEIGHBORHOOD_PROPERTY_IMAGES.entries()) {
-    const cityFile =
-      index < NEIGHBORHOOD_LOCATIONS.length
-        ? NEIGHBORHOOD_LOCATIONS[index].newImg
-        : EIGHTH_NEIGHBORHOOD.newImg;
-    section = section.replaceAll(
-      `/images/auction-properties/${oldFile}`,
-      `/images/neighborhoods/${cityFile}`,
-    );
-  }
-
-  const item8Block = neighborhoodCardMarkup(
-    "item-8",
-    EIGHTH_NEIGHBORHOOD.newImg,
-    EIGHTH_NEIGHBORHOOD.city,
-    EIGHTH_NEIGHBORHOOD.count,
+  section = section.replace(
+    '<div class="tf-container full">',
+    '<div class="tf-container xl">',
   );
-
-  section = insertNeighborhoodItem8(section, item8Block);
-
-  if (!section.includes("reovana-neighborhoods__more")) {
-    section = section.replace(
-      /(\s*<\/div>\s*\n\s*<\/div>\s*\n\s*<\/section>)\s*$/,
-      `
-                        <div class="reovana-neighborhoods__more">
-                            <a href="/auctions" class="tf-btn bg-color-primary pd-23 reovana-neighborhoods__more-btn">More</a>
-                        </div>$1`,
-    );
-  }
+  section = section.replace(/\s*<div class="reovana-neighborhoods__more">[\s\S]*?<\/div>\s*/g, "");
+  section = replaceWrapNeighborhoodsWithMount(section);
 
   return html.slice(0, block.start) + section + html.slice(block.end);
 }

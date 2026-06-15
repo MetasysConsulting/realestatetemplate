@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { PropertyUnlockGate } from "@/components/template/PropertyUnlockGate";
 import { HomeCategoryRowsMount } from "@/components/home/HomeCategoryRowsMount";
 import { LoanStepsSectionMount } from "@/components/home/LoanStepsSectionMount";
+import { NeighborhoodsCarouselMount } from "@/components/home/NeighborhoodsCarouselMount";
 import { fixReovanaHeader } from "@/lib/fix-reovana-header";
 
 type TemplatePageProps = {
@@ -12,6 +13,7 @@ type TemplatePageProps = {
   propertyGate?: boolean;
   showHomeCategoryRows?: boolean;
   showLoanSteps?: boolean;
+  showNeighborhoodsCarousel?: boolean;
 };
 
 function normalizeBodyClass(bodyClass: string): string {
@@ -33,6 +35,7 @@ export function TemplatePage({
   propertyGate = false,
   showHomeCategoryRows = false,
   showLoanSteps = false,
+  showNeighborhoodsCarousel = false,
 }: TemplatePageProps) {
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
@@ -68,6 +71,7 @@ export function TemplatePage({
       <PropertyUnlockGate enabled={propertyGate} />
       {showHomeCategoryRows ? <HomeCategoryRowsMount /> : null}
       {showLoanSteps ? <LoanStepsSectionMount /> : null}
+      {showNeighborhoodsCarousel ? <NeighborhoodsCarouselMount /> : null}
       <div
         id="template-root"
         className="reovana-site"

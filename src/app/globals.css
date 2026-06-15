@@ -748,14 +748,7 @@ body.auctions-route .reovana-site .header {
 /* ── Homepage category rows (under loan steps) ───────────────────────────── */
 .reovana-home-category-rows {
   background: #f6f7fb;
-  padding: 12px calc(100% / 12) 56px;
-}
-
-.reovana-home-category-row .tf-container {
-  width: 100%;
-  max-width: none;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 12px 0 56px;
 }
 
 .reovana-home-category-row + .reovana-home-category-row {
@@ -820,13 +813,12 @@ body.auctions-route .reovana-site .header {
 .reovana-home-category-row__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 32px) / 3);
+  grid-auto-columns: calc((100% - 48px) / 4);
   gap: 16px;
   overflow-x: auto;
   padding-bottom: 8px;
-  scroll-snap-type: x mandatory;
+  scroll-snap-type: x proximity;
   scroll-behavior: smooth;
-  scroll-padding-inline: 0;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
@@ -923,16 +915,11 @@ body.auctions-route .reovana-site .header {
 
 @media (max-width: 1100px) {
   .reovana-home-category-row__track {
-    grid-auto-columns: calc((100% - 16px) / 2);
+    grid-auto-columns: calc((100% - 32px) / 3);
   }
 }
 
 @media (max-width: 768px) {
-  .reovana-home-category-rows {
-    padding-left: 20px;
-    padding-right: 20px;
-  }
-
   .reovana-home-category-row__carousel {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
@@ -2014,7 +2001,7 @@ body.hud-detail-route #template-chrome-root.reovana-site {
   }
 }
 
-/* ── Homepage: Explore The Neighborhoods (proper overlay cards) ─────────── */
+/* ── Homepage: Explore The Neighborhoods (carousel city rows) ───────────── */
 .section-neighborhoods.reovana-neighborhoods {
   padding-bottom: 72px;
   margin-bottom: 24px;
@@ -2022,78 +2009,159 @@ body.hud-detail-route #template-chrome-root.reovana-site {
   z-index: 1;
 }
 
-.section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  grid-template-rows: none;
-  grid-template-areas: none !important;
+.reovana-neighborhoods-carousel {
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-.section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods > [class*="item-"] {
-  grid-area: auto !important;
-  width: 100%;
+.reovana-neighborhoods-row + .reovana-neighborhoods-row {
+  margin-top: 4px;
 }
 
-.section-neighborhoods.reovana-neighborhoods .box-location {
+.reovana-neighborhoods-row__carousel {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.reovana-neighborhoods-row__carousel--plain {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.reovana-neighborhoods-row__arrow {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #d8dce6;
+  background: #fff;
+  color: var(--Heading, #161e2d);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  padding: 0 0 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  transition: border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+}
+
+.reovana-neighborhoods-row__arrow span {
+  display: block;
+  margin-top: -2px;
+}
+
+.reovana-neighborhoods-row__arrow:hover:not(:disabled) {
+  border-color: var(--Primary, #7695ff);
+  color: var(--Primary, #7695ff);
+}
+
+.reovana-neighborhoods-row__arrow:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.reovana-neighborhoods-row__track {
+  display: grid;
+  grid-auto-flow: column;
+  /* ~3 full cards + half of the 4th peeking */
+  grid-auto-columns: calc((100% - 48px) / 3.5);
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scroll-snap-type: x proximity;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.reovana-neighborhoods-row__track::-webkit-scrollbar {
+  display: none;
+}
+
+.reovana-neighborhood-card {
+  scroll-snap-align: start;
   position: relative;
   display: block;
   aspect-ratio: 4 / 3;
   min-height: 200px;
   border-radius: 16px;
   overflow: hidden;
+  text-decoration: none;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.section-neighborhoods.reovana-neighborhoods .box-location .image-wrap {
+.reovana-neighborhood-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.16);
+}
+
+.reovana-neighborhood-card:focus-visible {
+  outline: 2px solid var(--Primary, #7695ff);
+  outline-offset: 2px;
+}
+
+.reovana-neighborhood-card__media {
   position: absolute;
   inset: 0;
-  min-height: 0;
 }
 
-.section-neighborhoods.reovana-neighborhoods .box-location .image-wrap a {
-  display: block;
-  height: 100%;
-}
-
-.section-neighborhoods.reovana-neighborhoods .box-location .image-wrap img {
+.reovana-neighborhood-card__media img {
   width: 100%;
   height: 100%;
-  min-height: 0;
-  max-width: none;
   object-fit: cover;
   display: block;
+  transition: transform 0.25s ease;
 }
 
-.section-neighborhoods.reovana-neighborhoods .box-location .content {
+.reovana-neighborhood-card:hover .reovana-neighborhood-card__media img {
+  transform: scale(1.04);
+}
+
+.reovana-neighborhood-card__content {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 3;
-  margin: 0;
+  z-index: 2;
   padding: 16px;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.82) 100%);
+  display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 10px;
 }
 
-.section-neighborhoods.reovana-neighborhoods .box-location .content h6 {
+.reovana-neighborhood-card__content h6 {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
+  color: #fff;
 }
 
-.section-neighborhoods.reovana-neighborhoods .box-location .tf-btn {
+.reovana-neighborhood-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 10px 16px;
-  height: auto;
   min-height: 40px;
   font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .reovana-neighborhoods__more {
-  margin-top: 32px;
+  margin-top: 24px;
   text-align: center;
 }
 
@@ -2106,30 +2174,39 @@ body.hud-detail-route #template-chrome-root.reovana-site {
   font-size: 15px !important;
   font-weight: 700;
   border-radius: 12px;
+  text-decoration: none;
 }
 
-@media (max-width: 1400px) {
-  .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    grid-template-areas: none !important;
+@media (max-width: 1100px) {
+  .reovana-neighborhoods-row__track {
+    grid-auto-columns: calc((100% - 32px) / 3.35);
   }
 }
 
-@media (max-width: 1200px) {
-  .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+@media (max-width: 768px) {
+  .reovana-neighborhoods-row__carousel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .reovana-neighborhoods-row__arrow {
+    display: none;
+  }
+
+  .reovana-neighborhoods-row__track {
+    grid-auto-columns: calc((100% - 16px) / 2.35);
+    scrollbar-width: thin;
+  }
+
+  .reovana-neighborhoods-row__track::-webkit-scrollbar {
+    display: block;
+    height: 6px;
   }
 }
 
-@media (max-width: 900px) {
-  .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 560px) {
-  .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
-    grid-template-columns: 1fr;
+@media (max-width: 520px) {
+  .reovana-neighborhoods-row__track {
+    grid-auto-columns: calc((100% - 16px) / 1.35);
   }
 }
 

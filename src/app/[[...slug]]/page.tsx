@@ -60,6 +60,7 @@ export default async function TemplateRoutePage({ params }: PageProps) {
       propertyGate={isPropertyDetailRoute(route)}
       showHomeCategoryRows={route === "/"}
       showLoanSteps={route === "/"}
+      showNeighborhoodsCarousel={route === "/"}
     />
   );
 }
