@@ -2013,12 +2013,13 @@ body.hud-detail-route #template-chrome-root.reovana-site {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   grid-template-rows: none;
-  grid-template-areas: none;
+  grid-template-areas: none !important;
   gap: 16px;
 }
 
 .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods > [class*="item-"] {
   grid-area: auto !important;
+  width: 100%;
 }
 
 .section-neighborhoods.reovana-neighborhoods .box-location {
@@ -2092,6 +2093,13 @@ body.hud-detail-route #template-chrome-root.reovana-site {
   font-size: 15px !important;
   font-weight: 700;
   border-radius: 12px;
+}
+
+@media (max-width: 1400px) {
+  .section-neighborhoods.reovana-neighborhoods .wrap-neighborhoods {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas: none !important;
+  }
 }
 
 @media (max-width: 1200px) {

@@ -116,6 +116,40 @@ function applyHomeListingImages(html) {
   return out;
 }
 
+function insertNeighborhoodItem8(section, item8Block) {
+  section = section.replace(
+    /\s*<div class="box-location hover-img item-8">[\s\S]*?<\/div>\s*<\/div>\s*/g,
+    "",
+  );
+
+  const wrapIdx = section.indexOf('<div class="wrap-neighborhoods">');
+  if (wrapIdx < 0) return section;
+
+  let i = section.indexOf(">", wrapIdx) + 1;
+  let depth = 1;
+
+  while (i < section.length) {
+    const nextOpen = section.indexOf("<div", i);
+    const nextClose = section.indexOf("</div>", i);
+    if (nextClose < 0) break;
+
+    if (nextOpen !== -1 && nextOpen < nextClose) {
+      depth += 1;
+      i = nextOpen + 4;
+      continue;
+    }
+
+    depth -= 1;
+    if (depth === 0) {
+      return `${section.slice(0, nextClose)}\n${item8Block}${section.slice(nextClose)}`;
+    }
+
+    i = nextClose + 6;
+  }
+
+  return section;
+}
+
 function applyHomeNeighborhoods(html) {
   const block = sliceSection(html, "section-neighborhoods", "<!-- /.section-neighborhoods");
   if (!block) return html;
@@ -163,25 +197,22 @@ function applyHomeNeighborhoods(html) {
     );
   }
 
-  if (!section.includes("item-8")) {
-    section = section.replace(
-      /(<div class="box-location hover-img item-7">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*)/,
-      `$1${neighborhoodCardMarkup(
-        "item-8",
-        EIGHTH_NEIGHBORHOOD.newImg,
-        EIGHTH_NEIGHBORHOOD.city,
-        EIGHTH_NEIGHBORHOOD.count,
-      )}`,
-    );
-  }
+  const item8Block = neighborhoodCardMarkup(
+    "item-8",
+    EIGHTH_NEIGHBORHOOD.newImg,
+    EIGHTH_NEIGHBORHOOD.city,
+    EIGHTH_NEIGHBORHOOD.count,
+  );
+
+  section = insertNeighborhoodItem8(section, item8Block);
 
   if (!section.includes("reovana-neighborhoods__more")) {
     section = section.replace(
-      /(<div class="box-location hover-img item-8">[\s\S]*?<\/div>\s*<\/div>\s*<\/div>\s*)/,
-      `$1
+      /(\s*<\/div>\s*\n\s*<\/div>\s*\n\s*<\/div>\s*\n\s*<\/section><!-- \/.section-neighborhoods -->)/,
+      `
                         <div class="reovana-neighborhoods__more">
                             <a href="/auctions" class="tf-btn bg-color-primary pd-23 reovana-neighborhoods__more-btn">More</a>
-                        </div>`,
+                        </div>$1`,
     );
   }
 
