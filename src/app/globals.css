@@ -3495,6 +3495,441 @@ body.loans-route #loading {
   }
 }
 
+/* ── Sell page ───────────────────────────────────────────────────────────── */
+.sell-page {
+  background: #fff;
+  font-family: var(--font-main);
+  color: var(--Heading, #161e2d);
+}
+
+.sell-hero {
+  background: #fff;
+  overflow: hidden;
+}
+
+.sell-hero__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+  padding: clamp(48px, 7vw, 88px) 0 clamp(56px, 8vw, 96px);
+}
+
+.sell-hero h1 {
+  margin: 0;
+  font-size: clamp(34px, 4.8vw, 54px);
+  line-height: 1.12;
+  font-weight: 800;
+  color: #161e2d;
+  max-width: 14ch;
+}
+
+.sell-hero__accent {
+  color: #f97316;
+}
+
+.sell-hero__lead {
+  margin: 20px 0 0;
+  max-width: 52ch;
+  font-size: 17px;
+  line-height: 1.65;
+  color: #5c5e61;
+  font-weight: 400;
+}
+
+.sell-hero__lead strong {
+  color: #161e2d;
+  font-weight: 700;
+}
+
+.sell-hero__features {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 32px;
+}
+
+.sell-hero__feature {
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.sell-hero__feature strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: #161e2d;
+  margin-bottom: 2px;
+}
+
+.sell-hero__feature span {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #5c5e61;
+  font-weight: 400;
+}
+
+.sell-hero__feature-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sell-hero__feature-icon--blue {
+  background: #1e3a6e;
+  color: #fff;
+}
+
+.sell-hero__feature-icon--orange {
+  background: #f97316;
+  color: #fff;
+}
+
+.sell-hero__visual {
+  position: relative;
+  min-height: 360px;
+}
+
+.sell-hero__image-wrap {
+  position: relative;
+  height: 100%;
+  min-height: inherit;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.sell-hero__image-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  left: -18%;
+  background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, 0.92) 28%, rgba(255, 255, 255, 0) 62%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.sell-hero__house {
+  width: 100%;
+  height: min(520px, 62vh);
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 4px;
+}
+
+.sell-hero__sign {
+  position: absolute;
+  left: 8%;
+  bottom: 14%;
+  z-index: 3;
+  width: min(220px, 42%);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.sell-hero__sign-top {
+  display: block;
+  background: #c41e3a;
+  color: #fff;
+  font-size: clamp(11px, 1.4vw, 14px);
+  padding: 10px 12px;
+  line-height: 1.2;
+}
+
+.sell-hero__sign-bottom {
+  display: block;
+  background: #1e3a6e;
+  color: #fff;
+  font-size: clamp(10px, 1.2vw, 12px);
+  padding: 8px 10px;
+  line-height: 1.2;
+}
+
+.sell-section-title {
+  margin: 0 0 clamp(32px, 4vw, 48px);
+  text-align: center;
+  font-size: clamp(28px, 3.5vw, 40px);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #161e2d;
+}
+
+.sell-options {
+  padding: clamp(56px, 8vw, 96px) 0;
+  background: #fff;
+}
+
+.sell-options__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 2.5vw, 28px);
+}
+
+.sell-option-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  padding: 32px 28px 28px;
+  background: #fff;
+  border: 1px solid #e8ebf2;
+  box-shadow: 0 8px 28px rgba(22, 30, 45, 0.06);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.sell-option-card::after {
+  content: "";
+  position: absolute;
+  right: -8px;
+  bottom: 56px;
+  width: 140px;
+  height: 120px;
+  opacity: 0.14;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  pointer-events: none;
+}
+
+.sell-option-card--decor-house::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 100' fill='none' stroke='%2322c55e' stroke-width='3'%3E%3Cpath d='M20 88V42L60 18l40 24v46'/%3E%3Crect x='44' y='58' width='32' height='30' rx='2'/%3E%3C/svg%3E");
+}
+
+.sell-option-card--decor-city::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 100' fill='none' stroke='%231e3a6e' stroke-width='3'%3E%3Crect x='12' y='36' width='24' height='52'/%3E%3Crect x='44' y='18' width='28' height='70'/%3E%3Crect x='80' y='44' width='22' height='44'/%3E%3C/svg%3E");
+}
+
+.sell-option-card--decor-forsale::after {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 100' fill='none' stroke='%23f97316' stroke-width='3'%3E%3Cpath d='M18 78V46L48 26l30 20v32'/%3E%3Cpath d='M72 58h24l-4 18H56z'/%3E%3C/svg%3E");
+}
+
+.sell-option-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.sell-option-card__icon--green {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.sell-option-card__icon--blue {
+  background: rgba(30, 58, 110, 0.1);
+  color: #1e3a6e;
+}
+
+.sell-option-card__icon--orange {
+  background: rgba(249, 115, 22, 0.12);
+  color: #ea580c;
+}
+
+.sell-option-card h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #161e2d;
+}
+
+.sell-option-card > p {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: #5c5e61;
+  font-weight: 400;
+}
+
+.sell-option-card__perks {
+  list-style: none;
+  margin: 20px 0 24px;
+  padding: 0;
+  flex: 1;
+}
+
+.sell-option-card__perks li {
+  position: relative;
+  padding-left: 26px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #43464b;
+}
+
+.sell-option-card__perks li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 800;
+}
+
+.sell-option-card--green .sell-option-card__perks li::before {
+  color: #16a34a;
+}
+
+.sell-option-card--blue .sell-option-card__perks li::before {
+  color: #1e3a6e;
+}
+
+.sell-option-card--orange .sell-option-card__perks li::before {
+  color: #ea580c;
+}
+
+.sell-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.sell-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.sell-btn--green {
+  background: #22c55e;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.28);
+}
+
+.sell-btn--green:hover:not(:disabled) {
+  background: #16a34a;
+  color: #fff;
+}
+
+.sell-btn--blue {
+  background: #1e3a6e;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(30, 58, 110, 0.25);
+}
+
+.sell-btn--blue:hover:not(:disabled) {
+  background: #162d57;
+  color: #fff;
+}
+
+.sell-btn--orange {
+  background: #f97316;
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.28);
+}
+
+.sell-btn--orange:hover:not(:disabled) {
+  background: #ea580c;
+  color: #fff;
+}
+
+.sell-why {
+  padding: clamp(56px, 8vw, 88px) 0 clamp(72px, 9vw, 104px);
+  background: #f8f9fc;
+}
+
+.sell-why__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(24px, 3vw, 36px);
+}
+
+.sell-why__item {
+  text-align: center;
+}
+
+.sell-why__icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1e3a6e;
+  background: rgba(30, 58, 110, 0.08);
+}
+
+.sell-why__item h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: #161e2d;
+}
+
+.sell-why__item p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #5c5e61;
+  font-weight: 400;
+}
+
+@media (max-width: 1100px) {
+  .sell-hero__inner {
+    grid-template-columns: 1fr;
+  }
+
+  .sell-hero__visual {
+    order: -1;
+    min-height: 280px;
+  }
+
+  .sell-hero h1 {
+    max-width: none;
+  }
+
+  .sell-hero__image-wrap::before {
+    left: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 40%);
+  }
+
+  .sell-options__grid {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .sell-why__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .sell-why__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sell-hero__sign {
+    left: 4%;
+    bottom: 10%;
+    width: min(200px, 55%);
+  }
+}
+
 /* ── REOVANA footer (site-wide) ──────────────────────────────────────────── */
 .reovana-footer,
 #footer.reovana-footer {

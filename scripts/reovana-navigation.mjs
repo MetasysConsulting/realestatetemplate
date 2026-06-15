@@ -33,7 +33,7 @@ const RESOURCES_LINKS = [
   ["/career", "Careers"],
 ];
 
-const SELL_PAGE = "/add-property";
+const SELL_PAGE = "/sell";
 
 function desktopSubmenuLinks(items) {
   return items
