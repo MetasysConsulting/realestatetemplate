@@ -96,14 +96,6 @@ export function LoanStepsSection() {
             </p>
           </div>
 
-          <button
-            type="button"
-            className="tf-btn bg-color-primary reovana-find-lenders-btn reovana-cta--pending"
-            disabled
-          >
-            Find lenders
-          </button>
-
           <ol className="reovana-loan-steps__list">
             {STEPS.map((step, i) => (
               <li
@@ -134,6 +126,14 @@ export function LoanStepsSection() {
               </li>
             ))}
           </ol>
+
+          <button
+            type="button"
+            className="tf-btn bg-color-primary reovana-find-lenders-btn reovana-cta--pending"
+            disabled
+          >
+            Find lenders
+          </button>
         </div>
 
         {/* ── Right column: house image ─── */}
