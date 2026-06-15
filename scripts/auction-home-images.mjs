@@ -15,56 +15,67 @@ const TEMPLATE_LISTING_IMAGES = [
 const NEIGHBORHOOD_LOCATIONS = [
   {
     oldImg: "location-9.jpg",
-    newImg: "08-lakefront-cottage.jpg",
+    newImg: "tampa-florida.jpg",
     city: "Tampa, Florida",
     count: "1,842",
   },
   {
     oldImg: "location-10.jpg",
-    newImg: "09-wood-siding-bungalow.jpg",
+    newImg: "austin-texas.jpg",
     city: "Austin, Texas",
     count: "2,156",
   },
   {
     oldImg: "location-11.jpg",
-    newImg: "10-red-brick-two-story.jpg",
+    newImg: "phoenix-arizona.jpg",
     city: "Phoenix, Arizona",
     count: "1,973",
   },
   {
     oldImg: "location-12.jpg",
-    newImg: "12-gray-siding-split-level.jpg",
+    newImg: "denver-colorado.jpg",
     city: "Denver, Colorado",
     count: "1,508",
   },
   {
     oldImg: "location-13.jpg",
-    newImg: "13-farmhouse-white.jpg",
+    newImg: "atlanta-georgia.jpg",
     city: "Atlanta, Georgia",
     count: "2,304",
   },
   {
     oldImg: "location-14.jpg",
-    newImg: "14-condo-townhome-row.jpg",
+    newImg: "houston-texas.jpg",
     city: "Houston, Texas",
     count: "2,617",
   },
   {
     oldImg: "location-15.jpg",
-    newImg: "20-vacant-lot-house.jpg",
+    newImg: "cleveland-ohio.jpg",
     city: "Cleveland, Ohio",
     count: "1,126",
   },
 ];
 
+const OLD_NEIGHBORHOOD_PROPERTY_IMAGES = [
+  "08-lakefront-cottage.jpg",
+  "09-wood-siding-bungalow.jpg",
+  "10-red-brick-two-story.jpg",
+  "12-gray-siding-split-level.jpg",
+  "13-farmhouse-white.jpg",
+  "14-condo-townhome-row.jpg",
+  "20-vacant-lot-house.jpg",
+  "21-duplex-side-by-side.jpg",
+];
+
 const EIGHTH_NEIGHBORHOOD = {
-  newImg: "21-duplex-side-by-side.jpg",
+  newImg: "miami-florida.jpg",
   city: "Miami, Florida",
   count: "1,894",
 };
 
 function neighborhoodCardMarkup(itemClass, img, city, count) {
-  const imgPath = `/images/auction-properties/${img}`;
+  const imgPath = `/images/neighborhoods/${img}`;
   return `
                             <div class="box-location hover-img ${itemClass}">
                                 <div class="image-wrap">
@@ -123,10 +134,10 @@ function applyHomeNeighborhoods(html) {
   for (const loc of NEIGHBORHOOD_LOCATIONS) {
     section = section.replaceAll(
       `/images/section/${loc.oldImg}`,
-      `/images/auction-properties/${loc.newImg}`,
+      `/images/neighborhoods/${loc.newImg}`,
     );
 
-    const imgPath = `/images/auction-properties/${loc.newImg}`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const imgPath = `/images/neighborhoods/${loc.newImg}`.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     section = section.replace(
       new RegExp(`(${imgPath}[\\s\\S]*?<h6 class="text_white">)[^<]*(</h6>)`, "i"),
       `$1${loc.city}$2`,
@@ -139,6 +150,17 @@ function applyHomeNeighborhoods(html) {
       `$1${loc.count} Properties <i class="icon-arrow-right"></i>$2`,
     );
     section = section.replace(/href="#"/, 'href="/auctions"');
+  }
+
+  for (const [index, oldFile] of OLD_NEIGHBORHOOD_PROPERTY_IMAGES.entries()) {
+    const cityFile =
+      index < NEIGHBORHOOD_LOCATIONS.length
+        ? NEIGHBORHOOD_LOCATIONS[index].newImg
+        : EIGHTH_NEIGHBORHOOD.newImg;
+    section = section.replaceAll(
+      `/images/auction-properties/${oldFile}`,
+      `/images/neighborhoods/${cityFile}`,
+    );
   }
 
   if (!section.includes("item-8")) {
