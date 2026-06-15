@@ -113,7 +113,10 @@ function CategoryRow({ title, listings }: { title: string; listings: PropertyLis
     const track = trackRef.current;
     if (!track) return;
 
-    const amount = track.clientWidth;
+    const firstCard = track.querySelector<HTMLElement>(".reovana-home-category-card");
+    const gap = 16;
+    const amount = firstCard ? firstCard.offsetWidth + gap : track.clientWidth / 3;
+
     track.scrollBy({
       left: direction === "forward" ? amount : -amount,
       behavior: "smooth",
@@ -122,7 +125,7 @@ function CategoryRow({ title, listings }: { title: string; listings: PropertyLis
 
   if (!listings.length) return null;
 
-  const showArrows = listings.length > 4;
+  const showArrows = listings.length > 3;
 
   return (
     <section className="reovana-home-category-row">
