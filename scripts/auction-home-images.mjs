@@ -151,8 +151,8 @@ const HERO_HOUSE_IMAGE = "/images/reovana/hero-house.jpeg";
 
 const PRE_APPROVED_STEPS_HTML = `
                                 <div class="heading-section reovana-loan-steps__header">
-                                    <h2 class="title">Confidently pursue distressed deals with verified financing.</h2>
-                                    <p class="text-1">REOVANA connects investors with lenders who specialize in foreclosures, REO properties, and auction purchases.</p>
+                                    <h2 class="title">Do you need a loan?<br>Get pre-approved</h2>
+                                    <p class="text-1">Find a lender who can offer competitive mortgage rates and help you with pre-approval.</p>
                                 </div>
                                 <button type="button" class="tf-btn bg-color-primary reovana-find-lenders-btn reovana-cta--pending" disabled>Find lenders</button>
                                 <ol class="reovana-loan-steps__list">

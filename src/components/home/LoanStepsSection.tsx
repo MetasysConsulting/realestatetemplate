@@ -88,11 +88,13 @@ export function LoanStepsSection() {
           <div className="reovana-loan-steps__header">
             <p className="reovana-loan-steps__kicker">How it works</p>
             <h2 className="reovana-loan-steps__headline">
-              Confidently pursue distressed deals with verified financing.
+              Do you need a loan?
+              <br />
+              Get pre-approved
             </h2>
             <p className="reovana-loan-steps__lead">
-              REOVANA connects investors with lenders who specialize in foreclosures,
-              REO properties, and auction purchases.
+              Find a lender who can offer competitive mortgage rates and help you with
+              pre-approval.
             </p>
           </div>
 
