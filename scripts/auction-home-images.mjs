@@ -237,6 +237,11 @@ function applyHomePreApprovedSection(html) {
                                 <img src="${HERO_HOUSE_IMAGE}" alt="REOVANA home" loading="lazy">`,
   );
 
+  section = section.replace(
+    /<form class="form-pre-approved">[\s\S]*?<\/form>/,
+    `<a href="/loans" class="tf-btn bg-color-primary reovana-find-lenders-btn">Find lenders</a>`,
+  );
+
   return html.slice(0, block.start) + section + html.slice(block.end);
 }
 
