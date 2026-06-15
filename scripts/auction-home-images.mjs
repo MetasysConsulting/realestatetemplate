@@ -215,6 +215,55 @@ function stripHomeSections(html) {
 
 const HERO_HOUSE_IMAGE = "/images/reovana/hero-house.jpeg";
 
+const PRE_APPROVED_STEPS_HTML = `
+                                <div class="heading-section reovana-loan-steps__header">
+                                    <h2 class="title">Confidently pursue distressed deals with verified financing.</h2>
+                                    <p class="text-1">REOVANA connects investors with lenders who specialize in foreclosures, REO properties, and auction purchases.</p>
+                                </div>
+                                <a href="/loans" class="tf-btn bg-color-primary reovana-find-lenders-btn">Find lenders</a>
+                                <ol class="reovana-loan-steps__list">
+                                    <li class="reovana-loan-steps__item is-active">
+                                        <span class="reovana-loan-steps__marker" aria-hidden="true">1</span>
+                                        <span class="reovana-loan-steps__icon reovana-loan-steps__icon--green" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 3H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2V9z"/><path d="M14 3v6h6M9 13h6M9 17h4"/></svg>
+                                        </span>
+                                        <div class="reovana-loan-steps__body">
+                                            <h3>Get pre-approved</h3>
+                                            <p>Get matched with hard money and private lenders who fund distressed property deals.</p>
+                                        </div>
+                                    </li>
+                                    <li class="reovana-loan-steps__item">
+                                        <span class="reovana-loan-steps__marker" aria-hidden="true">2</span>
+                                        <span class="reovana-loan-steps__icon reovana-loan-steps__icon--amber" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 11l8-7 8 7"/><path d="M6 10v10h12V10"/></svg>
+                                        </span>
+                                        <div class="reovana-loan-steps__body">
+                                            <h3>Find a property</h3>
+                                            <p>Browse foreclosures, bank-owned homes, and auction listings across the country.</p>
+                                        </div>
+                                    </li>
+                                    <li class="reovana-loan-steps__item">
+                                        <span class="reovana-loan-steps__marker" aria-hidden="true">3</span>
+                                        <span class="reovana-loan-steps__icon reovana-loan-steps__icon--blue" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M5 10h14"/><path d="M7 6h10v12H7z"/></svg>
+                                        </span>
+                                        <div class="reovana-loan-steps__body">
+                                            <h3>Make an offer</h3>
+                                            <p>Confirm the deal fits your budget and move quickly with funding already in place.</p>
+                                        </div>
+                                    </li>
+                                    <li class="reovana-loan-steps__item">
+                                        <span class="reovana-loan-steps__marker" aria-hidden="true">4</span>
+                                        <span class="reovana-loan-steps__icon reovana-loan-steps__icon--indigo" aria-hidden="true">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+                                        </span>
+                                        <div class="reovana-loan-steps__body">
+                                            <h3>Close on your investment</h3>
+                                            <p>Finalize your loan, complete closing, and take ownership of the property.</p>
+                                        </div>
+                                    </li>
+                                </ol>`;
+
 function applyHomePreApprovedSection(html) {
   const block = sliceSection(html, "<!-- .section-pre-approved -->", "<!-- /.section-pre-approved -->");
   if (!block) return html;
@@ -227,19 +276,16 @@ function applyHomePreApprovedSection(html) {
   );
 
   section = section.replace(
-    /Do you need a home loan\?\s*<br>\s*Get pre-approved/gi,
-    "Do you need a loan? <br>\n                                        Get pre-approved",
+    /<div class="content">[\s\S]*?<\/div>\s*(?=<\/div>\s*<div class="col-lg-6">)/,
+    `<div class="content reovana-loan-steps">${PRE_APPROVED_STEPS_HTML}
+                            </div>
+                        `,
   );
 
   section = section.replace(
     /<div class="image-wrap img-animation wow animate__animated">\s*<img[^>]*>/,
     `<div class="image-wrap reovana-pre-approved-photo">
                                 <img src="${HERO_HOUSE_IMAGE}" alt="REOVANA home" loading="lazy">`,
-  );
-
-  section = section.replace(
-    /<form class="form-pre-approved">[\s\S]*?<\/form>/,
-    `<a href="/loans" class="tf-btn bg-color-primary reovana-find-lenders-btn">Find lenders</a>`,
   );
 
   return html.slice(0, block.start) + section + html.slice(block.end);
