@@ -113,20 +113,14 @@ export function buildReovanaFooter() {
 
                 <div class="reovana-footer__legal-row">
                     <div class="reovana-footer__legal-block">
-                        <h6>Contact Us</h6>
-                        <ul class="reovana-footer__contact-list">
-                            <li>
-                                <i class="icon-phone-2" aria-hidden="true"></i>
-                                <a href="tel:+18881234567">(888) 123-4567</a>
-                            </li>
-                            <li>
-                                <i class="icon-letter-2" aria-hidden="true"></i>
-                                <a href="mailto:info@reovana.com">info@reovana.com</a>
-                            </li>
-                            <li>
-                                <i class="icon-location" aria-hidden="true"></i>
-                                <span>Miami, Florida</span>
-                            </li>
+                        <h6>Help &amp; Support</h6>
+                        <p class="reovana-footer__support-lead">Customer support resources</p>
+                        <ul class="reovana-footer__support-links">
+                            ${footerLinkList([
+                              ["/learn/help-center", "Help Center"],
+                              ["/learn/faq", "FAQ"],
+                              ["/learn/overview", "Learn"],
+                            ])}
                         </ul>
                     </div>
 

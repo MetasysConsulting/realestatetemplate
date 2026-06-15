@@ -2962,6 +2962,31 @@ body.loans-route #loading {
   color: var(--Primary, #7695ff);
 }
 
+.reovana-footer__support-lead {
+  margin: 0 0 12px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+}
+
+.reovana-footer__support-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.reovana-footer__support-links a {
+  color: var(--Text, #5c5e61);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.reovana-footer__support-links a:hover {
+  color: var(--Primary, #7695ff);
+}
+
 .reovana-footer__social {
   list-style: none;
   margin: 0;
