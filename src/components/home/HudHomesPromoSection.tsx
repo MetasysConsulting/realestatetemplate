@@ -20,8 +20,8 @@ export function HudHomesPromoSection() {
                 Thousands of investors visit our website.
               </p>
             </div>
-            <Link href="/contact" className="tf-btn bg-color-primary fw-7 pd-11">
-              Request your free appraisal
+            <Link href="/add-property" className="tf-btn bg-color-primary fw-7 pd-11">
+              Post Your Property
             </Link>
             <div className="person reovana-hud-promo__agent">
               {/* eslint-disable-next-line @next/next/no-img-element */}
