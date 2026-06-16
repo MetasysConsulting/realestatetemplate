@@ -30,6 +30,8 @@ export function HudHomesPromoSection() {
           </div>
         </div>
       </div>
+
+      <div className="reovana-hud-promo__light-band" aria-hidden="true" />
     </section>
   );
 }
