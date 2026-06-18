@@ -137,10 +137,22 @@ function stripLuxuryEnthusiastsText(html) {
   );
 }
 
+function removeNewListingsSection(html) {
+  const idx = html.indexOf("New Listings");
+  if (idx < 0) return html;
+
+  const start = html.lastIndexOf("<!-- .section-listing", idx);
+  const end = html.indexOf("<!-- /.section-listing", idx);
+  if (start < 0 || end < 0) return html;
+
+  return html.slice(0, start) + html.slice(end + "<!-- /.section-listing -->".length);
+}
+
 function stripHomeSections(html) {
   let out = html;
   out = removeCategoriesSection(out);
   out = removeOpenHousesSection(out);
+  out = removeNewListingsSection(out);
   out = removeSectionBetween(out, "<!-- section-work-together -->", "<!-- /.section-work-together -->");
   out = removeSectionBetween(out, "<!-- section-opinion -->", "<!-- /.section-opinion -->");
   out = removeSectionBetween(out, "<!-- .section-testimonials -->", "<!-- /.section-testimonials -->");
