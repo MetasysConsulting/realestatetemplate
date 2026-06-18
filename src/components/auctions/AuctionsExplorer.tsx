@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import {
@@ -11,6 +10,7 @@ import {
 } from "@/lib/generate-auction-properties";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
+import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 
 const FILTER_OPTIONS = {
   assetType: ["All", "Foreclosure", "Bank Owned", "Short Sale", "Commercial"],
@@ -66,9 +66,12 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
         </p>
         <div className="auctions-card__footer">
           <span className="auctions-card__status">{property.status}</span>
-          <Link href="/property/detail/v1" className="auctions-card__register tf-btn bg-color-primary">
-            Register
-          </Link>
+          <ListingDetailLink
+            href={property.detailUrl || "/auctions"}
+            className="auctions-card__register tf-btn bg-color-primary"
+          >
+            View Details
+          </ListingDetailLink>
         </div>
       </div>
     </article>

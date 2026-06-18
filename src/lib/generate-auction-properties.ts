@@ -116,9 +116,8 @@ function formatCurrency(value: number): string {
 
 export { formatCurrency };
 
-export function getInventoryCount(categoryKey: BuyCategoryKey, listed: number): number {
-  const base = 1800 + (hashString(categoryKey) % 6200);
-  return base + listed;
+export function getInventoryCount(_categoryKey: BuyCategoryKey, listed: number): number {
+  return listed;
 }
 
 export function generateAuctionProperties(

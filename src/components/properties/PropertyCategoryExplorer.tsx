@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
+import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { PropertyListing } from "@/lib/load-category-listings";
@@ -60,9 +61,12 @@ function PropertyCard({ listing }: { listing: PropertyListing }) {
         </ul>
         <div className="auctions-card__footer">
           <span className="hud-status">{listing.status}</span>
-          <Link href={listing.detailPath} className="auctions-card__register tf-btn bg-color-primary">
+          <ListingDetailLink
+            href={listing.detailPath}
+            className="auctions-card__register tf-btn bg-color-primary"
+          >
             View Details
-          </Link>
+          </ListingDetailLink>
         </div>
       </div>
     </article>

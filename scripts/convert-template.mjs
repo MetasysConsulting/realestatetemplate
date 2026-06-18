@@ -12,6 +12,7 @@ import {
 import { applyReovanaBlogContent, applyReovanaFaqContent } from "./learn-pages.mjs";
 import { replaceSiteNavigation } from "./reovana-navigation.mjs";
 import { replaceSiteFooter } from "./reovana-footer.mjs";
+import { stripTemplateMockListings } from "./strip-template-listings.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -22,34 +23,6 @@ const MANIFEST_OUT = path.join(ROOT, "src", "lib", "template-manifest.ts");
 /** @type {Record<string, string>} */
 const ROUTE_MAP = {
   "index.html": "/",
-  "home02.html": "/home/02",
-  "home03.html": "/home/03",
-  "home04.html": "/home/04",
-  "home05.html": "/home/05",
-  "home06.html": "/home/06",
-  "home07.html": "/home/07",
-  "home08.html": "/home/08",
-  "home09.html": "/home/09",
-  "home10.html": "/home/10",
-  "property-grid-full-width.html": "/listing/grid-full-width",
-  "property-gird-top-search.html": "/listing/grid-top-search",
-  "property-gird-left-sidebar.html": "/listing/grid-left-sidebar",
-  "property-gird-right-sidebar.html": "/listing/grid-right-sidebar",
-  "property-list-full-width.html": "/listing/list-full-width",
-  "property-list-top-search.html": "/listing/list-top-search",
-  "property-list-left-sidebar.html": "/listing/list-left-sidebar",
-  "property-list-right-sidebar.html": "/listing/list-right-sidebar",
-  "property-half-map-grid.html": "/listing/half-map-grid",
-  "property-half-map-list.html": "/listing/half-map-list",
-  "property-half-top-map.html": "/listing/half-top-map",
-  "property-filter-popup.html": "/listing/filter-popup",
-  "property-filter-popup-left.html": "/listing/filter-popup-left",
-  "property-filter-popup-right.html": "/listing/filter-popup-right",
-  "property-detail-v1.html": "/property/detail/v1",
-  "property-detail-v2.html": "/property/detail/v2",
-  "property-detail-v3.html": "/property/detail/v3",
-  "property-detail-v4.html": "/property/detail/v4",
-  "property-detail-v5.html": "/property/detail/v5",
   "agents.html": "/agents",
   "agents-details.html": "/agents/details",
   "agency-grid.html": "/agency/grid",
@@ -320,6 +293,8 @@ function applyBranding(html, filename) {
     out = applyListingPageImages(out);
   }
 
+  out = stripTemplateMockListings(out);
+
   return out;
 }
 
@@ -472,5 +447,13 @@ fs.writeFileSync(
   path.join(ROOT, "src", "generated", "page-registry.ts"),
   registryTs,
 );
+
+const activeSlugs = new Set(manifest.map((m) => `${m.slug}.json`));
+for (const file of fs.readdirSync(OUT_DIR)) {
+  if (file.endsWith(".json") && !activeSlugs.has(file)) {
+    fs.unlinkSync(path.join(OUT_DIR, file));
+    console.log(`✗ removed orphan ${file}`);
+  }
+}
 
 console.log(`\nGenerated ${manifest.length} pages.`);

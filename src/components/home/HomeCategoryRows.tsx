@@ -8,6 +8,7 @@ import {
   resolveHomeCategoryRowListings,
 } from "@/lib/home-category-rows";
 import { HudHomesPromoSection } from "@/components/home/HudHomesPromoSection";
+import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import { getHomeRecentlyViewedListings } from "@/lib/recently-viewed";
 
@@ -23,10 +24,10 @@ function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
   const [imageUrl, setImageUrl] = useState(listing.imageUrl);
 
   return (
-    <Link
+    <ListingDetailLink
       href={listing.detailPath}
       className="reovana-home-category-card"
-      aria-label={`View ${listing.address}, ${listing.city}, ${listing.state}`}
+      ariaLabel={`View ${listing.address}, ${listing.city}, ${listing.state}`}
     >
       <div className="reovana-home-category-card__media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -45,7 +46,7 @@ function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
           {listing.address}, {listing.city}, {listing.state}
         </h4>
       </div>
-    </Link>
+    </ListingDetailLink>
   );
 }
 
