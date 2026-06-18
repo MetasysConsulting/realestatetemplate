@@ -2,7 +2,7 @@ import { AuctionsExplorer } from "@/components/auctions/AuctionsExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
-import { generateAuctionProperties } from "@/lib/generate-auction-properties";
+import { fetchAuctionProperties } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import { BUY_CATEGORIES } from "@/lib/buy-categories";
 
@@ -10,9 +10,9 @@ type AuctionsPageContentProps = {
   categoryKey: BuyCategoryKey;
 };
 
-export function AuctionsPageContent({ categoryKey }: AuctionsPageContentProps) {
+export async function AuctionsPageContent({ categoryKey }: AuctionsPageContentProps) {
   const config = BUY_CATEGORIES[categoryKey];
-  const properties = generateAuctionProperties(categoryKey, 48);
+  const properties = await fetchAuctionProperties(categoryKey);
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)

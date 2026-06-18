@@ -1,6 +1,5 @@
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
-import { generateAuctionProperties } from "@/lib/generate-auction-properties";
 import type { GsaDispositionListing, GsaDispositionsDataset } from "@/lib/gsa-dispositions";
 import { loadGsaDispositions } from "@/lib/gsa-dispositions";
 import type { GsaRealEstateSale, GsaRealEstateSalesDataset } from "@/lib/gsa-realestatesales";
@@ -11,16 +10,18 @@ import type { HudListing, HudListingsDataset } from "@/lib/hud-listings";
 import { loadHudListings } from "@/lib/hud-listings";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import type { PropertyCategoryKey } from "@/lib/property-categories";
-import { hudDetailPath, PROPERTY_CATEGORIES } from "@/lib/property-categories";
+import { hudDetailPath } from "@/lib/property-categories";
 import {
   createSupabaseServerClient,
   isSupabaseConfigured,
   type DatabaseListingRow,
 } from "@/lib/supabase/server";
+import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { VrmListing, VrmListingsDataset } from "@/lib/vrm-listings";
 import { loadVrmListings } from "@/lib/vrm-listings";
 
 const LISTING_PAGE_SIZE = 1000;
+const HOME_ROW_LISTING_COUNT = 6;
 
 const VRM_STATE_COORDS: Record<string, [number, number]> = {
   TX: [31.054487, -97.563461],
@@ -371,36 +372,57 @@ function gsaSaleToPropertyListing(l: GsaRealEstateSale): PropertyListing {
   };
 }
 
-function mockToListing(
-  mock: ReturnType<typeof generateAuctionProperties>[number],
-  categoryLabel: string,
-): PropertyListing {
+function listingToAuctionProperty(listing: PropertyListing, buyType: BuyCategoryKey): AuctionProperty {
   return {
-    id: mock.id,
-    address: mock.address,
-    city: mock.city,
-    state: mock.state,
-    zip: mock.zip,
-    price: mock.openingBid,
-    priceLabel: "Est. Opening Bid",
-    bedrooms: mock.beds,
-    bathrooms: mock.baths,
-    squareFootage: mock.sqft,
-    propertyType: categoryLabel,
-    status: mock.status,
-    tags: mock.tags,
-    imageUrl: mock.imageUrl,
-    detailPath: "/property/detail/v1",
-    lat: mock.lat,
-    lng: mock.lng,
-    isNew: mock.isNew,
+    id: listing.id,
+    isNew: listing.isNew,
+    openingBid: listing.price,
+    tags: listing.tags,
+    category: listing.propertyType,
+    buyType,
+    address: listing.address,
+    city: listing.city,
+    state: listing.state,
+    zip: listing.zip,
+    beds: listing.bedrooms,
+    baths: listing.bathrooms,
+    sqft: listing.squareFootage,
+    auctionDate: "",
+    auctionTime: "",
+    status: listing.status,
+    lat: listing.lat,
+    lng: listing.lng,
+    imageUrl: listing.imageUrl,
+    detailUrl: listing.detailPath,
   };
 }
 
-function loadMock(categoryKey: PropertyCategoryKey, buyType: BuyCategoryKey, count: number) {
-  const config = PROPERTY_CATEGORIES[categoryKey];
-  const mocks = generateAuctionProperties(buyType, count);
-  return mocks.map((m) => mockToListing(m, config.title));
+function gsaDispositionToAuctionProperty(
+  listing: GsaDispositionListing,
+  buyType: BuyCategoryKey,
+): AuctionProperty {
+  return {
+    id: listing.id,
+    isNew: false,
+    openingBid: 0,
+    tags: [listing.propertyType, listing.status].filter(Boolean),
+    category: listing.propertyType,
+    buyType,
+    address: listing.address,
+    city: listing.city,
+    state: listing.state,
+    zip: listing.zip,
+    beds: 0,
+    baths: 0,
+    sqft: listing.rentableSqFt,
+    auctionDate: listing.dateListed,
+    auctionTime: "",
+    status: listing.status,
+    lat: listing.lat,
+    lng: listing.lng,
+    imageUrl: listing.displayImageUrl,
+    detailUrl: listing.sourceUrl,
+  };
 }
 
 export async function fetchHudListingsDataset(): Promise<HudListingsDataset> {
@@ -532,43 +554,75 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
         fetchVrmListingsDataset(),
         fetchHomeStepsListingsDataset(),
       ]);
-      const mock = loadMock("bank-owned", "bank-owned", 24);
-      return [...vrm.listings.map(vrmToPropertyListing), ...homesteps.listings.map(homestepsToPropertyListing), ...mock].sort(
+      return [...vrm.listings.map(vrmToPropertyListing), ...homesteps.listings.map(homestepsToPropertyListing)].sort(
         (a, b) => b.price - a.price,
       );
     }
 
     case "auction-property": {
       const gsa = await fetchGsaRealEstateSalesDataset();
-      const mock = loadMock("auction-property", "commercial", 24);
-      return [...gsa.listings.map(gsaSaleToPropertyListing), ...mock];
+      return gsa.listings.map(gsaSaleToPropertyListing);
     }
 
     case "motivated-seller":
-      return loadMock("motivated-seller", "non-bank-owned", 48);
-
     case "off-market":
-      return loadMock("off-market", "short-sale", 48);
-
     case "foreclosure":
-      return loadMock("foreclosure", "foreclosure-homes", 48);
-
     case "pre-foreclosure":
-      return loadMock("pre-foreclosure", "second-chance-foreclosure", 48);
-
     case "sheriffs-sale":
-      return loadMock("sheriffs-sale", "foreclosure-homes", 48).map((l) => ({
-        ...l,
-        tags: [...l.tags, "Sheriff's Sale"],
-        propertyType: "Sheriff's Sale",
-      }));
-
     case "tax-delinquent":
-      return loadMock("tax-delinquent", "short-sale", 48).map((l) => ({
-        ...l,
-        tags: [...l.tags, "Tax Delinquent"],
-        propertyType: "Tax Delinquent",
-      }));
+      return [];
+
+    default:
+      return [];
+  }
+}
+
+export async function fetchHomeCategoryRows(): Promise<Record<string, PropertyListing[]>> {
+  const [bankOwned, auction, hud] = await Promise.all([
+    fetchCategoryListings("bank-owned"),
+    fetchCategoryListings("auction-property"),
+    fetchCategoryListings("hud-home"),
+  ]);
+
+  return {
+    "bank-owned": bankOwned.slice(0, HOME_ROW_LISTING_COUNT),
+    "auction-property": auction.slice(0, HOME_ROW_LISTING_COUNT),
+    "hud-home": hud.slice(0, HOME_ROW_LISTING_COUNT),
+  };
+}
+
+export async function fetchAuctionProperties(categoryKey: BuyCategoryKey): Promise<AuctionProperty[]> {
+  switch (categoryKey) {
+    case "bank-owned": {
+      const listings = await fetchCategoryListings("bank-owned");
+      return listings.map((listing) => listingToAuctionProperty(listing, categoryKey));
+    }
+
+    case "commercial": {
+      const [sales, dispositions] = await Promise.all([
+        fetchGsaRealEstateSalesDataset(),
+        fetchGsaDispositionsDataset(),
+      ]);
+      return [
+        ...sales.listings.map((listing) =>
+          listingToAuctionProperty(gsaSaleToPropertyListing(listing), categoryKey),
+        ),
+        ...dispositions.listings.map((listing) =>
+          gsaDispositionToAuctionProperty(listing, categoryKey),
+        ),
+      ];
+    }
+
+    case "all": {
+      const [hud, bankOwned, auction] = await Promise.all([
+        fetchCategoryListings("hud-home"),
+        fetchCategoryListings("bank-owned"),
+        fetchCategoryListings("auction-property"),
+      ]);
+      return [...hud, ...bankOwned, ...auction]
+        .map((listing) => listingToAuctionProperty(listing, "all"))
+        .sort((a, b) => b.openingBid - a.openingBid);
+    }
 
     default:
       return [];

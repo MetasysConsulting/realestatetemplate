@@ -169,7 +169,11 @@ export function PropertyCategoryExplorer({
               <PropertyCard key={listing.id} listing={listing} />
             ))}
             {filtered.length === 0 ? (
-              <p className="auctions-empty">No properties match your filters.</p>
+              <p className="auctions-empty">
+                {listings.length === 0
+                  ? "No listings available in this category yet."
+                  : "No properties match your filters."}
+              </p>
             ) : null}
           </div>
         </section>

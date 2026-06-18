@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TemplatePage } from "@/components/template/TemplatePage";
 import { isPropertyDetailRoute } from "@/lib/property-gate";
+import { fetchHomeCategoryRows } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import {
   TEMPLATE_PAGES,
   getTemplateMetaByRoute,
 } from "@/lib/template-manifest";
 
-export const dynamic = "force-static";
+export const revalidate = 3600;
 export const dynamicParams = false;
 
 type PageProps = {
@@ -53,6 +54,8 @@ export default async function TemplateRoutePage({ params }: PageProps) {
     notFound();
   }
 
+  const homeCategoryRows = route === "/" ? await fetchHomeCategoryRows() : {};
+
   return (
     <TemplatePage
       html={data.html}
@@ -61,6 +64,7 @@ export default async function TemplateRoutePage({ params }: PageProps) {
       showHomeCategoryRows={route === "/"}
       showLoanSteps={route === "/"}
       showNeighborhoodsCarousel={route === "/"}
+      homeCategoryRows={homeCategoryRows}
     />
   );
 }

@@ -7,7 +7,7 @@ import {
   type BuyCategoryKey,
 } from "@/lib/buy-categories";
 
-export const dynamic = "force-static";
+export const revalidate = 3600;
 export const dynamicParams = false;
 
 type PageProps = {

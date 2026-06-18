@@ -6,6 +6,7 @@ import { HomeCategoryRowsMount } from "@/components/home/HomeCategoryRowsMount";
 import { LoanStepsSectionMount } from "@/components/home/LoanStepsSectionMount";
 import { NeighborhoodsCarouselMount } from "@/components/home/NeighborhoodsCarouselMount";
 import { fixReovanaHeader } from "@/lib/fix-reovana-header";
+import type { PropertyListing } from "@/lib/load-category-listings";
 
 type TemplatePageProps = {
   html: string;
@@ -14,6 +15,7 @@ type TemplatePageProps = {
   showHomeCategoryRows?: boolean;
   showLoanSteps?: boolean;
   showNeighborhoodsCarousel?: boolean;
+  homeCategoryRows?: Record<string, PropertyListing[]>;
 };
 
 function normalizeBodyClass(bodyClass: string): string {
@@ -36,6 +38,7 @@ export function TemplatePage({
   showHomeCategoryRows = false,
   showLoanSteps = false,
   showNeighborhoodsCarousel = false,
+  homeCategoryRows = {},
 }: TemplatePageProps) {
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
@@ -69,7 +72,7 @@ export function TemplatePage({
   return (
     <>
       <PropertyUnlockGate enabled={propertyGate} />
-      {showHomeCategoryRows ? <HomeCategoryRowsMount /> : null}
+      {showHomeCategoryRows ? <HomeCategoryRowsMount rowListings={homeCategoryRows} /> : null}
       {showLoanSteps ? <LoanStepsSectionMount /> : null}
       {showNeighborhoodsCarousel ? <NeighborhoodsCarouselMount /> : null}
       <div

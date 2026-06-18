@@ -5,13 +5,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import {
   HOME_CATEGORY_ROWS,
-  getHomeCategoryRowListings,
+  resolveHomeCategoryRowListings,
 } from "@/lib/home-category-rows";
 import { HudHomesPromoSection } from "@/components/home/HudHomesPromoSection";
 import type { PropertyListing } from "@/lib/load-category-listings";
-import {
-  getRecentlyViewedDemoListings,
-} from "@/lib/recently-viewed";
+import { getHomeRecentlyViewedListings } from "@/lib/recently-viewed";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -147,16 +145,27 @@ function CategoryRow({ title, listings }: { title: string; listings: PropertyLis
   );
 }
 
-export function HomeCategoryRows() {
-  const recentListings = useMemo(() => getRecentlyViewedDemoListings(), []);
+type HomeCategoryRowsProps = {
+  rowListings: Record<string, PropertyListing[]>;
+};
+
+export function HomeCategoryRows({ rowListings }: HomeCategoryRowsProps) {
+  const [recentListings, setRecentListings] = useState<PropertyListing[]>([]);
+
+  useEffect(() => {
+    const refresh = () => setRecentListings(getHomeRecentlyViewedListings());
+    refresh();
+    window.addEventListener("reovana:recently-viewed", refresh);
+    return () => window.removeEventListener("reovana:recently-viewed", refresh);
+  }, []);
 
   const categoryRows = useMemo(
     () =>
       HOME_CATEGORY_ROWS.map((row) => ({
         ...row,
-        listings: getHomeCategoryRowListings(row),
+        listings: resolveHomeCategoryRowListings(rowListings, row),
       })),
-    [],
+    [rowListings],
   );
 
   return (
