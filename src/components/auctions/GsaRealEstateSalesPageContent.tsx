@@ -1,11 +1,11 @@
 import { GsaRealEstateSalesExplorer } from "@/components/auctions/GsaRealEstateSalesExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
-import { loadGsaRealEstateSales } from "@/lib/gsa-realestatesales";
+import { fetchGsaRealEstateSalesDataset } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 
-export function GsaRealEstateSalesPageContent() {
-  const dataset = loadGsaRealEstateSales();
+export async function GsaRealEstateSalesPageContent() {
+  const dataset = await fetchGsaRealEstateSalesDataset();
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)

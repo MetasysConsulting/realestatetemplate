@@ -1,11 +1,11 @@
 import { HudHomesExplorer } from "@/components/auctions/HudHomesExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
-import { loadHudListings } from "@/lib/hud-listings";
+import { fetchHudListingsDataset } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 
-export function HudHomesPageContent() {
-  const dataset = loadHudListings();
+export async function HudHomesPageContent() {
+  const dataset = await fetchHudListingsDataset();
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)

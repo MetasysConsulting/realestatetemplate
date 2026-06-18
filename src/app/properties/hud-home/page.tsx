@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { HudHomesPageContent } from "@/components/auctions/HudHomesPageContent";
 
-export const dynamic = "force-static";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "HUD Homes — REOVANA",
@@ -9,6 +9,6 @@ export const metadata: Metadata = {
     "Browse FHA-insured HUD foreclosure homes nationwide — listed exclusively on REOVANA.",
 };
 
-export default function HudHomeCategoryPage() {
+export default async function HudHomeCategoryPage() {
   return <HudHomesPageContent />;
 }

@@ -1,7 +1,7 @@
 import { PropertyCategoryExplorer } from "@/components/properties/PropertyCategoryExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
-import { loadCategoryListings } from "@/lib/load-category-listings";
+import { fetchCategoryListings } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import type { PropertyCategoryKey } from "@/lib/property-categories";
 import { PROPERTY_CATEGORIES } from "@/lib/property-categories";
@@ -10,9 +10,9 @@ type PropertyCategoryPageContentProps = {
   categoryKey: PropertyCategoryKey;
 };
 
-export function PropertyCategoryPageContent({ categoryKey }: PropertyCategoryPageContentProps) {
+export async function PropertyCategoryPageContent({ categoryKey }: PropertyCategoryPageContentProps) {
   const config = PROPERTY_CATEGORIES[categoryKey];
-  const listings = loadCategoryListings(categoryKey);
+  const listings = await fetchCategoryListings(categoryKey);
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)

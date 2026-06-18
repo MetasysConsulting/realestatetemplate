@@ -1,11 +1,11 @@
 import { HomeStepsExplorer } from "@/components/auctions/HomeStepsExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
-import { loadHomeStepsListings } from "@/lib/homesteps-listings";
+import { fetchHomeStepsListingsDataset } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 
-export function HomeStepsPageContent() {
-  const dataset = loadHomeStepsListings();
+export async function HomeStepsPageContent() {
+  const dataset = await fetchHomeStepsListingsDataset();
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)

@@ -1,30 +1,31 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { HudDetailPageShell } from "@/components/properties/HudDetailPageShell";
+import { formatHudPrice } from "@/lib/hud-listings";
 import {
-  formatHudPrice,
-  getAllHudCaseNumbers,
-  getHudListingByCaseNumber,
-  loadHudListings,
-} from "@/lib/hud-listings";
+  fetchAllHudCaseNumbers,
+  fetchHudListingByCaseNumber,
+  fetchHudListingsDataset,
+} from "@/lib/listings-repository";
 import { hudCaseFromSlug, hudCaseSlug } from "@/lib/property-categories";
 
-export const dynamic = "force-static";
-export const dynamicParams = false;
+export const revalidate = 3600;
+export const dynamicParams = true;
 
 type PageProps = {
   params: Promise<{ caseNumber: string }>;
 };
 
-export function generateStaticParams() {
-  return getAllHudCaseNumbers().map((caseNumber) => ({
+export async function generateStaticParams() {
+  const caseNumbers = await fetchAllHudCaseNumbers();
+  return caseNumbers.map((caseNumber) => ({
     caseNumber: hudCaseSlug(caseNumber),
   }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { caseNumber } = await params;
-  const listing = getHudListingByCaseNumber(hudCaseFromSlug(caseNumber));
+  const listing = await fetchHudListingByCaseNumber(hudCaseFromSlug(caseNumber));
 
   if (!listing) {
     return { title: "REOVANA" };
@@ -38,13 +39,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function HudHomeDetailPage({ params }: PageProps) {
   const { caseNumber } = await params;
-  const listing = getHudListingByCaseNumber(hudCaseFromSlug(caseNumber));
+  const listing = await fetchHudListingByCaseNumber(hudCaseFromSlug(caseNumber));
 
   if (!listing) {
     notFound();
   }
 
-  const dataset = loadHudListings();
+  const dataset = await fetchHudListingsDataset();
 
   return <HudDetailPageShell listing={listing} scrapedAt={dataset.scrapedAt} />;
 }

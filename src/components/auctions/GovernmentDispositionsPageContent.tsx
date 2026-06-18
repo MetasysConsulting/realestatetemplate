@@ -1,11 +1,11 @@
 import { GovernmentDispositionsExplorer } from "@/components/auctions/GovernmentDispositionsExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
-import { loadGsaDispositions } from "@/lib/gsa-dispositions";
+import { fetchGsaDispositionsDataset } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 
-export function GovernmentDispositionsPageContent() {
-  const dataset = loadGsaDispositions();
+export async function GovernmentDispositionsPageContent() {
+  const dataset = await fetchGsaDispositionsDataset();
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)

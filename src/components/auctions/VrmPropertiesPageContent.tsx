@@ -1,11 +1,11 @@
 import { VrmPropertiesExplorer } from "@/components/auctions/VrmPropertiesExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
+import { fetchVrmListingsDataset } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
-import { loadVrmListings } from "@/lib/vrm-listings";
 
-export function VrmPropertiesPageContent() {
-  const dataset = loadVrmListings();
+export async function VrmPropertiesPageContent() {
+  const dataset = await fetchVrmListingsDataset();
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)

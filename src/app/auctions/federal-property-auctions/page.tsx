@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { GsaRealEstateSalesPageContent } from "@/components/auctions/GsaRealEstateSalesPageContent";
 
-export const dynamic = "force-static";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Federal Property Auctions — REOVANA",
@@ -9,6 +9,6 @@ export const metadata: Metadata = {
     "Browse surplus federal real property auctions from GSA Real Estate Sales.",
 };
 
-export default function FederalPropertyAuctionsPage() {
+export default async function FederalPropertyAuctionsPage() {
   return <GsaRealEstateSalesPageContent />;
 }

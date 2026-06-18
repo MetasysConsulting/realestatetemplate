@@ -14,9 +14,12 @@
     "scrape-homesteps": "node scripts/scrape-homesteps-listings.mjs",
     "scrape-gsa-sales": "node scripts/scrape-gsa-realestatesales.mjs",
     "scrape-vrm": "node scripts/scrape-vrm-listings.mjs",
-    "scrape-usda": "node scripts/scrape-usda-resales.mjs"
+    "scrape-usda": "node scripts/scrape-usda-resales.mjs",
+    "db:migrate": "node --env-file=.env.local scripts/run-supabase-migration.mjs",
+    "db:seed": "node --env-file=.env.local scripts/seed-supabase-listings.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.108.2",
     "clsx": "^2.1.1",
     "leaflet": "^1.9.4",
     "next": "16.2.7",
@@ -33,6 +36,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "pg": "^8.21.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
