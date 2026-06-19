@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   formatGsaScrapedDate,
@@ -12,6 +13,7 @@ import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import { auctionPropertyDetailPath } from "@/lib/property-categories";
 
 function statusClass(status: GsaDispositionStatus): string {
   if (status === "SOLD") return "gsa-status gsa-status--sold";
@@ -56,14 +58,12 @@ function GsaPropertyCard({ listing }: { listing: GsaDispositionListing }) {
         <p className="auctions-card__datetime">Listed {listing.dateListed}</p>
         <div className="auctions-card__footer">
           <span className={statusClass(listing.status)}>{listing.status}</span>
-          <a
-            href={listing.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={auctionPropertyDetailPath(listing.id)}
             className="auctions-card__register tf-btn bg-color-primary"
           >
-            View on GSA
-          </a>
+            View Details
+          </Link>
         </div>
       </div>
     </article>
@@ -91,7 +91,7 @@ function toMapProperties(listings: GsaDispositionListing[]): AuctionProperty[] {
     lat: l.lat,
     lng: l.lng,
     imageUrl: l.displayImageUrl,
-    detailUrl: l.sourceUrl,
+    detailUrl: auctionPropertyDetailPath(l.id),
   }));
 }
 

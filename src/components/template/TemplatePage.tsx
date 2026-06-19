@@ -6,6 +6,7 @@ import { HomeCategoryRowsMount } from "@/components/home/HomeCategoryRowsMount";
 import { LoanStepsSectionMount } from "@/components/home/LoanStepsSectionMount";
 import { NeighborhoodsCarouselMount } from "@/components/home/NeighborhoodsCarouselMount";
 import { fixReovanaHeader } from "@/lib/fix-reovana-header";
+import { normalizeTemplateHtml } from "@/lib/normalize-template-html";
 import type { PropertyListing } from "@/lib/load-category-listings";
 
 type TemplatePageProps = {
@@ -40,6 +41,8 @@ export function TemplatePage({
   showNeighborhoodsCarousel = false,
   homeCategoryRows = {},
 }: TemplatePageProps) {
+  const safeHtml = normalizeTemplateHtml(html);
+
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
 
@@ -67,7 +70,7 @@ export function TemplatePage({
       window.clearTimeout(t1);
       window.clearTimeout(t);
     };
-  }, [bodyClass, html]);
+  }, [bodyClass, safeHtml]);
 
   return (
     <>
@@ -78,7 +81,7 @@ export function TemplatePage({
       <div
         id="template-root"
         className="reovana-site"
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: safeHtml }}
       />
     </>
   );

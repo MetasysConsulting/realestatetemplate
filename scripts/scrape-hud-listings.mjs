@@ -3,11 +3,13 @@
  * Source: https://www.hudhomestore.gov/
  *
  * Listings are embedded as JSON in search result pages (#available_prop).
+ * Dedupes by HUD case number, upserts into Supabase (no duplicate rows).
  * Re-run periodically: pnpm scrape-hud
  */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { syncHudListingsToDatabase } from "./lib/listings-db.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -142,6 +144,30 @@ async function main() {
   const withImages = listings.filter((l) => l.imageUrl).length;
   console.log(`✓ Saved ${listings.length} unique listings (${withImages} with photos)`);
   console.log(`✓ Wrote ${OUT_JSON}`);
+
+  if (process.env.SYNC_SUPABASE === "0") {
+    console.log("⊘ Skipped Supabase sync (SYNC_SUPABASE=0)");
+    return;
+  }
+
+  if (!process.env.DATABASE_URL) {
+    console.log("⊘ Skipped Supabase sync — set DATABASE_URL in .env.local to enable");
+    return;
+  }
+
+  try {
+    console.log("Syncing to Supabase (upsert + deactivate stale)…");
+    const sync = await syncHudListingsToDatabase(listings, {
+      scrapedAt: payload.scrapedAt,
+      sourceUrl: BASE_URL,
+    });
+    console.log(
+      `✓ Supabase: ${sync.upserted} upserted, ${sync.deactivated} marked inactive (sold/removed from HUD)`,
+    );
+  } catch (err) {
+    console.error(`✗ Supabase sync failed: ${err.message}`);
+    process.exitCode = 1;
+  }
 }
 
 main().catch((err) => {

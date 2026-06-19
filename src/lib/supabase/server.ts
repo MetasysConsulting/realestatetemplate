@@ -31,7 +31,15 @@ export type DatabaseListingRow = {
   scraped_at: string | null;
 };
 
+export function areSiteListingsEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_USE_SUPABASE_LISTINGS !== "false";
+}
+
 export function isSupabaseConfigured(): boolean {
+  if (!areSiteListingsEnabled()) {
+    return false;
+  }
+
   return Boolean(
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
   );

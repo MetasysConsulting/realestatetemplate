@@ -2,7 +2,11 @@ import type { PropertyCategoryKey } from "@/lib/property-categories";
 import { loadGsaRealEstateSales } from "@/lib/gsa-realestatesales";
 import { loadHomeStepsListings } from "@/lib/homesteps-listings";
 import { loadHudListings, type HudListing } from "@/lib/hud-listings";
-import { hudDetailPath } from "@/lib/property-categories";
+import {
+  auctionPropertyDetailPath,
+  bankOwnedDetailPath,
+  hudDetailPath,
+} from "@/lib/property-categories";
 import { loadVrmListings } from "@/lib/vrm-listings";
 
 export type PropertyListing = {
@@ -69,7 +73,7 @@ function homestepsToListing(
     status: "For Sale",
     tags: ["Freddie Mac", "REO"],
     imageUrl: l.displayImageUrl,
-    detailPath: l.detailUrl || "/auctions/homesteps",
+    detailPath: bankOwnedDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
     isNew: false,
@@ -92,7 +96,7 @@ function vrmToListing(l: ReturnType<typeof loadVrmListings>["listings"][number])
     status: l.status,
     tags: l.isVendeeFinancing ? ["VA REO", "Vendee Financing"] : ["VA REO"],
     imageUrl: l.displayImageUrl,
-    detailPath: l.detailUrl || "/auctions/va-reo",
+    detailPath: bankOwnedDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
     isNew: l.isNew,
@@ -117,7 +121,7 @@ function gsaSaleToListing(
     status: l.status,
     tags: [l.auctionType, "Federal Auction"],
     imageUrl: l.displayImageUrl,
-    detailPath: l.detailUrl || "/auctions/federal-property-auctions",
+    detailPath: auctionPropertyDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
     isNew: false,

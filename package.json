@@ -10,10 +10,10 @@
     "lint": "eslint",
     "convert-template": "node scripts/convert-template.mjs",
     "scrape-gsa": "node scripts/scrape-gsa-dispositions.mjs",
-    "scrape-hud": "node scripts/scrape-hud-listings.mjs",
+    "scrape-hud": "node --env-file=.env.local scripts/scrape-hud-listings.mjs",
     "scrape-homesteps": "node scripts/scrape-homesteps-listings.mjs",
     "scrape-gsa-sales": "node scripts/scrape-gsa-realestatesales.mjs",
-    "scrape-vrm": "node scripts/scrape-vrm-listings.mjs",
+    "scrape-vrm": "node --env-file=.env.local scripts/scrape-vrm-listings.mjs",
     "scrape-usda": "node scripts/scrape-usda-resales.mjs",
     "db:migrate": "node --env-file=.env.local scripts/run-supabase-migration.mjs",
     "db:seed": "node --env-file=.env.local scripts/seed-supabase-listings.mjs"

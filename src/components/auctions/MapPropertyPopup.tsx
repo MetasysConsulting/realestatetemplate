@@ -73,19 +73,6 @@ export function MapPropertyPopup({ property }: MapPropertyPopupProps) {
   );
 
   if (property.detailUrl) {
-    const isExternal = property.detailUrl.startsWith("http");
-    if (isExternal) {
-      return (
-        <a
-          href={property.detailUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="map-property-popup__link"
-        >
-          {inner}
-        </a>
-      );
-    }
     return (
       <Link href={property.detailUrl} className="map-property-popup__link">
         {inner}

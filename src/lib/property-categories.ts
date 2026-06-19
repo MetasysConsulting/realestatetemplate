@@ -130,3 +130,19 @@ export function hudCaseFromSlug(slug: string): string {
 export function hudDetailPath(caseNumber: string): string {
   return `/properties/hud-home/${hudCaseSlug(caseNumber)}`;
 }
+
+export function listingIdSlug(id: string): string {
+  return encodeURIComponent(id);
+}
+
+export function listingIdFromSlug(slug: string): string {
+  return decodeURIComponent(slug);
+}
+
+export function bankOwnedDetailPath(listingId: string): string {
+  return `/properties/bank-owned/${listingIdSlug(listingId)}`;
+}
+
+export function auctionPropertyDetailPath(listingId: string): string {
+  return `/properties/auction-property/${listingIdSlug(listingId)}`;
+}

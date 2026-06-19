@@ -1,18 +1,22 @@
 /**
  * Scrapes VA REO listings from VRM Properties.
  * Source: https://www.vrmproperties.com/
+ *
+ * Dedupes by asset id, upserts into Supabase under source_id "vrm".
+ * Re-run periodically: pnpm scrape-vrm
  */
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { syncVrmListingsToDatabase } from "./lib/listings-db.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
 const BASE_URL = "https://www.vrmproperties.com";
 const OUT_JSON = path.join(ROOT, "src/data/vrm-listings.json");
 
-const MAX_PAGES = 50;
 const DELAY_MS = 350;
+const PAGE_CAP = 200;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -60,6 +64,10 @@ function normalizeProperty(raw) {
     squareFootage: raw.squareFootage ?? 0,
     lotSize: raw.lotSize ?? 0,
     status: raw.assetListingStatus ?? "For Sale",
+    propertyType:
+      typeof raw.propertyType === "string" && raw.propertyType.trim()
+        ? raw.propertyType.trim()
+        : "VA REO",
     isNew: Boolean(raw.isNewListing),
     isVendeeFinancing: Boolean(raw.isVendeeFinancing),
     imageUrl: raw.mediaGuid ? `https://media.vrmproperties.com/media/${raw.mediaGuid}` : null,
@@ -84,8 +92,9 @@ async function fetchPage(page) {
 async function main() {
   console.log("Fetching VRM Properties listings…");
   const byId = new Map();
+  let totalPages = PAGE_CAP;
 
-  for (let page = 1; page <= MAX_PAGES; page++) {
+  for (let page = 1; page <= totalPages; page++) {
     try {
       const html = await fetchPage(page);
       const model = parseModelJson(html);
@@ -103,6 +112,7 @@ async function main() {
         `  page ${page}/${model.totalPages ?? "?"}: ${model.properties.length} listings (${model.count ?? "?"} total)`,
       );
 
+      if (model.totalPages) totalPages = Math.min(model.totalPages, PAGE_CAP);
       if (model.totalPages && page >= model.totalPages) break;
     } catch (err) {
       console.warn(`  page ${page}: ${err.message}`);
@@ -126,6 +136,30 @@ async function main() {
   const withImages = listings.filter((l) => l.imageUrl).length;
   console.log(`✓ Saved ${listings.length} unique listings (${withImages} with photos)`);
   console.log(`✓ Wrote ${OUT_JSON}`);
+
+  if (process.env.SYNC_SUPABASE === "0") {
+    console.log("⊘ Skipped Supabase sync (SYNC_SUPABASE=0)");
+    return;
+  }
+
+  if (!process.env.DATABASE_URL) {
+    console.log("⊘ Skipped Supabase sync — set DATABASE_URL in .env.local to enable");
+    return;
+  }
+
+  try {
+    console.log("Syncing to Supabase (upsert + deactivate stale)…");
+    const sync = await syncVrmListingsToDatabase(listings, {
+      scrapedAt: payload.scrapedAt,
+      sourceUrl: BASE_URL,
+    });
+    console.log(
+      `✓ Supabase: ${sync.upserted} upserted, ${sync.deactivated} marked inactive (removed from VRM)`,
+    );
+  } catch (err) {
+    console.error(`✗ Supabase sync failed: ${err.message}`);
+    process.exitCode = 1;
+  }
 }
 
 main().catch((err) => {

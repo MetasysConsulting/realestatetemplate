@@ -10,8 +10,13 @@ import type { HudListing, HudListingsDataset } from "@/lib/hud-listings";
 import { loadHudListings } from "@/lib/hud-listings";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import type { PropertyCategoryKey } from "@/lib/property-categories";
-import { hudDetailPath } from "@/lib/property-categories";
 import {
+  auctionPropertyDetailPath,
+  bankOwnedDetailPath,
+  hudDetailPath,
+} from "@/lib/property-categories";
+import {
+  areSiteListingsEnabled,
   createSupabaseServerClient,
   isSupabaseConfigured,
   type DatabaseListingRow,
@@ -318,7 +323,7 @@ function homestepsToPropertyListing(l: HomeStepsListing): PropertyListing {
     status: "For Sale",
     tags: ["Freddie Mac", "REO"],
     imageUrl: l.displayImageUrl,
-    detailPath: l.detailUrl || "/auctions/homesteps",
+    detailPath: bankOwnedDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
     isNew: false,
@@ -341,7 +346,7 @@ function vrmToPropertyListing(l: VrmListing): PropertyListing {
     status: l.status,
     tags: l.isVendeeFinancing ? ["VA REO", "Vendee Financing"] : ["VA REO"],
     imageUrl: l.displayImageUrl,
-    detailPath: l.detailUrl || "/auctions/va-reo",
+    detailPath: bankOwnedDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
     isNew: l.isNew,
@@ -364,7 +369,7 @@ function gsaSaleToPropertyListing(l: GsaRealEstateSale): PropertyListing {
     status: l.status,
     tags: [l.auctionType, "Federal Auction"],
     imageUrl: l.displayImageUrl,
-    detailPath: l.detailUrl || "/auctions/federal-property-auctions",
+    detailPath: auctionPropertyDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
     isNew: false,
@@ -397,6 +402,30 @@ function listingToAuctionProperty(listing: PropertyListing, buyType: BuyCategory
   };
 }
 
+function gsaDispositionToPropertyListing(l: GsaDispositionListing): PropertyListing {
+  return {
+    id: l.id,
+    address: l.address,
+    city: l.city,
+    state: l.state,
+    zip: l.zip,
+    price: 0,
+    priceLabel: "Federal Disposition",
+    bedrooms: 0,
+    bathrooms: 0,
+    squareFootage: l.rentableSqFt,
+    propertyType: l.propertyType,
+    status: l.status,
+    tags: [l.propertyType, "GSA Disposition"].filter(Boolean),
+    imageUrl: l.displayImageUrl,
+    detailPath: auctionPropertyDetailPath(l.id),
+    lat: l.lat,
+    lng: l.lng,
+    isNew: false,
+    subtitle: l.title,
+  };
+}
+
 function gsaDispositionToAuctionProperty(
   listing: GsaDispositionListing,
   buyType: BuyCategoryKey,
@@ -421,11 +450,14 @@ function gsaDispositionToAuctionProperty(
     lat: listing.lat,
     lng: listing.lng,
     imageUrl: listing.displayImageUrl,
-    detailUrl: listing.sourceUrl,
+    detailUrl: auctionPropertyDetailPath(listing.id),
   };
 }
 
 export async function fetchHudListingsDataset(): Promise<HudListingsDataset> {
+  if (!areSiteListingsEnabled()) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
   if (!isSupabaseConfigured()) return loadHudListings();
 
   const rows = await fetchAllRows("hud");
@@ -443,6 +475,7 @@ export async function fetchHudListingsDataset(): Promise<HudListingsDataset> {
 }
 
 export async function fetchHudListingByCaseNumber(caseNumber: string): Promise<HudListing | null> {
+  if (!areSiteListingsEnabled()) return null;
   if (!isSupabaseConfigured()) {
     const { getHudListingByCaseNumber } = await import("@/lib/hud-listings");
     return getHudListingByCaseNumber(caseNumber);
@@ -468,11 +501,15 @@ export async function fetchHudListingByCaseNumber(caseNumber: string): Promise<H
 }
 
 export async function fetchAllHudCaseNumbers(): Promise<string[]> {
+  if (!areSiteListingsEnabled()) return [];
   const dataset = await fetchHudListingsDataset();
   return dataset.listings.map((l) => l.caseNumber);
 }
 
 export async function fetchVrmListingsDataset(): Promise<VrmListingsDataset> {
+  if (!areSiteListingsEnabled()) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
   if (!isSupabaseConfigured()) return loadVrmListings();
 
   const rows = await fetchAllRows("vrm");
@@ -490,6 +527,9 @@ export async function fetchVrmListingsDataset(): Promise<VrmListingsDataset> {
 }
 
 export async function fetchHomeStepsListingsDataset(): Promise<HomeStepsDataset> {
+  if (!areSiteListingsEnabled()) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
   if (!isSupabaseConfigured()) return loadHomeStepsListings();
 
   const rows = await fetchAllRows("homesteps");
@@ -507,6 +547,9 @@ export async function fetchHomeStepsListingsDataset(): Promise<HomeStepsDataset>
 }
 
 export async function fetchGsaRealEstateSalesDataset(): Promise<GsaRealEstateSalesDataset> {
+  if (!areSiteListingsEnabled()) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
   if (!isSupabaseConfigured()) return loadGsaRealEstateSales();
 
   const rows = await fetchAllRows("gsa-sales");
@@ -524,6 +567,9 @@ export async function fetchGsaRealEstateSalesDataset(): Promise<GsaRealEstateSal
 }
 
 export async function fetchGsaDispositionsDataset(): Promise<GsaDispositionsDataset> {
+  if (!areSiteListingsEnabled()) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
   if (!isSupabaseConfigured()) return loadGsaDispositions();
 
   const rows = await fetchAllRows("gsa-dispositions", { includeInactive: true });
@@ -542,7 +588,59 @@ export async function fetchGsaDispositionsDataset(): Promise<GsaDispositionsData
   };
 }
 
+export async function fetchPropertyListingById(listingId: string): Promise<PropertyListing | null> {
+  if (!areSiteListingsEnabled()) return null;
+
+  if (listingId.startsWith("hud-")) {
+    return null;
+  }
+
+  if (isSupabaseConfigured()) {
+    const client = createSupabaseServerClient();
+    if (client) {
+      const { data, error } = await client
+        .from("listings")
+        .select("*")
+        .eq("id", listingId)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (!error && data) {
+        const row = data as DatabaseListingRow;
+        if (row.source_id === "vrm") {
+          return vrmToPropertyListing(rowToVrmListing(row));
+        }
+        if (row.source_id === "homesteps") {
+          return homestepsToPropertyListing(rowToHomeStepsListing(row));
+        }
+        if (row.source_id === "gsa-sales") {
+          return gsaSaleToPropertyListing(rowToGsaSale(row, 0));
+        }
+        if (row.source_id === "gsa-dispositions") {
+          return gsaDispositionToPropertyListing(rowToGsaDisposition(row, 0));
+        }
+      }
+    }
+  }
+
+  const vrm = loadVrmListings().listings.find((l) => l.id === listingId);
+  if (vrm) return vrmToPropertyListing(vrm);
+
+  const homesteps = loadHomeStepsListings().listings.find((l) => l.id === listingId);
+  if (homesteps) return homestepsToPropertyListing(homesteps);
+
+  const gsaSale = loadGsaRealEstateSales().listings.find((l) => l.id === listingId);
+  if (gsaSale) return gsaSaleToPropertyListing(gsaSale);
+
+  const gsaDisp = loadGsaDispositions().listings.find((l) => l.id === listingId);
+  if (gsaDisp) return gsaDispositionToPropertyListing(gsaDisp);
+
+  return null;
+}
+
 export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): Promise<PropertyListing[]> {
+  if (!areSiteListingsEnabled()) return [];
+
   switch (categoryKey) {
     case "hud-home": {
       const dataset = await fetchHudListingsDataset();
@@ -560,8 +658,14 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
     }
 
     case "auction-property": {
-      const gsa = await fetchGsaRealEstateSalesDataset();
-      return gsa.listings.map(gsaSaleToPropertyListing);
+      const [gsa, dispositions] = await Promise.all([
+        fetchGsaRealEstateSalesDataset(),
+        fetchGsaDispositionsDataset(),
+      ]);
+      return [
+        ...gsa.listings.map(gsaSaleToPropertyListing),
+        ...dispositions.listings.map(gsaDispositionToPropertyListing),
+      ];
     }
 
     case "motivated-seller":

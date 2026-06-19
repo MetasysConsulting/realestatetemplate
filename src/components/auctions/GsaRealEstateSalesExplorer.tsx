@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import { auctionPropertyDetailPath } from "@/lib/property-categories";
 import {
   formatGsaSalePrice,
   formatGsaSalesScrapedDate,
@@ -44,14 +46,12 @@ function GsaSaleCard({ listing }: { listing: GsaRealEstateSale }) {
         </p>
         <div className="auctions-card__footer">
           <span className="gsa-status gsa-status--available">{listing.status}</span>
-          <a
-            href={listing.detailUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={auctionPropertyDetailPath(listing.id)}
             className="auctions-card__register tf-btn bg-color-primary"
           >
-            View Auction
-          </a>
+            View Details
+          </Link>
         </div>
       </div>
     </article>
@@ -79,7 +79,7 @@ function toMapProperties(listings: GsaRealEstateSale[]): AuctionProperty[] {
     lat: l.lat,
     lng: l.lng,
     imageUrl: l.displayImageUrl,
-    detailUrl: l.detailUrl,
+    detailUrl: auctionPropertyDetailPath(l.id),
   }));
 }
 

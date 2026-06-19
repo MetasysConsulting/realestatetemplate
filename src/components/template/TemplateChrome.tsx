@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { fixReovanaHeader, prepareChromeHeader } from "@/lib/fix-reovana-header";
+import { normalizeTemplateHtml } from "@/lib/normalize-template-html";
 
 type TemplateChromeProps = {
   headerHtml: string;
@@ -31,7 +32,9 @@ export function TemplateChrome({
   bodyClass = "theme-color-4",
   children,
 }: TemplateChromeProps) {
-  const chromeHeaderHtml = prepareChromeHeader(headerHtml);
+  const chromeHeaderHtml = normalizeTemplateHtml(prepareChromeHeader(headerHtml));
+  const safeFooterHtml = normalizeTemplateHtml(footerHtml);
+  const safeTailHtml = normalizeTemplateHtml(tailHtml);
 
   useEffect(() => {
     document.body.className = normalizeBodyClass(bodyClass);
@@ -61,7 +64,7 @@ export function TemplateChrome({
       window.clearTimeout(t3);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [bodyClass, chromeHeaderHtml, footerHtml, tailHtml]);
+  }, [bodyClass, chromeHeaderHtml, safeFooterHtml, safeTailHtml]);
 
   return (
     <div id="template-chrome-root" className="reovana-site">
@@ -72,16 +75,16 @@ export function TemplateChrome({
         />
       ) : null}
       {children}
-      {footerHtml ? (
+      {safeFooterHtml ? (
         <div
           className="template-chrome-footer"
-          dangerouslySetInnerHTML={{ __html: footerHtml }}
+          dangerouslySetInnerHTML={{ __html: safeFooterHtml }}
         />
       ) : null}
-      {tailHtml ? (
+      {safeTailHtml ? (
         <div
           className="template-chrome-tail"
-          dangerouslySetInnerHTML={{ __html: tailHtml }}
+          dangerouslySetInnerHTML={{ __html: safeTailHtml }}
         />
       ) : null}
     </div>

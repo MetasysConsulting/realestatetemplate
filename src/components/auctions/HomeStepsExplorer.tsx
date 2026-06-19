@@ -1,10 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import { bankOwnedDetailPath } from "@/lib/property-categories";
 import {
   formatHomeStepsPrice,
   formatHomeStepsScrapedDate,
@@ -43,14 +45,12 @@ function HomeStepsCard({ listing }: { listing: HomeStepsListing }) {
         </h3>
         <div className="auctions-card__footer">
           <span className="hud-status">REO</span>
-          <a
-            href={listing.detailUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={bankOwnedDetailPath(listing.id)}
             className="auctions-card__register tf-btn bg-color-primary"
           >
-            View on HomeSteps
-          </a>
+            View Details
+          </Link>
         </div>
       </div>
     </article>
@@ -80,7 +80,7 @@ function toMapProperties(listings: HomeStepsListing[]): AuctionProperty[] {
       lat: l.lat,
       lng: l.lng,
       imageUrl: l.displayImageUrl,
-      detailUrl: l.detailUrl,
+      detailUrl: bankOwnedDetailPath(l.id),
     }));
 }
 
