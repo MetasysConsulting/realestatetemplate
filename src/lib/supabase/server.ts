@@ -31,8 +31,9 @@ export type DatabaseListingRow = {
   scraped_at: string | null;
 };
 
+/** Listings are off unless explicitly enabled with NEXT_PUBLIC_USE_SUPABASE_LISTINGS=true */
 export function areSiteListingsEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_USE_SUPABASE_LISTINGS !== "false";
+  return process.env.NEXT_PUBLIC_USE_SUPABASE_LISTINGS === "true";
 }
 
 export function isSupabaseConfigured(): boolean {

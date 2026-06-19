@@ -7,6 +7,7 @@ import {
   bankOwnedDetailPath,
   hudDetailPath,
 } from "@/lib/property-categories";
+import { areSiteListingsEnabled } from "@/lib/supabase/server";
 import { loadVrmListings } from "@/lib/vrm-listings";
 
 export type PropertyListing = {
@@ -129,8 +130,10 @@ function gsaSaleToListing(
   };
 }
 
-/** JSON fallback when Supabase is unavailable. */
+/** Legacy JSON loader — not used on the live site while listings are disabled. */
 export function loadCategoryListings(categoryKey: PropertyCategoryKey): PropertyListing[] {
+  if (!areSiteListingsEnabled()) return [];
+
   switch (categoryKey) {
     case "hud-home":
       return loadHudListings().listings.map(hudToListing);
