@@ -5,6 +5,8 @@ const APPRAISAL_AGENT_IMAGE = "/images/reovana/appraisal-agent.png";
 export function HudHomesPromoSection() {
   return (
     <section className="section-work-together reovana-hud-promo" aria-label="Appraisal call to action">
+      <div className="wg-partner reovana-hud-promo__grey-band" aria-hidden="true" />
+
       <div className="wg-appraisal">
         <div className="tf-container">
           <div className="content">

@@ -771,7 +771,7 @@ body.auctions-route .reovana-site .header {
 /* ── Homepage category rows (under loan steps) ───────────────────────────── */
 .reovana-home-category-rows {
   background: #f6f7fb;
-  padding: 12px 0 0;
+  padding: 12px 0 56px;
 }
 
 .reovana-home-category-row + .reovana-home-category-row {
@@ -980,8 +980,6 @@ body.auctions-route .reovana-site .header {
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
   margin-top: 96px;
-  background: #ffffff;
-  padding-bottom: 56px;
 }
 
 .reovana-hud-promo .wg-partner {
@@ -994,7 +992,6 @@ body.auctions-route .reovana-site .header {
 .reovana-hud-promo .wg-appraisal {
   margin-top: -240px;
   padding-bottom: 72px;
-  background: #ffffff;
 }
 
 .reovana-hud-promo .wg-appraisal .content {
@@ -3500,6 +3497,14 @@ body.loans-route #loading {
 }
 
 /* ── Sell page ───────────────────────────────────────────────────────────── */
+.section-selling-home.style-2 {
+  background-color: #fff !important;
+}
+
+.section-selling-home.style-2 .wrap-box .number {
+  background-color: #fff !important;
+}
+
 .sell-page {
   background: #fff;
   font-family: var(--font-main);
