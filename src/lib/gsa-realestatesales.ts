@@ -11,7 +11,8 @@ export type GsaRealEstateSale = {
   auctionType: string;
   propertyType: string;
   imageUrl: string | null;
-  displayImageUrl: string;
+  hasImage: boolean;
+  displayImageUrl: string | null;
   detailUrl: string;
   sourceUrl: string;
   sourceAgency: string;

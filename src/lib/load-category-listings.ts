@@ -14,7 +14,8 @@ export type PropertyListing = {
   propertyType: string;
   status: string;
   tags: string[];
-  imageUrl: string;
+  imageUrl: string | null;
+  hasImage: boolean;
   detailPath: string;
   lat: number;
   lng: number;

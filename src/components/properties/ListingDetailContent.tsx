@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
+import { ListingMedia } from "@/components/listings/ListingMedia";
 import { formatHudPrice, formatHudScrapedDate } from "@/lib/hud-listings";
 import type { PropertyListing } from "@/lib/load-category-listings";
 
@@ -22,7 +21,6 @@ export function ListingDetailContent({
   scrapedAt,
   sourceAgency,
 }: ListingDetailContentProps) {
-  const [imageUrl, setImageUrl] = useState(listing.imageUrl);
   const priceDisplay =
     listing.price > 0 ? formatHudPrice(listing.price) : listing.status === "Coming Soon" ? "Coming Soon" : "Contact for price";
 
@@ -36,7 +34,7 @@ export function ListingDetailContent({
         zip={listing.zip}
         price={listing.price}
         priceLabel={listing.priceLabel}
-        imageUrl={listing.imageUrl}
+        imageUrl={listing.imageUrl ?? ""}
         detailPath={listing.detailPath}
       />
       <div className="hud-detail-page__breadcrumb">
@@ -44,13 +42,11 @@ export function ListingDetailContent({
       </div>
 
       <div className="hud-detail-page__layout">
-        <div className="hud-detail-page__media">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
+        <div className="hud-detail-page__media listing-detail__media">
+          <ListingMedia
+            imageUrl={listing.imageUrl}
             alt={`${listing.address}, ${listing.city}, ${listing.state}`}
-            className="hud-detail-page__photo"
-            onError={() => setImageUrl(DEFAULT_AUCTION_PROPERTY_IMAGE)}
+            imageClassName="hud-detail-page__photo"
           />
         </div>
 

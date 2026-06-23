@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
+import { ListingMedia } from "@/components/listings/ListingMedia";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { PropertyListing } from "@/lib/load-category-listings";
 
@@ -18,23 +18,20 @@ function formatPrice(price: number): string {
 }
 
 function PropertyCard({ listing }: { listing: PropertyListing }) {
-  const [imageUrl, setImageUrl] = useState(listing.imageUrl);
-
   return (
     <article className="auctions-card hud-card">
       <div className="auctions-card__media">
         <div className="auctions-card__thumb">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
+          <ListingMedia
+            imageUrl={listing.imageUrl}
             alt={`${listing.address}, ${listing.city}, ${listing.state}`}
-            className="auctions-card__photo"
-            loading="lazy"
-            decoding="async"
-            onError={() => setImageUrl(DEFAULT_AUCTION_PROPERTY_IMAGE)}
+            imageClassName="auctions-card__photo"
           />
         </div>
         {listing.isNew ? <span className="auctions-card__badge">NEW</span> : null}
+        {!listing.hasImage ? (
+          <span className="auctions-card__badge auctions-card__badge--muted">No photo</span>
+        ) : null}
       </div>
       <div className="auctions-card__body">
         <p className="auctions-card__bid-label">{listing.priceLabel}</p>
@@ -96,6 +93,7 @@ function toMapProperties(listings: PropertyListing[]): AuctionProperty[] {
       lat: l.lat,
       lng: l.lng,
       imageUrl: l.imageUrl,
+      hasImage: l.hasImage,
       detailUrl: l.detailPath,
     }));
 }

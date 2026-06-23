@@ -23,6 +23,7 @@ export type DatabaseListingRow = {
   lat: number | null;
   lng: number | null;
   image_url: string | null;
+  has_image?: boolean;
   detail_url: string | null;
   source_agency: string | null;
   is_new: boolean;

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
+import { ListingMedia } from "@/components/listings/ListingMedia";
 import {
   HOME_CATEGORY_ROWS,
   resolveHomeCategoryRowListings,
@@ -21,8 +21,6 @@ function formatPrice(value: number) {
 }
 
 function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
-  const [imageUrl, setImageUrl] = useState(listing.imageUrl);
-
   return (
     <ListingDetailLink
       href={listing.detailPath}
@@ -30,14 +28,7 @@ function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
       ariaLabel={`View ${listing.address}, ${listing.city}, ${listing.state}`}
     >
       <div className="reovana-home-category-card__media">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={imageUrl}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          onError={() => setImageUrl(DEFAULT_AUCTION_PROPERTY_IMAGE)}
-        />
+        <ListingMedia imageUrl={listing.imageUrl} alt="" showMissingLabel={false} />
       </div>
       <div className="reovana-home-category-card__body">
         <p className="reovana-home-category-card__label">{listing.priceLabel}</p>

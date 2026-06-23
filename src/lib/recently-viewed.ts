@@ -60,6 +60,7 @@ export function getHomeRecentlyViewedListings(): PropertyListing[] {
     status: "Viewed",
     tags: ["Recently Viewed"],
     imageUrl: item.imageUrl,
+    hasImage: Boolean(item.imageUrl?.trim()),
     detailPath: item.detailPath,
     lat: 0,
     lng: 0,

@@ -17,7 +17,8 @@ export type GsaDispositionListing = {
   imageNote?: string;
   lat: number;
   lng: number;
-  displayImageUrl: string;
+  hasImage: boolean;
+  displayImageUrl: string | null;
 };
 
 export type GsaDispositionsDataset = {

@@ -22,7 +22,8 @@ export type HudListing = {
   lat: number;
   lng: number;
   imageUrl: string | null;
-  displayImageUrl: string;
+  hasImage: boolean;
+  displayImageUrl: string | null;
   detailUrl: string;
   sourceUrl: string;
   sourceAgency: string;

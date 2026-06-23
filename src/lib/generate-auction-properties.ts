@@ -20,7 +20,8 @@ export type AuctionProperty = {
   status: string;
   lat: number;
   lng: number;
-  imageUrl: string;
+  imageUrl: string | null;
+  hasImage: boolean;
   previousPrice?: number;
   lotAcres?: number;
   detailUrl?: string;
@@ -177,6 +178,7 @@ export function generateAuctionProperties(
       lat,
       lng,
       imageUrl: getAuctionPropertyImageUrl(id, buyType, i),
+      hasImage: true,
       previousPrice,
       lotAcres,
       detailUrl: "/property/detail/v1",

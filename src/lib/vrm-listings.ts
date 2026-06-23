@@ -15,7 +15,8 @@ export type VrmListing = {
   isNew: boolean;
   isVendeeFinancing: boolean;
   imageUrl: string | null;
-  displayImageUrl: string;
+  hasImage: boolean;
+  displayImageUrl: string | null;
   detailUrl: string;
   sourceUrl: string;
   sourceAgency: string;

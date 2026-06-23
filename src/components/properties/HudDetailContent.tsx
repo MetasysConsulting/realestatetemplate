@@ -1,9 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
+import { ListingMedia } from "@/components/listings/ListingMedia";
 import { formatHudPrice, formatHudScrapedDate, type HudListing } from "@/lib/hud-listings";
 import { hudDetailPath } from "@/lib/property-categories";
 
@@ -13,8 +12,6 @@ type HudDetailContentProps = {
 };
 
 export function HudDetailContent({ listing, scrapedAt }: HudDetailContentProps) {
-  const [imageUrl, setImageUrl] = useState(listing.displayImageUrl);
-
   return (
     <div className="hud-detail-page">
       <RecordRecentlyViewed
@@ -25,7 +22,7 @@ export function HudDetailContent({ listing, scrapedAt }: HudDetailContentProps) 
         zip={listing.zip}
         price={listing.listPrice}
         priceLabel="List Price"
-        imageUrl={listing.displayImageUrl}
+        imageUrl={listing.imageUrl ?? ""}
         detailPath={hudDetailPath(listing.caseNumber)}
       />
       <div className="hud-detail-page__breadcrumb">
@@ -33,13 +30,11 @@ export function HudDetailContent({ listing, scrapedAt }: HudDetailContentProps) 
       </div>
 
       <div className="hud-detail-page__layout">
-        <div className="hud-detail-page__media">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
+        <div className="hud-detail-page__media listing-detail__media">
+          <ListingMedia
+            imageUrl={listing.imageUrl}
             alt={`${listing.address}, ${listing.city}, ${listing.state}`}
-            className="hud-detail-page__photo"
-            onError={() => setImageUrl(DEFAULT_AUCTION_PROPERTY_IMAGE)}
+            imageClassName="hud-detail-page__photo"
           />
         </div>
 
@@ -101,18 +96,19 @@ export function HudDetailContent({ listing, scrapedAt }: HudDetailContentProps) 
             </div>
           </dl>
 
-          <div className="hud-detail-page__actions">
-            <Link href="/contact" className="tf-btn bg-color-primary hud-detail-page__cta">
-              Register Interest
-            </Link>
-            <Link href="/learn/help-center" className="hud-detail-page__help-link">
-              How to buy a HUD home
-            </Link>
-          </div>
+          {listing.detailUrl ? (
+            <a
+              href={listing.detailUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tf-btn bg-color-primary hud-detail-page__external"
+            >
+              View on HUDHomestore
+            </a>
+          ) : null}
 
-          <p className="hud-detail-page__disclaimer">
-            Listing data last updated {formatHudScrapedDate(scrapedAt)}. Bids on HUD homes
-            require a HUD-registered broker. REOVANA hosts this inventory for your convenience.
+          <p className="hud-detail-page__updated">
+            Data updated {formatHudScrapedDate(scrapedAt)}
           </p>
         </div>
       </div>

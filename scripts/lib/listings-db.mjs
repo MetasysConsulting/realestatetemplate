@@ -346,6 +346,7 @@ export function mapPropertyRadarListingToRow(raw, scrapedAt) {
       listedForSale: raw.listedForSale,
       listedByOwner: raw.listedByOwner,
       imageUrl: null,
+      hasImage: false,
       pendingImage: true,
       sourceUrl: "https://www.propertyradar.com",
       scrapeSource: "propertyradar",

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import { formatCurrency } from "@/lib/generate-auction-properties";
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
+import { ListingMedia } from "@/components/listings/ListingMedia";
 import {
   formatShortPrice,
   getMapLotAcres,
@@ -16,7 +16,6 @@ type MapPropertyPopupProps = {
 };
 
 export function MapPropertyPopup({ property }: MapPropertyPopupProps) {
-  const [imageUrl, setImageUrl] = useState(property.imageUrl || DEFAULT_AUCTION_PROPERTY_IMAGE);
   const [saved, setSaved] = useState(false);
 
   const previousPrice = getMapPreviousPrice(property);
@@ -29,12 +28,12 @@ export function MapPropertyPopup({ property }: MapPropertyPopupProps) {
 
   const inner = (
     <div className="map-property-popup">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={imageUrl}
+      <ListingMedia
+        imageUrl={property.imageUrl}
         alt={`${property.address}, ${property.city}, ${property.state}`}
         className="map-property-popup__photo"
-        onError={() => setImageUrl(DEFAULT_AUCTION_PROPERTY_IMAGE)}
+        imageClassName="map-property-popup__photo"
+        showMissingLabel={false}
       />
       <div className="map-property-popup__shade" aria-hidden />
       <span className="map-property-popup__label">{shortLabel}</span>

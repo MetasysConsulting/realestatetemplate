@@ -1,4 +1,4 @@
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
+import { resolveListingImage } from "@/lib/listing-images";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
 import type { GsaDispositionListing, GsaDispositionsDataset } from "@/lib/gsa-dispositions";
 import type { GsaRealEstateSale, GsaRealEstateSalesDataset } from "@/lib/gsa-realestatesales";
@@ -122,8 +122,16 @@ function metaNumber(row: DatabaseListingRow, key: string): number {
   return typeof value === "number" ? value : Number(value) || 0;
 }
 
-function displayImage(imageUrl: string | null): string {
-  return imageUrl ?? DEFAULT_AUCTION_PROPERTY_IMAGE;
+function listingImageFromRow(row: DatabaseListingRow) {
+  const resolved = resolveListingImage(row.image_url);
+  const hasImage =
+    typeof row.has_image === "boolean" ? row.has_image : resolved.hasImage;
+
+  return {
+    imageUrl: resolved.imageUrl,
+    hasImage,
+    displayImageUrl: resolved.imageUrl,
+  };
 }
 
 async function fetchAllRows(
@@ -223,6 +231,7 @@ async function fetchSourceMeta(sourceId: string): Promise<{ scrapedAt: string; s
 
 function rowToHudListing(row: DatabaseListingRow): HudListing {
   const caseNumber = metaString(row, "caseNumber") || row.external_id || "";
+  const image = listingImageFromRow(row);
   return {
     id: row.id,
     caseNumber,
@@ -246,8 +255,9 @@ function rowToHudListing(row: DatabaseListingRow): HudListing {
     eligibleBidders: metaString(row, "eligibleBidders"),
     lat: row.lat ?? 0,
     lng: row.lng ?? 0,
-    imageUrl: row.image_url,
-    displayImageUrl: displayImage(row.image_url),
+    imageUrl: image.imageUrl,
+    hasImage: image.hasImage,
+    displayImageUrl: image.displayImageUrl,
     detailUrl: row.detail_url ?? "",
     sourceUrl: metaString(row, "sourceUrl"),
     sourceAgency: row.source_agency ?? "HUD",
@@ -256,6 +266,7 @@ function rowToHudListing(row: DatabaseListingRow): HudListing {
 
 function rowToVrmListing(row: DatabaseListingRow): VrmListing {
   const [lat, lng] = row.lat != null && row.lng != null ? [row.lat, row.lng] : vrmCoords(row.id, row.state);
+  const image = listingImageFromRow(row);
   return {
     id: row.id,
     propertyId: row.external_id ?? metaString(row, "propertyId"),
@@ -272,8 +283,9 @@ function rowToVrmListing(row: DatabaseListingRow): VrmListing {
     status: row.status ?? "For Sale",
     isNew: row.is_new,
     isVendeeFinancing: metaBool(row, "isVendeeFinancing"),
-    imageUrl: row.image_url,
-    displayImageUrl: displayImage(row.image_url),
+    imageUrl: image.imageUrl,
+    hasImage: image.hasImage,
+    displayImageUrl: image.displayImageUrl,
     detailUrl: row.detail_url ?? "",
     sourceUrl: metaString(row, "sourceUrl"),
     sourceAgency: row.source_agency ?? "VRM Properties",
@@ -283,6 +295,7 @@ function rowToVrmListing(row: DatabaseListingRow): VrmListing {
 }
 
 function rowToHomeStepsListing(row: DatabaseListingRow): HomeStepsListing {
+  const image = listingImageFromRow(row);
   return {
     id: row.id,
     address: row.address,
@@ -292,8 +305,9 @@ function rowToHomeStepsListing(row: DatabaseListingRow): HomeStepsListing {
     listPrice: Number(row.price) || 0,
     lat: row.lat ?? 0,
     lng: row.lng ?? 0,
-    imageUrl: row.image_url,
-    displayImageUrl: displayImage(row.image_url),
+    imageUrl: image.imageUrl,
+    hasImage: image.hasImage,
+    displayImageUrl: image.displayImageUrl,
     detailUrl: row.detail_url ?? "",
     sourceUrl: metaString(row, "sourceUrl"),
     sourceAgency: row.source_agency ?? "Freddie Mac HomeSteps",
@@ -303,6 +317,7 @@ function rowToHomeStepsListing(row: DatabaseListingRow): HomeStepsListing {
 
 function rowToGsaSale(row: DatabaseListingRow, index: number): GsaRealEstateSale {
   const [lat, lng] = row.lat != null && row.lng != null ? [row.lat, row.lng] : gsaCoords(row.state, index);
+  const image = listingImageFromRow(row);
   return {
     id: row.id,
     propertyId: row.external_id ?? metaString(row, "propertyId"),
@@ -315,8 +330,9 @@ function rowToGsaSale(row: DatabaseListingRow, index: number): GsaRealEstateSale
     status: row.status ?? "Available",
     auctionType: metaString(row, "auctionType") || "Online Auction",
     propertyType: row.property_type ?? "",
-    imageUrl: row.image_url,
-    displayImageUrl: displayImage(row.image_url),
+    imageUrl: image.imageUrl,
+    hasImage: image.hasImage,
+    displayImageUrl: image.displayImageUrl,
     detailUrl: row.detail_url ?? "",
     sourceUrl: metaString(row, "sourceUrl"),
     sourceAgency: row.source_agency ?? "GSA",
@@ -330,6 +346,7 @@ function rowToGsaDisposition(row: DatabaseListingRow, index: number): GsaDisposi
     row.lat != null && row.lng != null ? [row.lat, row.lng] : gsaDispositionCoords(row.id, row.state, index);
   const status = row.status === "UNDER CONTRACT" || row.status === "SOLD" ? row.status : "Available";
   const rentableSqFt = Number(row.metadata?.rentableSqFt) || row.square_footage || 0;
+  const image = listingImageFromRow(row);
 
   return {
     id: row.id,
@@ -344,11 +361,12 @@ function rowToGsaDisposition(row: DatabaseListingRow, index: number): GsaDisposi
     status,
     sourceUrl: metaString(row, "sourceUrl") || row.detail_url || "",
     sourceAgency: row.source_agency ?? "GSA",
-    imageUrl: row.image_url,
+    imageUrl: image.imageUrl,
     imageNote: metaString(row, "imageNote") || undefined,
     lat,
     lng,
-    displayImageUrl: displayImage(row.image_url),
+    hasImage: image.hasImage,
+    displayImageUrl: image.displayImageUrl,
   };
 }
 
@@ -367,7 +385,8 @@ function hudToPropertyListing(h: HudListing): PropertyListing {
     propertyType: h.propertyType,
     status: h.propertyStatus || "Active",
     tags: [h.propertyType, h.listingPeriod].filter(Boolean),
-    imageUrl: h.displayImageUrl,
+    imageUrl: h.imageUrl,
+    hasImage: h.hasImage,
     detailPath: hudDetailPath(h.caseNumber),
     lat: h.lat,
     lng: h.lng,
@@ -391,7 +410,8 @@ function homestepsToPropertyListing(l: HomeStepsListing): PropertyListing {
     propertyType: "Bank Owned",
     status: "For Sale",
     tags: ["Freddie Mac", "REO"],
-    imageUrl: l.displayImageUrl,
+    imageUrl: l.imageUrl,
+    hasImage: l.hasImage,
     detailPath: bankOwnedDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
@@ -414,7 +434,8 @@ function vrmToPropertyListing(l: VrmListing): PropertyListing {
     propertyType: "VA REO",
     status: l.status,
     tags: l.isVendeeFinancing ? ["VA REO", "Vendee Financing"] : ["VA REO"],
-    imageUrl: l.displayImageUrl,
+    imageUrl: l.imageUrl,
+    hasImage: l.hasImage,
     detailPath: bankOwnedDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
@@ -437,7 +458,8 @@ function gsaSaleToPropertyListing(l: GsaRealEstateSale): PropertyListing {
     propertyType: l.propertyType,
     status: l.status,
     tags: [l.auctionType, "Federal Auction"],
-    imageUrl: l.displayImageUrl,
+    imageUrl: l.imageUrl,
+    hasImage: l.hasImage,
     detailPath: auctionPropertyDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
@@ -451,6 +473,7 @@ function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListin
   const distressScore = Number(row.metadata?.distressScore) || 0;
   const [lat, lng] =
     row.lat != null && row.lng != null ? [row.lat, row.lng] : propertyRadarCoords(row.id, row.state);
+  const image = listingImageFromRow(row);
 
   return {
     id: row.id,
@@ -466,7 +489,8 @@ function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListin
     propertyType: row.property_type ?? "Residential",
     status: row.status ?? "Off Market",
     tags: row.tags ?? ["PropertyRadar"],
-    imageUrl: displayImage(row.image_url),
+    imageUrl: image.imageUrl,
+    hasImage: image.hasImage,
     detailPath: propertyRadarDetailPath(category, row.id),
     lat,
     lng,
@@ -496,6 +520,7 @@ function listingToAuctionProperty(listing: PropertyListing, buyType: BuyCategory
     lat: listing.lat,
     lng: listing.lng,
     imageUrl: listing.imageUrl,
+    hasImage: listing.hasImage,
     detailUrl: listing.detailPath,
   };
 }
@@ -515,7 +540,8 @@ function gsaDispositionToPropertyListing(l: GsaDispositionListing): PropertyList
     propertyType: l.propertyType,
     status: l.status,
     tags: [l.propertyType, "GSA Disposition"].filter(Boolean),
-    imageUrl: l.displayImageUrl,
+    imageUrl: l.imageUrl,
+    hasImage: l.hasImage,
     detailPath: auctionPropertyDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
@@ -547,7 +573,8 @@ function gsaDispositionToAuctionProperty(
     status: listing.status,
     lat: listing.lat,
     lng: listing.lng,
-    imageUrl: listing.displayImageUrl,
+    imageUrl: listing.imageUrl,
+    hasImage: listing.hasImage,
     detailUrl: auctionPropertyDetailPath(listing.id),
   };
 }

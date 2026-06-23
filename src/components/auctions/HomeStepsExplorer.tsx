@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
+import { ListingMedia } from "@/components/listings/ListingMedia";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import { bankOwnedDetailPath } from "@/lib/property-categories";
 import {
@@ -15,23 +15,20 @@ import {
 } from "@/lib/homesteps-listings";
 
 function HomeStepsCard({ listing }: { listing: HomeStepsListing }) {
-  const [imageUrl, setImageUrl] = useState(listing.displayImageUrl);
-
   return (
     <article className="auctions-card hud-card">
       <div className="auctions-card__media">
         <div className="auctions-card__thumb">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={imageUrl}
+          <ListingMedia
+            imageUrl={listing.imageUrl}
             alt={`${listing.address}, ${listing.city}, ${listing.state}`}
-            className="auctions-card__photo"
-            loading="lazy"
-            decoding="async"
-            onError={() => setImageUrl(DEFAULT_AUCTION_PROPERTY_IMAGE)}
+            imageClassName="auctions-card__photo"
           />
         </div>
         <span className="auctions-card__badge">HomeSteps</span>
+        {!listing.hasImage ? (
+          <span className="auctions-card__badge auctions-card__badge--muted">No photo</span>
+        ) : null}
       </div>
       <div className="auctions-card__body">
         <p className="auctions-card__bid-label">List Price</p>
@@ -79,7 +76,8 @@ function toMapProperties(listings: HomeStepsListing[]): AuctionProperty[] {
       status: "Available",
       lat: l.lat,
       lng: l.lng,
-      imageUrl: l.displayImageUrl,
+      imageUrl: l.imageUrl,
+      hasImage: l.hasImage,
       detailUrl: bankOwnedDetailPath(l.id),
     }));
 }
