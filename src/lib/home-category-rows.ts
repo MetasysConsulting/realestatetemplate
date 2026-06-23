@@ -17,6 +17,24 @@ export const HOME_CATEGORY_ROWS: HomeCategoryRowConfig[] = [
     categoryLabel: PROPERTY_CATEGORIES["bank-owned"].title,
   },
   {
+    key: "foreclosure",
+    title: "Foreclosure",
+    morePath: PROPERTY_CATEGORIES.foreclosure.path,
+    categoryLabel: PROPERTY_CATEGORIES.foreclosure.title,
+  },
+  {
+    key: "motivated-seller",
+    title: "Motivated Seller",
+    morePath: PROPERTY_CATEGORIES["motivated-seller"].path,
+    categoryLabel: PROPERTY_CATEGORIES["motivated-seller"].title,
+  },
+  {
+    key: "off-market",
+    title: "Off-Market",
+    morePath: PROPERTY_CATEGORIES["off-market"].path,
+    categoryLabel: PROPERTY_CATEGORIES["off-market"].title,
+  },
+  {
     key: "auction-property",
     title: "Auction Properties",
     morePath: PROPERTY_CATEGORIES["auction-property"].path,

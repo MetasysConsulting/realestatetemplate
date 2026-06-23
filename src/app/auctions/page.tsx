@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { AuctionsPageContent } from "@/components/auctions/AuctionsPageContent";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "All Auction Homes — REOVANA",

@@ -25,9 +25,24 @@ import {
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { VrmListing, VrmListingsDataset } from "@/lib/vrm-listings";
 import { loadVrmListings } from "@/lib/vrm-listings";
+import { connection } from "next/server";
 
 const LISTING_PAGE_SIZE = 1000;
 const HOME_ROW_LISTING_COUNT = 6;
+
+const PROPERTY_RADAR_CATEGORIES = new Set<PropertyCategoryKey>([
+  "motivated-seller",
+  "off-market",
+  "foreclosure",
+  "pre-foreclosure",
+]);
+
+const BUY_CATEGORY_PROPERTY_RADAR: Partial<Record<BuyCategoryKey, PropertyCategoryKey[]>> = {
+  "foreclosure-homes": ["foreclosure", "pre-foreclosure"],
+  "second-chance-foreclosure": ["pre-foreclosure"],
+  "short-sale": ["off-market"],
+  "non-bank-owned": ["motivated-seller"],
+};
 
 const VRM_STATE_COORDS: Record<string, [number, number]> = {
   TX: [31.054487, -97.563461],
@@ -150,43 +165,40 @@ async function fetchAllRows(
   return rows;
 }
 
-async function fetchAllRowsByCategory(
-  categoryKey: PropertyCategoryKey,
-  options?: { includeInactive?: boolean },
-): Promise<DatabaseListingRow[]> {
-  const client = createSupabaseServerClient();
-  if (!client) return [];
+let propertyRadarRowsPromise: Promise<DatabaseListingRow[]> | null = null;
 
-  const rows: DatabaseListingRow[] = [];
-  let from = 0;
-
-  while (true) {
-    const to = from + LISTING_PAGE_SIZE - 1;
-    let query = client
-      .from("listings")
-      .select("*")
-      .eq("category", categoryKey)
-      .order("price", { ascending: false })
-      .range(from, to);
-
-    if (!options?.includeInactive) {
-      query = query.eq("is_active", true);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      console.error("[listings-repository] Supabase category query failed:", error.message);
-      return [];
-    }
-
-    if (!data?.length) break;
-    rows.push(...(data as DatabaseListingRow[]));
-    if (data.length < LISTING_PAGE_SIZE) break;
-    from += LISTING_PAGE_SIZE;
+async function fetchPropertyRadarRows(): Promise<DatabaseListingRow[]> {
+  connection();
+  if (!isSupabaseConfigured()) return [];
+  if (!propertyRadarRowsPromise) {
+    propertyRadarRowsPromise = fetchAllRows("propertyradar");
   }
+  return propertyRadarRowsPromise;
+}
 
-  return rows;
+async function fetchPropertyRadarCategoryListings(
+  categoryKey: PropertyCategoryKey,
+): Promise<PropertyListing[]> {
+  connection();
+  const rows = await fetchPropertyRadarRows();
+  return rows
+    .filter((row) => row.category === categoryKey)
+    .map(propertyRadarToPropertyListing)
+    .sort((a, b) => b.price - a.price);
+}
+
+async function fetchPropertyRadarListingsForBuyCategory(
+  buyType: BuyCategoryKey,
+): Promise<PropertyListing[]> {
+  const categories = BUY_CATEGORY_PROPERTY_RADAR[buyType];
+  if (!categories?.length) return [];
+
+  const categorySet = new Set<PropertyCategoryKey>(categories);
+  const rows = await fetchPropertyRadarRows();
+  return rows
+    .filter((row) => categorySet.has(row.category as PropertyCategoryKey))
+    .map(propertyRadarToPropertyListing)
+    .sort((a, b) => b.price - a.price);
 }
 
 async function fetchSourceMeta(sourceId: string): Promise<{ scrapedAt: string; sourceUrl: string }> {
@@ -761,11 +773,8 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
     case "off-market":
     case "foreclosure":
     case "pre-foreclosure": {
-      if (!isSupabaseConfigured()) return [];
-      const rows = await fetchAllRowsByCategory(categoryKey);
-      return rows
-        .filter((row) => row.source_id === "propertyradar")
-        .map(propertyRadarToPropertyListing);
+      if (!PROPERTY_RADAR_CATEGORIES.has(categoryKey)) return [];
+      return fetchPropertyRadarCategoryListings(categoryKey);
     }
 
     case "sheriffs-sale":
@@ -778,14 +787,20 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
 }
 
 export async function fetchHomeCategoryRows(): Promise<Record<string, PropertyListing[]>> {
-  const [bankOwned, auction, hud] = await Promise.all([
+  const [bankOwned, foreclosure, motivatedSeller, offMarket, auction, hud] = await Promise.all([
     fetchCategoryListings("bank-owned"),
+    fetchCategoryListings("foreclosure"),
+    fetchCategoryListings("motivated-seller"),
+    fetchCategoryListings("off-market"),
     fetchCategoryListings("auction-property"),
     fetchCategoryListings("hud-home"),
   ]);
 
   return {
     "bank-owned": bankOwned.slice(0, HOME_ROW_LISTING_COUNT),
+    foreclosure: foreclosure.slice(0, HOME_ROW_LISTING_COUNT),
+    "motivated-seller": motivatedSeller.slice(0, HOME_ROW_LISTING_COUNT),
+    "off-market": offMarket.slice(0, HOME_ROW_LISTING_COUNT),
     "auction-property": auction.slice(0, HOME_ROW_LISTING_COUNT),
     "hud-home": hud.slice(0, HOME_ROW_LISTING_COUNT),
   };
@@ -795,6 +810,14 @@ export async function fetchAuctionProperties(categoryKey: BuyCategoryKey): Promi
   switch (categoryKey) {
     case "bank-owned": {
       const listings = await fetchCategoryListings("bank-owned");
+      return listings.map((listing) => listingToAuctionProperty(listing, categoryKey));
+    }
+
+    case "foreclosure-homes":
+    case "second-chance-foreclosure":
+    case "short-sale":
+    case "non-bank-owned": {
+      const listings = await fetchPropertyRadarListingsForBuyCategory(categoryKey);
       return listings.map((listing) => listingToAuctionProperty(listing, categoryKey));
     }
 
@@ -814,12 +837,17 @@ export async function fetchAuctionProperties(categoryKey: BuyCategoryKey): Promi
     }
 
     case "all": {
-      const [hud, bankOwned, auction] = await Promise.all([
+      const [hud, bankOwned, auction, foreclosure, motivatedSeller, offMarket, preForeclosure] =
+        await Promise.all([
         fetchCategoryListings("hud-home"),
         fetchCategoryListings("bank-owned"),
         fetchCategoryListings("auction-property"),
+        fetchCategoryListings("foreclosure"),
+        fetchCategoryListings("motivated-seller"),
+        fetchCategoryListings("off-market"),
+        fetchCategoryListings("pre-foreclosure"),
       ]);
-      return [...hud, ...bankOwned, ...auction]
+      return [...hud, ...bankOwned, ...auction, ...foreclosure, ...motivatedSeller, ...offMarket, ...preForeclosure]
         .map((listing) => listingToAuctionProperty(listing, "all"))
         .sort((a, b) => b.openingBid - a.openingBid);
     }
