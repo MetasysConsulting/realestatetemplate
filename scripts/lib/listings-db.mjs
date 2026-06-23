@@ -140,9 +140,27 @@ export function createListingsDbClient() {
   });
 }
 
-export async function upsertListings(client, listings) {
-  for (const listing of listings) {
-    await client.query(UPSERT_LISTING_SQL, listingToValues(listing));
+export async function upsertListings(client, listings, { batchSize = 100 } = {}) {
+  for (let offset = 0; offset < listings.length; offset += batchSize) {
+    const batch = listings.slice(offset, offset + batchSize);
+    const values = [];
+    const placeholders = batch
+      .map((listing, index) => {
+        const base = index * 28;
+        values.push(...listingToValues(listing));
+        const params = Array.from({ length: 28 }, (_, i) => `$${base + i + 1}`);
+        params[26] = `${params[26]}::jsonb`;
+        return `(${params.join(", ")})`;
+      })
+      .join(",\n");
+
+    await client.query(
+      `${UPSERT_LISTING_SQL.trim().replace(
+        /VALUES \([\s\S]*?\)\s*ON CONFLICT/,
+        `VALUES ${placeholders}\nON CONFLICT`,
+      )}`,
+      values,
+    );
   }
 }
 
@@ -264,5 +282,83 @@ export async function syncVrmListingsToDatabase(listings, { scrapedAt, sourceUrl
     scrapedAt,
     sourceUrl,
     mapRow: mapVrmListingToRow,
+  });
+}
+
+const PROPERTY_RADAR_TYPE_LABELS = {
+  SFR: "Single Family",
+  CND: "Condo",
+  MFR: "Multi Family",
+  LND: "Land",
+  COM: "Commercial",
+};
+
+export function resolvePropertyRadarCategory(raw) {
+  const distress = Number(raw.distressScore) || 0;
+  if (distress >= 80) return "pre-foreclosure";
+  if (distress >= 60) return "foreclosure";
+  if (distress >= 40) return "motivated-seller";
+  return "off-market";
+}
+
+export function mapPropertyRadarListingToRow(raw, scrapedAt) {
+  const category = resolvePropertyRadarCategory(raw);
+  const tags = ["PropertyRadar"];
+  if (raw.distressScore != null) tags.push(`Distress ${raw.distressScore}`);
+  if (raw.ownerOccupied) tags.push("Owner Occupied");
+  if (raw.listedForSale) tags.push("Listed");
+  if (raw.listedByOwner) tags.push("FSBO");
+
+  return {
+    id: raw.id,
+    source_id: "propertyradar",
+    category,
+    external_id: raw.externalId,
+    address: raw.address,
+    city: raw.city,
+    state: raw.state ?? "",
+    zip: raw.zip ?? "",
+    county: null,
+    price: raw.estValue ?? 0,
+    price_label: "Est. Value",
+    bedrooms: raw.bedrooms ?? 0,
+    bathrooms: raw.bathrooms ?? 0,
+    square_footage: raw.squareFootage ?? 0,
+    lot_size: null,
+    year_built: null,
+    property_type: PROPERTY_RADAR_TYPE_LABELS[raw.propertyType] ?? raw.propertyType ?? null,
+    status: raw.listedForSale ? "Listed" : "Off Market",
+    tags,
+    lat: null,
+    lng: null,
+    image_url: null,
+    detail_url: null,
+    source_agency: "PropertyRadar",
+    is_new: false,
+    is_active: true,
+    metadata: {
+      propertyTypeCode: raw.propertyType,
+      estValue: raw.estValue,
+      estEquity: raw.estEquity,
+      distressScore: raw.distressScore,
+      owner: raw.owner,
+      ownerOccupied: raw.ownerOccupied,
+      listedForSale: raw.listedForSale,
+      listedByOwner: raw.listedByOwner,
+      imageUrl: null,
+      pendingImage: true,
+      sourceUrl: "https://www.propertyradar.com",
+      scrapeSource: "propertyradar",
+      importSource: raw.importSource ?? "xlsx",
+    },
+    scraped_at: scrapedAt,
+  };
+}
+
+export async function syncPropertyRadarListingsToDatabase(listings, { scrapedAt, sourceUrl }) {
+  return syncSourceListingsToDatabase("propertyradar", listings, {
+    scrapedAt,
+    sourceUrl,
+    mapRow: mapPropertyRadarListingToRow,
   });
 }

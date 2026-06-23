@@ -146,3 +146,33 @@ export function bankOwnedDetailPath(listingId: string): string {
 export function auctionPropertyDetailPath(listingId: string): string {
   return `/properties/auction-property/${listingIdSlug(listingId)}`;
 }
+
+export function motivatedSellerDetailPath(listingId: string): string {
+  return `/properties/motivated-seller/${listingIdSlug(listingId)}`;
+}
+
+export function offMarketDetailPath(listingId: string): string {
+  return `/properties/off-market/${listingIdSlug(listingId)}`;
+}
+
+export function foreclosureDetailPath(listingId: string): string {
+  return `/properties/foreclosure/${listingIdSlug(listingId)}`;
+}
+
+export function preForeclosureDetailPath(listingId: string): string {
+  return `/properties/pre-foreclosure/${listingIdSlug(listingId)}`;
+}
+
+export function propertyRadarDetailPath(category: PropertyCategoryKey, listingId: string): string {
+  switch (category) {
+    case "off-market":
+      return offMarketDetailPath(listingId);
+    case "foreclosure":
+      return foreclosureDetailPath(listingId);
+    case "pre-foreclosure":
+      return preForeclosureDetailPath(listingId);
+    case "motivated-seller":
+    default:
+      return motivatedSellerDetailPath(listingId);
+  }
+}

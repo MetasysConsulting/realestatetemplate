@@ -14,6 +14,7 @@ import {
   auctionPropertyDetailPath,
   bankOwnedDetailPath,
   hudDetailPath,
+  propertyRadarDetailPath,
 } from "@/lib/property-categories";
 import {
   areSiteListingsEnabled,
@@ -84,6 +85,14 @@ function gsaDispositionCoords(id: string, state: string, index: number): [number
   return [base[0] + Math.sin(angle) * radius, base[1] + Math.cos(angle) * radius];
 }
 
+function propertyRadarCoords(id: string, state: string): [number, number] {
+  const base = VRM_STATE_COORDS[state] ?? [39.8283, -98.5795];
+  const spread = hashString(id) % 40;
+  const angle = (spread / 40) * Math.PI * 2;
+  const radius = 0.12 + (spread % 8) * 0.03;
+  return [base[0] + Math.sin(angle) * radius, base[1] + Math.cos(angle) * radius];
+}
+
 function metaString(row: DatabaseListingRow, key: string): string {
   const value = row.metadata?.[key];
   return typeof value === "string" ? value : "";
@@ -91,6 +100,11 @@ function metaString(row: DatabaseListingRow, key: string): string {
 
 function metaBool(row: DatabaseListingRow, key: string): boolean {
   return row.metadata?.[key] === true;
+}
+
+function metaNumber(row: DatabaseListingRow, key: string): number {
+  const value = row.metadata?.[key];
+  return typeof value === "number" ? value : Number(value) || 0;
 }
 
 function displayImage(imageUrl: string | null): string {
@@ -124,6 +138,45 @@ async function fetchAllRows(
 
     if (error) {
       console.error("[listings-repository] Supabase query failed:", error.message);
+      return [];
+    }
+
+    if (!data?.length) break;
+    rows.push(...(data as DatabaseListingRow[]));
+    if (data.length < LISTING_PAGE_SIZE) break;
+    from += LISTING_PAGE_SIZE;
+  }
+
+  return rows;
+}
+
+async function fetchAllRowsByCategory(
+  categoryKey: PropertyCategoryKey,
+  options?: { includeInactive?: boolean },
+): Promise<DatabaseListingRow[]> {
+  const client = createSupabaseServerClient();
+  if (!client) return [];
+
+  const rows: DatabaseListingRow[] = [];
+  let from = 0;
+
+  while (true) {
+    const to = from + LISTING_PAGE_SIZE - 1;
+    let query = client
+      .from("listings")
+      .select("*")
+      .eq("category", categoryKey)
+      .order("price", { ascending: false })
+      .range(from, to);
+
+    if (!options?.includeInactive) {
+      query = query.eq("is_active", true);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("[listings-repository] Supabase category query failed:", error.message);
       return [];
     }
 
@@ -377,6 +430,35 @@ function gsaSaleToPropertyListing(l: GsaRealEstateSale): PropertyListing {
   };
 }
 
+function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListing {
+  const category = row.category as PropertyCategoryKey;
+  const distressScore = Number(row.metadata?.distressScore) || 0;
+  const [lat, lng] =
+    row.lat != null && row.lng != null ? [row.lat, row.lng] : propertyRadarCoords(row.id, row.state);
+
+  return {
+    id: row.id,
+    address: row.address,
+    city: row.city,
+    state: row.state,
+    zip: row.zip,
+    price: Number(row.price) || 0,
+    priceLabel: row.price_label || "Est. Value",
+    bedrooms: row.bedrooms ?? 0,
+    bathrooms: Number(row.bathrooms) || 0,
+    squareFootage: row.square_footage ?? 0,
+    propertyType: row.property_type ?? "Residential",
+    status: row.status ?? "Off Market",
+    tags: row.tags ?? ["PropertyRadar"],
+    imageUrl: displayImage(row.image_url),
+    detailPath: propertyRadarDetailPath(category, row.id),
+    lat,
+    lng,
+    isNew: false,
+    subtitle: distressScore > 0 ? `Distress score ${distressScore}` : undefined,
+  };
+}
+
 function listingToAuctionProperty(listing: PropertyListing, buyType: BuyCategoryKey): AuctionProperty {
   return {
     id: listing.id,
@@ -588,6 +670,10 @@ export async function fetchGsaDispositionsDataset(): Promise<GsaDispositionsData
   };
 }
 
+export async function fetchSourceMetaForPropertyRadar(): Promise<{ scrapedAt: string; sourceUrl: string }> {
+  return fetchSourceMeta("propertyradar");
+}
+
 export async function fetchPropertyListingById(listingId: string): Promise<PropertyListing | null> {
   if (!areSiteListingsEnabled()) return null;
 
@@ -618,6 +704,9 @@ export async function fetchPropertyListingById(listingId: string): Promise<Prope
         }
         if (row.source_id === "gsa-dispositions") {
           return gsaDispositionToPropertyListing(rowToGsaDisposition(row, 0));
+        }
+        if (row.source_id === "propertyradar") {
+          return propertyRadarToPropertyListing(row);
         }
       }
     }
@@ -671,7 +760,14 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
     case "motivated-seller":
     case "off-market":
     case "foreclosure":
-    case "pre-foreclosure":
+    case "pre-foreclosure": {
+      if (!isSupabaseConfigured()) return [];
+      const rows = await fetchAllRowsByCategory(categoryKey);
+      return rows
+        .filter((row) => row.source_id === "propertyradar")
+        .map(propertyRadarToPropertyListing);
+    }
+
     case "sheriffs-sale":
     case "tax-delinquent":
       return [];
