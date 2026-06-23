@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { VrmPropertiesPageContent } from "@/components/auctions/VrmPropertiesPageContent";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "VA REO Homes — REOVANA",

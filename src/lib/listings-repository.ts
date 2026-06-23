@@ -18,6 +18,11 @@ import {
   isSupabaseConfigured,
   type DatabaseListingRow,
 } from "@/lib/supabase/server";
+import {
+  fetchListingRowFromPostgres,
+  fetchListingRowsFromPostgres,
+  fetchSourceMetaFromPostgres,
+} from "@/lib/supabase/listings-query";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { VrmListing, VrmListingsDataset } from "@/lib/vrm-listings";
 import { connection } from "next/server";
@@ -125,6 +130,12 @@ async function fetchAllRows(
   sourceId: string,
   options?: { includeInactive?: boolean },
 ): Promise<DatabaseListingRow[]> {
+  const pgRows = await fetchListingRowsFromPostgres({
+    sourceId,
+    includeInactive: options?.includeInactive,
+  });
+  if (pgRows) return pgRows;
+
   const client = createSupabaseServerClient();
   if (!client) return [];
 
@@ -192,6 +203,9 @@ async function fetchPropertyRadarListingsForBuyCategory(
 }
 
 async function fetchSourceMeta(sourceId: string): Promise<{ scrapedAt: string; sourceUrl: string }> {
+  const pgMeta = await fetchSourceMetaFromPostgres(sourceId);
+  if (pgMeta) return pgMeta;
+
   const client = createSupabaseServerClient();
   if (!client) return { scrapedAt: new Date().toISOString(), sourceUrl: "" };
 
@@ -562,6 +576,12 @@ export async function fetchHudListingsDataset(): Promise<HudListingsDataset> {
 export async function fetchHudListingByCaseNumber(caseNumber: string): Promise<HudListing | null> {
   if (!areSiteListingsEnabled() || !isSupabaseConfigured()) return null;
 
+  const pgRow = await fetchListingRowFromPostgres({
+    sourceId: "hud",
+    externalId: caseNumber,
+  });
+  if (pgRow) return rowToHudListing(pgRow);
+
   const client = createSupabaseServerClient();
   if (!client) return null;
 
@@ -681,6 +701,11 @@ export async function fetchPropertyListingById(listingId: string): Promise<Prope
     return null;
   }
 
+  const pgRow = await fetchListingRowFromPostgres({ id: listingId });
+  if (pgRow) {
+    return rowToPropertyListing(pgRow);
+  }
+
   const client = createSupabaseServerClient();
   if (!client) return null;
 
@@ -693,7 +718,10 @@ export async function fetchPropertyListingById(listingId: string): Promise<Prope
 
   if (error || !data) return null;
 
-  const row = data as DatabaseListingRow;
+  return rowToPropertyListing(data as DatabaseListingRow);
+}
+
+function rowToPropertyListing(row: DatabaseListingRow): PropertyListing | null {
   if (row.source_id === "vrm") {
     return vrmToPropertyListing(rowToVrmListing(row));
   }

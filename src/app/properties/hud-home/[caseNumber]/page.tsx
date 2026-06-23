@@ -3,25 +3,18 @@ import { notFound } from "next/navigation";
 import { HudDetailPageShell } from "@/components/properties/HudDetailPageShell";
 import { formatHudPrice } from "@/lib/hud-listings";
 import {
-  fetchAllHudCaseNumbers,
   fetchHudListingByCaseNumber,
   fetchHudListingsDataset,
 } from "@/lib/listings-repository";
-import { hudCaseFromSlug, hudCaseSlug } from "@/lib/property-categories";
+import { hudCaseFromSlug } from "@/lib/property-categories";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 export const dynamicParams = true;
 
 type PageProps = {
   params: Promise<{ caseNumber: string }>;
 };
-
-export async function generateStaticParams() {
-  const caseNumbers = await fetchAllHudCaseNumbers();
-  return caseNumbers.map((caseNumber) => ({
-    caseNumber: hudCaseSlug(caseNumber),
-  }));
-}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { caseNumber } = await params;

@@ -49,12 +49,16 @@ function getSupabaseAnonKey(): string | undefined {
   );
 }
 
+export function getListingsDatabaseUrl(): string | undefined {
+  return process.env.DATABASE_URL;
+}
+
 export function isSupabaseConfigured(): boolean {
   if (!areSiteListingsEnabled()) {
     return false;
   }
 
-  return Boolean(getSupabaseUrl() && getSupabaseAnonKey());
+  return Boolean(getListingsDatabaseUrl() || (getSupabaseUrl() && getSupabaseAnonKey()));
 }
 
 export function createSupabaseServerClient(): SupabaseClient | null {
