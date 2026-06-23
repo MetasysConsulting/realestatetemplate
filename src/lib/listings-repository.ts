@@ -1,15 +1,10 @@
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
 import type { GsaDispositionListing, GsaDispositionsDataset } from "@/lib/gsa-dispositions";
-import { loadGsaDispositions } from "@/lib/gsa-dispositions";
 import type { GsaRealEstateSale, GsaRealEstateSalesDataset } from "@/lib/gsa-realestatesales";
-import { loadGsaRealEstateSales } from "@/lib/gsa-realestatesales";
 import type { HomeStepsDataset, HomeStepsListing } from "@/lib/homesteps-listings";
-import { loadHomeStepsListings } from "@/lib/homesteps-listings";
 import type { HudListing, HudListingsDataset } from "@/lib/hud-listings";
-import { loadHudListings } from "@/lib/hud-listings";
 import type { PropertyListing } from "@/lib/load-category-listings";
-import { loadPropertyRadarListings } from "@/lib/propertyradar-listings";
 import type { PropertyCategoryKey } from "@/lib/property-categories";
 import {
   auctionPropertyDetailPath,
@@ -25,7 +20,6 @@ import {
 } from "@/lib/supabase/server";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { VrmListing, VrmListingsDataset } from "@/lib/vrm-listings";
-import { loadVrmListings } from "@/lib/vrm-listings";
 import { connection } from "next/server";
 
 const LISTING_PAGE_SIZE = 1000;
@@ -168,12 +162,8 @@ async function fetchAllRows(
 
 async function fetchPropertyRadarRows(): Promise<DatabaseListingRow[]> {
   connection();
-  if (isSupabaseConfigured()) {
-    const rows = await fetchAllRows("propertyradar");
-    if (rows.length) return rows;
-  }
-
-  return loadPropertyRadarListings().listings.filter((listing) => listing.is_active);
+  if (!isSupabaseConfigured()) return [];
+  return fetchAllRows("propertyradar");
 }
 
 async function fetchPropertyRadarCategoryListings(
@@ -549,13 +539,14 @@ function gsaDispositionToAuctionProperty(
 }
 
 export async function fetchHudListingsDataset(): Promise<HudListingsDataset> {
-  if (!areSiteListingsEnabled()) {
+  if (!areSiteListingsEnabled() || !isSupabaseConfigured()) {
     return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
   }
-  if (!isSupabaseConfigured()) return loadHudListings();
 
   const rows = await fetchAllRows("hud");
-  if (!rows.length) return loadHudListings();
+  if (!rows.length) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
 
   const meta = await fetchSourceMeta("hud");
   const listings = rows.map(rowToHudListing);
@@ -569,11 +560,7 @@ export async function fetchHudListingsDataset(): Promise<HudListingsDataset> {
 }
 
 export async function fetchHudListingByCaseNumber(caseNumber: string): Promise<HudListing | null> {
-  if (!areSiteListingsEnabled()) return null;
-  if (!isSupabaseConfigured()) {
-    const { getHudListingByCaseNumber } = await import("@/lib/hud-listings");
-    return getHudListingByCaseNumber(caseNumber);
-  }
+  if (!areSiteListingsEnabled() || !isSupabaseConfigured()) return null;
 
   const client = createSupabaseServerClient();
   if (!client) return null;
@@ -586,10 +573,7 @@ export async function fetchHudListingByCaseNumber(caseNumber: string): Promise<H
     .eq("external_id", caseNumber)
     .maybeSingle();
 
-  if (error || !data) {
-    const { getHudListingByCaseNumber } = await import("@/lib/hud-listings");
-    return getHudListingByCaseNumber(caseNumber);
-  }
+  if (error || !data) return null;
 
   return rowToHudListing(data as DatabaseListingRow);
 }
@@ -601,13 +585,14 @@ export async function fetchAllHudCaseNumbers(): Promise<string[]> {
 }
 
 export async function fetchVrmListingsDataset(): Promise<VrmListingsDataset> {
-  if (!areSiteListingsEnabled()) {
+  if (!areSiteListingsEnabled() || !isSupabaseConfigured()) {
     return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
   }
-  if (!isSupabaseConfigured()) return loadVrmListings();
 
   const rows = await fetchAllRows("vrm");
-  if (!rows.length) return loadVrmListings();
+  if (!rows.length) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
 
   const meta = await fetchSourceMeta("vrm");
   const listings = rows.map(rowToVrmListing);
@@ -621,13 +606,14 @@ export async function fetchVrmListingsDataset(): Promise<VrmListingsDataset> {
 }
 
 export async function fetchHomeStepsListingsDataset(): Promise<HomeStepsDataset> {
-  if (!areSiteListingsEnabled()) {
+  if (!areSiteListingsEnabled() || !isSupabaseConfigured()) {
     return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
   }
-  if (!isSupabaseConfigured()) return loadHomeStepsListings();
 
   const rows = await fetchAllRows("homesteps");
-  if (!rows.length) return loadHomeStepsListings();
+  if (!rows.length) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
 
   const meta = await fetchSourceMeta("homesteps");
   const listings = rows.map(rowToHomeStepsListing);
@@ -641,13 +627,14 @@ export async function fetchHomeStepsListingsDataset(): Promise<HomeStepsDataset>
 }
 
 export async function fetchGsaRealEstateSalesDataset(): Promise<GsaRealEstateSalesDataset> {
-  if (!areSiteListingsEnabled()) {
+  if (!areSiteListingsEnabled() || !isSupabaseConfigured()) {
     return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
   }
-  if (!isSupabaseConfigured()) return loadGsaRealEstateSales();
 
   const rows = await fetchAllRows("gsa-sales");
-  if (!rows.length) return loadGsaRealEstateSales();
+  if (!rows.length) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
 
   const meta = await fetchSourceMeta("gsa-sales");
   const listings = rows.map((row, index) => rowToGsaSale(row, index));
@@ -661,13 +648,14 @@ export async function fetchGsaRealEstateSalesDataset(): Promise<GsaRealEstateSal
 }
 
 export async function fetchGsaDispositionsDataset(): Promise<GsaDispositionsDataset> {
-  if (!areSiteListingsEnabled()) {
+  if (!areSiteListingsEnabled() || !isSupabaseConfigured()) {
     return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
   }
-  if (!isSupabaseConfigured()) return loadGsaDispositions();
 
   const rows = await fetchAllRows("gsa-dispositions", { includeInactive: true });
-  if (!rows.length) return loadGsaDispositions();
+  if (!rows.length) {
+    return { scrapedAt: "", sourceUrl: "", count: 0, listings: [] };
+  }
 
   const meta = await fetchSourceMeta("gsa-dispositions");
   const listings = rows.map((row, index) => rowToGsaDisposition(row, index));
@@ -687,54 +675,40 @@ export async function fetchSourceMetaForPropertyRadar(): Promise<{ scrapedAt: st
 }
 
 export async function fetchPropertyListingById(listingId: string): Promise<PropertyListing | null> {
-  if (!areSiteListingsEnabled()) return null;
+  if (!areSiteListingsEnabled() || !isSupabaseConfigured()) return null;
 
   if (listingId.startsWith("hud-")) {
     return null;
   }
 
-  if (isSupabaseConfigured()) {
-    const client = createSupabaseServerClient();
-    if (client) {
-      const { data, error } = await client
-        .from("listings")
-        .select("*")
-        .eq("id", listingId)
-        .eq("is_active", true)
-        .maybeSingle();
+  const client = createSupabaseServerClient();
+  if (!client) return null;
 
-      if (!error && data) {
-        const row = data as DatabaseListingRow;
-        if (row.source_id === "vrm") {
-          return vrmToPropertyListing(rowToVrmListing(row));
-        }
-        if (row.source_id === "homesteps") {
-          return homestepsToPropertyListing(rowToHomeStepsListing(row));
-        }
-        if (row.source_id === "gsa-sales") {
-          return gsaSaleToPropertyListing(rowToGsaSale(row, 0));
-        }
-        if (row.source_id === "gsa-dispositions") {
-          return gsaDispositionToPropertyListing(rowToGsaDisposition(row, 0));
-        }
-        if (row.source_id === "propertyradar") {
-          return propertyRadarToPropertyListing(row);
-        }
-      }
-    }
+  const { data, error } = await client
+    .from("listings")
+    .select("*")
+    .eq("id", listingId)
+    .eq("is_active", true)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  const row = data as DatabaseListingRow;
+  if (row.source_id === "vrm") {
+    return vrmToPropertyListing(rowToVrmListing(row));
   }
-
-  const vrm = loadVrmListings().listings.find((l) => l.id === listingId);
-  if (vrm) return vrmToPropertyListing(vrm);
-
-  const homesteps = loadHomeStepsListings().listings.find((l) => l.id === listingId);
-  if (homesteps) return homestepsToPropertyListing(homesteps);
-
-  const gsaSale = loadGsaRealEstateSales().listings.find((l) => l.id === listingId);
-  if (gsaSale) return gsaSaleToPropertyListing(gsaSale);
-
-  const gsaDisp = loadGsaDispositions().listings.find((l) => l.id === listingId);
-  if (gsaDisp) return gsaDispositionToPropertyListing(gsaDisp);
+  if (row.source_id === "homesteps") {
+    return homestepsToPropertyListing(rowToHomeStepsListing(row));
+  }
+  if (row.source_id === "gsa-sales") {
+    return gsaSaleToPropertyListing(rowToGsaSale(row, 0));
+  }
+  if (row.source_id === "gsa-dispositions") {
+    return gsaDispositionToPropertyListing(rowToGsaDisposition(row, 0));
+  }
+  if (row.source_id === "propertyradar") {
+    return propertyRadarToPropertyListing(row);
+  }
 
   return null;
 }

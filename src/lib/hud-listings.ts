@@ -1,6 +1,3 @@
-import hudData from "@/data/hud-listings.json";
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
-
 export type HudListing = {
   id: string;
   caseNumber: string;
@@ -38,24 +35,6 @@ export type HudListingsDataset = {
   listings: HudListing[];
 };
 
-function enrichListing(raw: (typeof hudData.listings)[number]): HudListing {
-  return {
-    ...raw,
-    displayImageUrl: raw.imageUrl ?? DEFAULT_AUCTION_PROPERTY_IMAGE,
-  };
-}
-
-export function loadHudListings(): HudListingsDataset {
-  const listings = hudData.listings.map(enrichListing);
-
-  return {
-    scrapedAt: hudData.scrapedAt,
-    sourceUrl: hudData.sourceUrl,
-    count: hudData.count,
-    listings,
-  };
-}
-
 export function getHudFilterOptions(listings: HudListing[]) {
   const states = [...new Set(listings.map((l) => l.state))].sort();
   const propertyTypes = [...new Set(listings.map((l) => l.propertyType).filter(Boolean))].sort();
@@ -78,13 +57,4 @@ export function formatHudScrapedDate(iso: string): string {
     day: "numeric",
     year: "numeric",
   });
-}
-
-export function getHudListingByCaseNumber(caseNumber: string): HudListing | null {
-  const listings = loadHudListings().listings;
-  return listings.find((l) => l.caseNumber === caseNumber) ?? null;
-}
-
-export function getAllHudCaseNumbers(): string[] {
-  return loadHudListings().listings.map((l) => l.caseNumber);
 }

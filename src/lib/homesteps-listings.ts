@@ -1,6 +1,3 @@
-import homestepsData from "@/data/homesteps-listings.json";
-import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
-
 export type HomeStepsListing = {
   id: string;
   address: string;
@@ -24,23 +21,6 @@ export type HomeStepsDataset = {
   count: number;
   listings: HomeStepsListing[];
 };
-
-function enrichListing(raw: (typeof homestepsData.listings)[number]): HomeStepsListing {
-  return {
-    ...raw,
-    displayImageUrl: raw.imageUrl ?? DEFAULT_AUCTION_PROPERTY_IMAGE,
-  };
-}
-
-export function loadHomeStepsListings(): HomeStepsDataset {
-  const listings = homestepsData.listings.map(enrichListing);
-  return {
-    scrapedAt: homestepsData.scrapedAt,
-    sourceUrl: homestepsData.sourceUrl,
-    count: homestepsData.count,
-    listings,
-  };
-}
 
 export function getHomeStepsFilterOptions(listings: HomeStepsListing[]) {
   const states = [...new Set(listings.map((l) => l.state))].sort();
