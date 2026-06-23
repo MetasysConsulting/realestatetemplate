@@ -130,7 +130,7 @@ function gsaSaleToListing(
   };
 }
 
-/** Legacy JSON loader — not used on the live site while listings are disabled. */
+/** JSON fallback when Supabase is unavailable. */
 export function loadCategoryListings(categoryKey: PropertyCategoryKey): PropertyListing[] {
   if (!areSiteListingsEnabled()) return [];
 
