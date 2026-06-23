@@ -770,7 +770,7 @@ body.auctions-route .reovana-site .header {
 
 /* ── Homepage category rows (under loan steps) ───────────────────────────── */
 .reovana-home-category-rows {
-  background: #f6f7fb;
+  background: #fff;
   padding: 12px 0 56px;
 }
 
@@ -992,6 +992,7 @@ body.auctions-route .reovana-site .header {
 .reovana-hud-promo .wg-appraisal {
   margin-top: -240px;
   padding-bottom: 72px;
+  background: #fff;
 }
 
 .reovana-hud-promo .wg-appraisal .content {
