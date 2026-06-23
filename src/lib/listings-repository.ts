@@ -9,6 +9,7 @@ import { loadHomeStepsListings } from "@/lib/homesteps-listings";
 import type { HudListing, HudListingsDataset } from "@/lib/hud-listings";
 import { loadHudListings } from "@/lib/hud-listings";
 import type { PropertyListing } from "@/lib/load-category-listings";
+import { loadPropertyRadarListings } from "@/lib/propertyradar-listings";
 import type { PropertyCategoryKey } from "@/lib/property-categories";
 import {
   auctionPropertyDetailPath,
@@ -165,15 +166,14 @@ async function fetchAllRows(
   return rows;
 }
 
-let propertyRadarRowsPromise: Promise<DatabaseListingRow[]> | null = null;
-
 async function fetchPropertyRadarRows(): Promise<DatabaseListingRow[]> {
   connection();
-  if (!isSupabaseConfigured()) return [];
-  if (!propertyRadarRowsPromise) {
-    propertyRadarRowsPromise = fetchAllRows("propertyradar");
+  if (isSupabaseConfigured()) {
+    const rows = await fetchAllRows("propertyradar");
+    if (rows.length) return rows;
   }
-  return propertyRadarRowsPromise;
+
+  return loadPropertyRadarListings().listings.filter((listing) => listing.is_active);
 }
 
 async function fetchPropertyRadarCategoryListings(

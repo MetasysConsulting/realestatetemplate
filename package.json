@@ -15,6 +15,7 @@
     "scrape-gsa-sales": "node scripts/scrape-gsa-realestatesales.mjs",
     "scrape-vrm": "node --env-file=.env.local scripts/scrape-vrm-listings.mjs",
     "import-propertyradar": "node --env-file=.env.local scripts/import-propertyradar-xlsx.mjs",
+    "export-propertyradar-json": "node scripts/export-propertyradar-json.mjs",
     "scrape-usda": "node scripts/scrape-usda-resales.mjs",
     "db:migrate": "node --env-file=.env.local scripts/run-supabase-migration.mjs",
     "db:seed": "node --env-file=.env.local scripts/seed-supabase-listings.mjs"
