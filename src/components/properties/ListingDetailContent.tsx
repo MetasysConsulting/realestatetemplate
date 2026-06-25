@@ -66,9 +66,25 @@ export function ListingDetailContent({
             {listing.squareFootage > 0 ? (
               <li>{listing.squareFootage.toLocaleString()} sq ft</li>
             ) : null}
+            {listing.yearBuilt ? <li>Built {listing.yearBuilt}</li> : null}
+            {listing.lotSize != null && listing.lotSize > 0 ? (
+              <li>{listing.lotSize.toLocaleString()} sq ft lot</li>
+            ) : null}
           </ul>
 
           <dl className="hud-detail-page__meta">
+            {listing.estEquity != null && listing.estEquity > 0 ? (
+              <div>
+                <dt>Est. Equity</dt>
+                <dd>{formatHudPrice(listing.estEquity)}</dd>
+              </div>
+            ) : null}
+            {listing.radarId ? (
+              <div>
+                <dt>Radar ID</dt>
+                <dd>{listing.radarId}</dd>
+              </div>
+            ) : null}
             {listing.subtitle ? (
               <div>
                 <dt>Listing</dt>
@@ -93,6 +109,16 @@ export function ListingDetailContent({
               <div>
                 <dt>Source Agency</dt>
                 <dd>{sourceAgency}</dd>
+              </div>
+            ) : null}
+            {listing.detailUrl ? (
+              <div>
+                <dt>PropertyRadar</dt>
+                <dd>
+                  <a href={listing.detailUrl} target="_blank" rel="noopener noreferrer">
+                    View on PropertyRadar
+                  </a>
+                </dd>
               </div>
             ) : null}
           </dl>

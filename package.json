@@ -15,9 +15,24 @@
     "scrape-gsa-sales": "node scripts/scrape-gsa-realestatesales.mjs",
     "scrape-vrm": "node --env-file=.env.local scripts/scrape-vrm-listings.mjs",
     "import-propertyradar": "node --env-file=.env.local scripts/import-propertyradar-xlsx.mjs",
+    "scrape-propertyradar-pilot": "node --env-file=.env.local scripts/scrape-propertyradar-images-pilot.mjs",
+    "scrape-propertyradar-html": "node --env-file=.env.local scripts/scrape-propertyradar-images-pilot.mjs --html-only --resume --goal 5000 --batch-size 500 --auto-continue --no-stop-on-error",
+    "scrape-propertyradar-watch": "node scripts/watch-propertyradar-progress.mjs",
+    "scrape-propertyradar-go": "bash scripts/scrape-propertyradar-with-watch.sh",
+    "scrape-propertyradar-supervised": "bash scripts/scrape-propertyradar-supervised.sh",
+    "scrape-propertyradar-bulk": "node --env-file=.env.local scripts/scrape-propertyradar-images-pilot.mjs --html-only --resume --limit 100 --batch-size 100 --goal 100 --auto-continue --stop-on-error",
+    "scrape-propertyradar-from-harvest": "node --env-file=.env.local scripts/scrape-propertyradar-images-pilot.mjs --from-harvest --html-only --resume --limit 100 --batch-size 100 --goal 9064 --no-stop-on-error",
+    "scrape-propertyradar-from-harvest-go": "bash scripts/scrape-propertyradar-from-harvest-with-watch.sh",
+    "harvest-propertyradar-ids": "node --env-file=.env.local scripts/harvest-propertyradar-ids.mjs --limit 100",
+    "harvest-propertyradar-ids-all": "node --env-file=.env.local scripts/harvest-propertyradar-ids.mjs --all",
+    "harvest-propertyradar-watch": "node scripts/watch-harvest-propertyradar-progress.mjs",
+    "harvest-propertyradar-go": "bash scripts/harvest-propertyradar-with-watch.sh",
     "scrape-usda": "node scripts/scrape-usda-resales.mjs",
     "db:migrate": "node --env-file=.env.local scripts/run-supabase-migration.mjs",
-    "db:seed": "node --env-file=.env.local scripts/seed-supabase-listings.mjs"
+    "db:seed": "node --env-file=.env.local scripts/seed-supabase-listings.mjs",
+    "extract-propertyradar-html": "node scripts/extract-propertyradar-from-html.mjs",
+    "import-propertyradar-pilot-100": "node scripts/import-propertyradar-pilot-100.mjs --limit 100",
+    "upload-propertyradar-pilot-100": "node --env-file=.env.local scripts/upload-propertyradar-pilot-100.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",
@@ -40,6 +55,7 @@
     "all-the-cities": "^3.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "playwright": "^1.61.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "xlsx": "^0.18.5"

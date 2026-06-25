@@ -471,6 +471,8 @@ function gsaSaleToPropertyListing(l: GsaRealEstateSale): PropertyListing {
 function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListing {
   const category = row.category as PropertyCategoryKey;
   const distressScore = Number(row.metadata?.distressScore) || 0;
+  const estEquity = metaNumber(row, "estEquity") || undefined;
+  const radarId = metaString(row, "radarId") || undefined;
   const [lat, lng] =
     row.lat != null && row.lng != null ? [row.lat, row.lng] : propertyRadarCoords(row.id, row.state);
   const image = listingImageFromRow(row);
@@ -494,8 +496,13 @@ function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListin
     detailPath: propertyRadarDetailPath(category, row.id),
     lat,
     lng,
-    isNew: false,
+    isNew: row.is_new ?? false,
     subtitle: distressScore > 0 ? `Distress score ${distressScore}` : undefined,
+    yearBuilt: row.year_built,
+    lotSize: row.lot_size != null ? Number(row.lot_size) : null,
+    estEquity: estEquity || null,
+    radarId: radarId || null,
+    detailUrl: row.detail_url,
   };
 }
 

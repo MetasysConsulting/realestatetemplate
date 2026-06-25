@@ -22,6 +22,7 @@
 
 # misc
 .DS_Store
+**/._*
 *.pem
 
 # debug
@@ -32,6 +33,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+
+# PropertyRadar pilot scrape (local only — keep HTML/DB/harvest out of git)
+/data/propertyradar-pilot/
 
 # vercel
 .vercel

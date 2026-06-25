@@ -21,6 +21,11 @@ export type PropertyListing = {
   lng: number;
   isNew: boolean;
   subtitle?: string;
+  yearBuilt?: string | null;
+  lotSize?: number | null;
+  estEquity?: number | null;
+  radarId?: string | null;
+  detailUrl?: string | null;
 };
 
 /** @deprecated Use fetchCategoryListings from listings-repository (Supabase only). */

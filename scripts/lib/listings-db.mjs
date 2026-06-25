@@ -308,12 +308,15 @@ export function mapPropertyRadarListingToRow(raw, scrapedAt) {
   if (raw.ownerOccupied) tags.push("Owner Occupied");
   if (raw.listedForSale) tags.push("Listed");
   if (raw.listedByOwner) tags.push("FSBO");
+  if (raw.importSource === "pilot-html-100") tags.push("Pilot 100");
+
+  const imageUrl = raw.imageUrl ?? null;
 
   return {
     id: raw.id,
     source_id: "propertyradar",
     category,
-    external_id: raw.externalId,
+    external_id: raw.externalId ?? raw.radarId ?? raw.id,
     address: raw.address,
     city: raw.city,
     state: raw.state ?? "",
@@ -324,33 +327,36 @@ export function mapPropertyRadarListingToRow(raw, scrapedAt) {
     bedrooms: raw.bedrooms ?? 0,
     bathrooms: raw.bathrooms ?? 0,
     square_footage: raw.squareFootage ?? 0,
-    lot_size: null,
-    year_built: null,
+    lot_size: raw.lotSize ?? null,
+    year_built: raw.yearBuilt != null ? String(raw.yearBuilt) : null,
     property_type: PROPERTY_RADAR_TYPE_LABELS[raw.propertyType] ?? raw.propertyType ?? null,
     status: raw.listedForSale ? "Listed" : "Off Market",
     tags,
     lat: null,
     lng: null,
-    image_url: null,
-    detail_url: null,
+    image_url: imageUrl,
+    detail_url: raw.detailUrl ?? null,
     source_agency: "PropertyRadar",
-    is_new: false,
+    is_new: raw.importSource === "pilot-html-100",
     is_active: true,
     metadata: {
       propertyTypeCode: raw.propertyType,
       estValue: raw.estValue,
       estEquity: raw.estEquity,
       distressScore: raw.distressScore,
+      radarId: raw.radarId ?? null,
+      listingId: raw.id,
       owner: raw.owner,
       ownerOccupied: raw.ownerOccupied,
       listedForSale: raw.listedForSale,
       listedByOwner: raw.listedByOwner,
-      imageUrl: null,
-      hasImage: false,
-      pendingImage: true,
-      sourceUrl: "https://www.propertyradar.com",
+      imageUrl,
+      hasImage: Boolean(imageUrl),
+      pendingImage: !imageUrl,
+      sourceUrl: raw.detailUrl ?? "https://www.propertyradar.com",
       scrapeSource: "propertyradar",
       importSource: raw.importSource ?? "xlsx",
+      htmlSnapshotPath: raw.htmlSnapshotPath ?? null,
     },
     scraped_at: scrapedAt,
   };
