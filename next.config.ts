@@ -1,16 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      { source: "/buy/hud-home/:caseNumber", destination: "/properties/hud-home/:caseNumber" },
-      { source: "/buy/hud-home", destination: "/properties/hud-home" },
-      { source: "/buy/bank-owned/:listingId", destination: "/properties/bank-owned/:listingId" },
-      { source: "/buy/auction-property/:listingId", destination: "/properties/auction-property/:listingId" },
-      { source: "/buy/:category/:listingId", destination: "/properties/:category/:listingId" },
-      { source: "/buy/:category", destination: "/properties/:category" },
-    ];
-  },
   async redirects() {
     return [
       { source: "/properties", destination: "/buy/foreclosure", permanent: true },

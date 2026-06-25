@@ -94,7 +94,7 @@ async function main() {
 
   console.log("Sync complete:", result);
   console.log("\nOther propertyradar rows not in this batch were marked inactive.");
-  console.log("Browse: /properties/motivated-seller, /properties/off-market, etc.");
+  console.log("Browse: /buy/motivated-seller, /buy/off-market, /buy/foreclosure, etc.");
 }
 
 main().catch((error) => {
