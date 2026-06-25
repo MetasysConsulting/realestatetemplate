@@ -32,7 +32,13 @@
     "db:seed": "node --env-file=.env.local scripts/seed-supabase-listings.mjs",
     "extract-propertyradar-html": "node scripts/extract-propertyradar-from-html.mjs",
     "import-propertyradar-pilot-100": "node scripts/import-propertyradar-pilot-100.mjs --limit 100",
-    "upload-propertyradar-pilot-100": "node --env-file=.env.local scripts/upload-propertyradar-pilot-100.mjs"
+    "upload-propertyradar-pilot-100": "node --env-file=.env.local scripts/upload-propertyradar-pilot-100.mjs",
+    "upload-propertyradar-batch": "node --env-file=.env.local scripts/upload-propertyradar-html-batch.mjs --limit 5000 --import-source propertyradar-html-batch1",
+    "upload-propertyradar-watch": "node scripts/watch-propertyradar-upload-progress.mjs",
+    "upload-propertyradar-go": "bash scripts/upload-propertyradar-batch-with-watch.sh",
+    "upload-propertyradar-photos": "node --env-file=.env.local scripts/upload-propertyradar-photos-to-storage.mjs",
+    "upload-propertyradar-photos-watch": "node scripts/watch-propertyradar-photo-upload-progress.mjs",
+    "upload-propertyradar-photos-go": "bash scripts/upload-propertyradar-photos-with-watch.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.108.2",

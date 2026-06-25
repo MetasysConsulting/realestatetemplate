@@ -43,7 +43,7 @@ export default async function AuctionPropertyDetailPage({ params }: PageProps) {
     <ListingDetailPageShell
       listing={listing}
       categoryLabel="Auction Properties"
-      backHref="/properties/auction-property"
+      backHref="/buy/auction-property"
       scrapedAt={gsaMeta.scrapedAt}
       sourceAgency="U.S. General Services Administration"
     />

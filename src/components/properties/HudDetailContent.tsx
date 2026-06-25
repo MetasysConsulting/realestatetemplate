@@ -26,7 +26,7 @@ export function HudDetailContent({ listing, scrapedAt }: HudDetailContentProps) 
         detailPath={hudDetailPath(listing.caseNumber)}
       />
       <div className="hud-detail-page__breadcrumb">
-        <Link href="/properties/hud-home">← Back to HUD Homes</Link>
+        <Link href="/buy/hud-home">← Back to HUD Homes</Link>
       </div>
 
       <div className="hud-detail-page__layout">

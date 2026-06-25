@@ -240,7 +240,11 @@ export function mapVrmListingToRow(raw, scrapedAt) {
  * - upsert updates existing rows instead of inserting duplicates
  * - listings no longer in the latest scrape are marked inactive (not deleted)
  */
-export async function syncSourceListingsToDatabase(sourceId, listings, { scrapedAt, sourceUrl, mapRow }) {
+export async function syncSourceListingsToDatabase(
+  sourceId,
+  listings,
+  { scrapedAt, sourceUrl, mapRow, deactivateMissing = true },
+) {
   const client = createListingsDbClient();
   await client.connect();
 
@@ -250,8 +254,11 @@ export async function syncSourceListingsToDatabase(sourceId, listings, { scraped
     const rows = listings.map((listing) => mapRow(listing, scrapedAt));
     await upsertListings(client, rows);
 
-    const activeIds = rows.map((row) => row.id);
-    const deactivated = await deactivateListingsNotInSet(client, sourceId, activeIds);
+    let deactivated = 0;
+    if (deactivateMissing) {
+      const activeIds = rows.map((row) => row.id);
+      deactivated = await deactivateListingsNotInSet(client, sourceId, activeIds);
+    }
     await updateSourceScrapedAt(client, sourceId, scrapedAt, sourceUrl);
 
     await client.query("COMMIT");
@@ -309,6 +316,7 @@ export function mapPropertyRadarListingToRow(raw, scrapedAt) {
   if (raw.listedForSale) tags.push("Listed");
   if (raw.listedByOwner) tags.push("FSBO");
   if (raw.importSource === "pilot-html-100") tags.push("Pilot 100");
+  if (raw.importSource?.startsWith("propertyradar-html")) tags.push("HTML Scrape");
 
   const imageUrl = raw.imageUrl ?? null;
 
@@ -316,7 +324,9 @@ export function mapPropertyRadarListingToRow(raw, scrapedAt) {
     id: raw.id,
     source_id: "propertyradar",
     category,
-    external_id: raw.externalId ?? raw.radarId ?? raw.id,
+    external_id:
+      raw.externalId ??
+      (typeof raw.id === "string" ? raw.id.replace(/^propertyradar-/, "") : raw.id),
     address: raw.address,
     city: raw.city,
     state: raw.state ?? "",
@@ -351,8 +361,9 @@ export function mapPropertyRadarListingToRow(raw, scrapedAt) {
       listedForSale: raw.listedForSale,
       listedByOwner: raw.listedByOwner,
       imageUrl,
-      hasImage: Boolean(imageUrl),
-      pendingImage: !imageUrl,
+      overviewPhotoUrl: raw.overviewPhotoUrl ?? null,
+      hasImage: Boolean(imageUrl || raw.overviewPhotoUrl),
+      pendingImage: !imageUrl && !raw.overviewPhotoUrl,
       sourceUrl: raw.detailUrl ?? "https://www.propertyradar.com",
       scrapeSource: "propertyradar",
       importSource: raw.importSource ?? "xlsx",
@@ -362,10 +373,26 @@ export function mapPropertyRadarListingToRow(raw, scrapedAt) {
   };
 }
 
-export async function syncPropertyRadarListingsToDatabase(listings, { scrapedAt, sourceUrl }) {
+export async function syncPropertyRadarListingsToDatabase(
+  listings,
+  { scrapedAt, sourceUrl, deactivateMissing = true },
+) {
   return syncSourceListingsToDatabase("propertyradar", listings, {
     scrapedAt,
     sourceUrl,
     mapRow: mapPropertyRadarListingToRow,
+    deactivateMissing,
   });
+}
+
+export async function upsertPropertyRadarListings(listings, scrapedAt) {
+  const client = createListingsDbClient();
+  await client.connect();
+  try {
+    const rows = listings.map((listing) => mapPropertyRadarListingToRow(listing, scrapedAt));
+    await upsertListings(client, rows);
+    return rows.length;
+  } finally {
+    await client.end();
+  }
 }

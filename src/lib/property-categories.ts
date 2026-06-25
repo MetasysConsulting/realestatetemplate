@@ -1,5 +1,8 @@
 import type { BuyCategoryKey } from "@/lib/buy-categories";
 
+/** Public URL prefix — matches Buy menu (no standalone /properties hub). */
+export const LISTING_ROUTE_PREFIX = "/buy";
+
 export type PropertyCategoryKey =
   | "motivated-seller"
   | "off-market"
@@ -25,7 +28,7 @@ export type PropertyCategoryConfig = {
 export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryConfig> = {
   "motivated-seller": {
     key: "motivated-seller",
-    path: "/properties/motivated-seller",
+    path: `${LISTING_ROUTE_PREFIX}/motivated-seller`,
     title: "Motivated Seller Properties",
     navLabel: "Motivated Seller Property",
     description: "Owners ready to sell quickly — often below market value.",
@@ -34,7 +37,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryCo
   },
   "off-market": {
     key: "off-market",
-    path: "/properties/off-market",
+    path: `${LISTING_ROUTE_PREFIX}/off-market`,
     title: "Off-Market Properties",
     navLabel: "Off-Market Property",
     description: "Exclusive listings not widely advertised on public MLS feeds.",
@@ -43,7 +46,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryCo
   },
   foreclosure: {
     key: "foreclosure",
-    path: "/properties/foreclosure",
+    path: `${LISTING_ROUTE_PREFIX}/foreclosure`,
     title: "Foreclosure Properties",
     navLabel: "Foreclosure",
     description: "Properties in active foreclosure or post-foreclosure sale.",
@@ -52,7 +55,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryCo
   },
   "pre-foreclosure": {
     key: "pre-foreclosure",
-    path: "/properties/pre-foreclosure",
+    path: `${LISTING_ROUTE_PREFIX}/pre-foreclosure`,
     title: "Pre-Foreclosure Properties",
     navLabel: "Pre-Foreclosure",
     description: "Distressed properties before the auction or bank sale stage.",
@@ -61,7 +64,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryCo
   },
   "bank-owned": {
     key: "bank-owned",
-    path: "/properties/bank-owned",
+    path: `${LISTING_ROUTE_PREFIX}/bank-owned`,
     title: "Bank Owned Properties",
     navLabel: "Bank Owned",
     description: "REO homes owned by lenders, GSEs, and government agencies.",
@@ -70,7 +73,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryCo
   },
   "auction-property": {
     key: "auction-property",
-    path: "/properties/auction-property",
+    path: `${LISTING_ROUTE_PREFIX}/auction-property`,
     title: "Auction Properties",
     navLabel: "Auction Property",
     description: "Homes and commercial assets offered at public or online auction.",
@@ -79,7 +82,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryCo
   },
   "sheriffs-sale": {
     key: "sheriffs-sale",
-    path: "/properties/sheriffs-sale",
+    path: `${LISTING_ROUTE_PREFIX}/sheriffs-sale`,
     title: "Sheriff's Sale Properties",
     navLabel: "Sheriff's Sale Property",
     description: "Court-ordered sales conducted by county sheriffs.",
@@ -88,7 +91,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryCo
   },
   "tax-delinquent": {
     key: "tax-delinquent",
-    path: "/properties/tax-delinquent",
+    path: `${LISTING_ROUTE_PREFIX}/tax-delinquent`,
     title: "Tax Delinquent Properties",
     navLabel: "Tax Delinquent Property",
     description: "Properties with delinquent tax liens or heading to tax sale.",
@@ -97,7 +100,7 @@ export const PROPERTY_CATEGORIES: Record<PropertyCategoryKey, PropertyCategoryCo
   },
   "hud-home": {
     key: "hud-home",
-    path: "/properties/hud-home",
+    path: `${LISTING_ROUTE_PREFIX}/hud-home`,
     title: "HUD Homes",
     navLabel: "HUD Home",
     description: "FHA-insured foreclosure homes listed for sale nationwide.",
@@ -128,7 +131,7 @@ export function hudCaseFromSlug(slug: string): string {
 }
 
 export function hudDetailPath(caseNumber: string): string {
-  return `/properties/hud-home/${hudCaseSlug(caseNumber)}`;
+  return `${LISTING_ROUTE_PREFIX}/hud-home/${hudCaseSlug(caseNumber)}`;
 }
 
 export function listingIdSlug(id: string): string {
@@ -140,27 +143,27 @@ export function listingIdFromSlug(slug: string): string {
 }
 
 export function bankOwnedDetailPath(listingId: string): string {
-  return `/properties/bank-owned/${listingIdSlug(listingId)}`;
+  return `${LISTING_ROUTE_PREFIX}/bank-owned/${listingIdSlug(listingId)}`;
 }
 
 export function auctionPropertyDetailPath(listingId: string): string {
-  return `/properties/auction-property/${listingIdSlug(listingId)}`;
+  return `${LISTING_ROUTE_PREFIX}/auction-property/${listingIdSlug(listingId)}`;
 }
 
 export function motivatedSellerDetailPath(listingId: string): string {
-  return `/properties/motivated-seller/${listingIdSlug(listingId)}`;
+  return `${LISTING_ROUTE_PREFIX}/motivated-seller/${listingIdSlug(listingId)}`;
 }
 
 export function offMarketDetailPath(listingId: string): string {
-  return `/properties/off-market/${listingIdSlug(listingId)}`;
+  return `${LISTING_ROUTE_PREFIX}/off-market/${listingIdSlug(listingId)}`;
 }
 
 export function foreclosureDetailPath(listingId: string): string {
-  return `/properties/foreclosure/${listingIdSlug(listingId)}`;
+  return `${LISTING_ROUTE_PREFIX}/foreclosure/${listingIdSlug(listingId)}`;
 }
 
 export function preForeclosureDetailPath(listingId: string): string {
-  return `/properties/pre-foreclosure/${listingIdSlug(listingId)}`;
+  return `${LISTING_ROUTE_PREFIX}/pre-foreclosure/${listingIdSlug(listingId)}`;
 }
 
 export function propertyRadarDetailPath(category: PropertyCategoryKey, listingId: string): string {

@@ -4,14 +4,15 @@
 
 /** @type {[string, string][]} */
 const BUY_LINKS = [
-  ["/properties/off-market", "Off-Market Property"],
-  ["/properties/foreclosure", "Foreclosure"],
-  ["/properties/pre-foreclosure", "Pre-Foreclosure"],
-  ["/properties/bank-owned", "Bank Owned"],
-  ["/properties/auction-property", "Auction Property"],
-  ["/properties/sheriffs-sale", "Sheriff's Sale Property"],
-  ["/properties/tax-delinquent", "Tax Delinquent Property"],
-  ["/properties/hud-home", "HUD Home"],
+  ["/buy/off-market", "Off-Market Property"],
+  ["/buy/foreclosure", "Foreclosure"],
+  ["/buy/pre-foreclosure", "Pre-Foreclosure"],
+  ["/buy/motivated-seller", "Motivated Seller"],
+  ["/buy/bank-owned", "Bank Owned"],
+  ["/buy/auction-property", "Auction Property"],
+  ["/buy/sheriffs-sale", "Sheriff's Sale Property"],
+  ["/buy/tax-delinquent", "Tax Delinquent Property"],
+  ["/buy/hud-home", "HUD Home"],
   ["/auctions/commercial", "Commercial"],
 ];
 

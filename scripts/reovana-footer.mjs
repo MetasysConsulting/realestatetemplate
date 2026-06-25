@@ -25,13 +25,13 @@ export function buildReovanaFooter() {
                         <h6>Properties</h6>
                         <ul>
                             ${footerLinkList([
-                              ["/properties/foreclosure", "Foreclosures"],
-                              ["/properties/pre-foreclosure", "Pre-Foreclosures"],
-                              ["/properties/bank-owned", "REO Properties"],
+                              ["/buy/foreclosure", "Foreclosures"],
+                              ["/buy/pre-foreclosure", "Pre-Foreclosures"],
+                              ["/buy/bank-owned", "REO Properties"],
                               ["/auctions", "Auction Homes"],
-                              ["/properties/bank-owned", "Bank-Owned Properties"],
-                              ["/properties/foreclosure", "Distressed Properties"],
-                              ["/properties/off-market", "Off-Market Deals"],
+                              ["/buy/bank-owned", "Bank-Owned Properties"],
+                              ["/buy/foreclosure", "Distressed Properties"],
+                              ["/buy/off-market", "Off-Market Deals"],
                             ])}
                         </ul>
                     </div>

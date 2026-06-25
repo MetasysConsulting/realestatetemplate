@@ -31,7 +31,7 @@ function copyPhoto(localRelativePath, listingId) {
 function mapPilotRow(row, publicImageUrl) {
   return {
     id: row.listing_id,
-    externalId: row.radar_id ?? row.listing_id,
+    externalId: row.listing_id.replace(/^propertyradar-/, ""),
     radarId: row.radar_id,
     address: row.address,
     city: row.city,

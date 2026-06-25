@@ -43,7 +43,7 @@ export default async function BankOwnedDetailPage({ params }: PageProps) {
     <ListingDetailPageShell
       listing={listing}
       categoryLabel="Bank Owned Properties"
-      backHref="/properties/bank-owned"
+      backHref="/buy/bank-owned"
       scrapedAt={vrmMeta.scrapedAt}
       sourceAgency={sourceAgency}
     />

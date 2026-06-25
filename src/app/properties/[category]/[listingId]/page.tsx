@@ -5,6 +5,7 @@ import { formatHudPrice } from "@/lib/hud-listings";
 import { fetchPropertyListingById, fetchSourceMetaForPropertyRadar } from "@/lib/listings-repository";
 import {
   listingIdFromSlug,
+  LISTING_ROUTE_PREFIX,
   PROPERTY_CATEGORIES,
   type PropertyCategoryKey,
 } from "@/lib/property-categories";
@@ -54,7 +55,7 @@ export default async function PropertyRadarDetailPage({ params }: PageProps) {
 
   const listing = await fetchPropertyListingById(listingIdFromSlug(listingId));
 
-  if (!listing || !listing.detailPath.startsWith(`/properties/${categoryKey}/`)) {
+  if (!listing || !listing.detailPath.startsWith(`${LISTING_ROUTE_PREFIX}/${categoryKey}/`)) {
     notFound();
   }
 
