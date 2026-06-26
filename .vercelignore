@@ -1,3 +1,12 @@
-data/propertyradar-pilot/
-public/listings/propertyradar/
+# Local scrape pipeline — never deploy
+data/
+
+# Local listing photos — served from Supabase Storage at runtime
+public/listings/
+
+# Local build cache — Vercel builds fresh
+.next/
+
+# Dev / review assets
 image-review/
+node_modules/
