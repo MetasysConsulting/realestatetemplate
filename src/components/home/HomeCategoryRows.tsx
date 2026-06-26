@@ -7,10 +7,8 @@ import {
   HOME_CATEGORY_ROWS,
   resolveHomeCategoryRowListings,
 } from "@/lib/home-category-rows";
-import { HudHomesPromoSection } from "@/components/home/HudHomesPromoSection";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 import type { PropertyListing } from "@/lib/load-category-listings";
-import { getHomeRecentlyViewedListings } from "@/lib/recently-viewed";
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -142,15 +140,6 @@ type HomeCategoryRowsProps = {
 };
 
 export function HomeCategoryRows({ rowListings }: HomeCategoryRowsProps) {
-  const [recentListings, setRecentListings] = useState<PropertyListing[]>([]);
-
-  useEffect(() => {
-    const refresh = () => setRecentListings(getHomeRecentlyViewedListings());
-    refresh();
-    window.addEventListener("reovana:recently-viewed", refresh);
-    return () => window.removeEventListener("reovana:recently-viewed", refresh);
-  }, []);
-
   const categoryRows = useMemo(
     () =>
       HOME_CATEGORY_ROWS.map((row) => ({
@@ -162,12 +151,8 @@ export function HomeCategoryRows({ rowListings }: HomeCategoryRowsProps) {
 
   return (
     <div className="reovana-home-category-rows">
-      <CategoryRow title="Recently Viewed" listings={recentListings} />
       {categoryRows.map((row) => (
-        <div key={row.key} className="reovana-home-category-row-group">
-          <CategoryRow title={row.title} listings={row.listings} />
-          {row.key === "hud-home" ? <HudHomesPromoSection /> : null}
-        </div>
+        <CategoryRow key={row.key} title={row.title} listings={row.listings} />
       ))}
     </div>
   );

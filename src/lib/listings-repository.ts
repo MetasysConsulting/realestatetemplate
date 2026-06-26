@@ -5,6 +5,7 @@ import type { GsaRealEstateSale, GsaRealEstateSalesDataset } from "@/lib/gsa-rea
 import type { HomeStepsDataset, HomeStepsListing } from "@/lib/homesteps-listings";
 import type { HudListing, HudListingsDataset } from "@/lib/hud-listings";
 import type { PropertyListing } from "@/lib/load-category-listings";
+import { HOME_CATEGORY_ROWS } from "@/lib/home-category-rows";
 import type { PropertyCategoryKey } from "@/lib/property-categories";
 import {
   auctionPropertyDetailPath,
@@ -823,23 +824,14 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
 }
 
 export async function fetchHomeCategoryRows(): Promise<Record<string, PropertyListing[]>> {
-  const [bankOwned, foreclosure, motivatedSeller, offMarket, auction, hud] = await Promise.all([
-    fetchCategoryListings("bank-owned"),
-    fetchCategoryListings("foreclosure"),
-    fetchCategoryListings("motivated-seller"),
-    fetchCategoryListings("off-market"),
-    fetchCategoryListings("auction-property"),
-    fetchCategoryListings("hud-home"),
-  ]);
+  const entries = await Promise.all(
+    HOME_CATEGORY_ROWS.map(async (row) => {
+      const listings = await fetchCategoryListings(row.key as PropertyCategoryKey);
+      return [row.key, listings.slice(0, HOME_ROW_LISTING_COUNT)] as const;
+    }),
+  );
 
-  return {
-    "bank-owned": bankOwned.slice(0, HOME_ROW_LISTING_COUNT),
-    foreclosure: foreclosure.slice(0, HOME_ROW_LISTING_COUNT),
-    "motivated-seller": motivatedSeller.slice(0, HOME_ROW_LISTING_COUNT),
-    "off-market": offMarket.slice(0, HOME_ROW_LISTING_COUNT),
-    "auction-property": auction.slice(0, HOME_ROW_LISTING_COUNT),
-    "hud-home": hud.slice(0, HOME_ROW_LISTING_COUNT),
-  };
+  return Object.fromEntries(entries);
 }
 
 export async function fetchAuctionProperties(categoryKey: BuyCategoryKey): Promise<AuctionProperty[]> {

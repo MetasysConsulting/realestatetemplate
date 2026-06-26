@@ -8,7 +8,7 @@ export type HomeCategoryRowConfig = {
   categoryLabel: string;
 };
 
-/** Homepage rows backed by real scraped inventory only. */
+/** Homepage listing rows — keep to three (client request). */
 export const HOME_CATEGORY_ROWS: HomeCategoryRowConfig[] = [
   {
     key: "bank-owned",
@@ -27,24 +27,6 @@ export const HOME_CATEGORY_ROWS: HomeCategoryRowConfig[] = [
     title: "Motivated Seller",
     morePath: PROPERTY_CATEGORIES["motivated-seller"].path,
     categoryLabel: PROPERTY_CATEGORIES["motivated-seller"].title,
-  },
-  {
-    key: "off-market",
-    title: "Off-Market",
-    morePath: PROPERTY_CATEGORIES["off-market"].path,
-    categoryLabel: PROPERTY_CATEGORIES["off-market"].title,
-  },
-  {
-    key: "auction-property",
-    title: "Auction Properties",
-    morePath: PROPERTY_CATEGORIES["auction-property"].path,
-    categoryLabel: PROPERTY_CATEGORIES["auction-property"].title,
-  },
-  {
-    key: "hud-home",
-    title: "HUD Homes",
-    morePath: PROPERTY_CATEGORIES["hud-home"].path,
-    categoryLabel: PROPERTY_CATEGORIES["hud-home"].title,
   },
 ];
 
