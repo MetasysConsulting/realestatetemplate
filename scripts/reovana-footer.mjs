@@ -74,7 +74,6 @@ export function buildReovanaFooter() {
                               ["/contact", "Contact Us"],
                               ["#", "Privacy Policy"],
                               ["#", "Terms of Use"],
-                              ["/career", "Careers"],
                             ])}
                         </ul>
                     </div>

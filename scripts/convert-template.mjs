@@ -35,7 +35,6 @@ const ROUTE_MAP = {
   "project-details.html": "/project/details",
   "contact.html": "/contact",
   "faq.html": "/faq",
-  "career.html": "/career",
   "compare.html": "/compare",
   "home-loan-process.html": "/home-loan-process",
   "dashboard.html": "/dashboard",

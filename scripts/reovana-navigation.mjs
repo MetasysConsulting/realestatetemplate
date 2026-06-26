@@ -25,15 +25,6 @@ const LEARN_LINKS = [
   ["/learn/faq", "FAQ"],
 ];
 
-/** @type {[string, string][]} */
-const RESOURCES_LINKS = [
-  ["#", "Overview"],
-  ["#", "Leadership"],
-  ["#", "Our Values"],
-  ["#", "Business Solutions"],
-  ["/career", "Careers"],
-];
-
 const SELL_PAGE = "/sell";
 
 function desktopSubmenuLinks(items) {
@@ -60,7 +51,6 @@ ${desktopDropdown("Buy", BUY_LINKS)}
                                         <li><a href="${SELL_PAGE}">Sell</a></li>
 ${desktopDropdown("Learn", LEARN_LINKS)}
                                         <li><a href="/loans">Loans</a></li>
-${desktopDropdown("Resources", RESOURCES_LINKS)}
                                     </ul>
                                 </nav>`;
 }
@@ -92,7 +82,6 @@ ${mobileDropdownSection("dropdown-menu-buy", "Buy", BUY_LINKS)}
                     <li class="menu-item"><a href="${SELL_PAGE}" class="item-menu-mobile">Sell</a></li>
 ${mobileDropdownSection("dropdown-menu-learn", "Learn", LEARN_LINKS)}
                     <li class="menu-item"><a href="/loans" class="item-menu-mobile">Loans</a></li>
-${mobileDropdownSection("dropdown-menu-resources", "Resources", RESOURCES_LINKS)}
                 </ul>`;
 }
 

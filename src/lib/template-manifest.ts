@@ -100,13 +100,6 @@ export const TEMPLATE_PAGES: TemplatePageMeta[] = [
     "bodyClass": "theme-color-4"
   },
   {
-    "route": "/career",
-    "file": "career.html",
-    "slug": "career",
-    "title": "Proty - Real Estate HTML Template",
-    "bodyClass": "theme-color-4"
-  },
-  {
     "route": "/compare",
     "file": "compare.html",
     "slug": "compare",
@@ -199,7 +192,6 @@ export const ROUTE_TO_SLUG: Record<string, string> = {
   "/project/details": "project__details",
   "/contact": "contact",
   "/faq": "faq",
-  "/career": "career",
   "/compare": "compare",
   "/home-loan-process": "home-loan-process",
   "/dashboard": "dashboard",
@@ -227,7 +219,6 @@ export const SLUG_TO_ROUTE: Record<string, string> = {
   "project__details": "/project/details",
   "contact": "/contact",
   "faq": "/faq",
-  "career": "/career",
   "compare": "/compare",
   "home-loan-process": "/home-loan-process",
   "dashboard": "/dashboard",

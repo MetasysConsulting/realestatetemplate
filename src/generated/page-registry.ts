@@ -12,7 +12,6 @@ import project__list from "./pages/project__list.json";
 import project__details from "./pages/project__details.json";
 import contact from "./pages/contact.json";
 import faq from "./pages/faq.json";
-import career from "./pages/career.json";
 import compare from "./pages/compare.json";
 import home_loan_process from "./pages/home-loan-process.json";
 import dashboard from "./pages/dashboard.json";
@@ -41,7 +40,6 @@ export const TEMPLATE_PAGE_REGISTRY: Record<string, TemplatePageData> = {
   "project__details": project__details,
   "contact": contact,
   "faq": faq,
-  "career": career,
   "compare": compare,
   "home-loan-process": home_loan_process,
   "dashboard": dashboard,
