@@ -48,7 +48,7 @@ export type ProtyListingDetailModel = {
 
 function resolveGalleryImages(imageUrl: string | null | undefined): string[] {
   const primary = hasListingImage(imageUrl) ? imageUrl!.trim() : DEFAULT_AUCTION_PROPERTY_IMAGE;
-  return [primary, primary, primary, primary];
+  return [primary];
 }
 
 function buildAmenities(tags: string[], categoryLabel: string): string[] {

@@ -31,7 +31,12 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
   const [unlocked, setUnlocked] = useState(false);
   const mapUrl = useMemo(() => buildMapEmbedUrl(model), [model]);
   const amenityColumns = useMemo(() => chunkAmenities(model.amenities), [model.amenities]);
-  const [mainImage, ...thumbImages] = model.galleryImages;
+  const galleryImages = useMemo(
+    () => [...new Set(model.galleryImages.filter(Boolean))],
+    [model.galleryImages],
+  );
+  const [mainImage, ...thumbImages] = galleryImages;
+  const singlePhoto = galleryImages.length <= 1;
 
   return (
     <div
@@ -62,43 +67,69 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
         </div>
       </section>
 
-      <section className="section-property-image reovana-listing-detail__gallery">
+      <section
+        className={`section-property-image reovana-listing-detail__gallery${singlePhoto ? " reovana-listing-detail__gallery--single" : ""}`}
+      >
         <div className="tf-container">
           <div className="row">
             <div className="col-12">
-              <div className="wrap-image">
-                <div className="image img-1">
-                  <span className="image-wrap relative d-block">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={mainImage} alt={model.title} />
-                  </span>
-                  <div className="tag-property">
-                    <div className="text-16 text_white fw-6 lh-20">{model.categoryLabel}</div>
-                  </div>
-                </div>
-                <div className="wrap-image-right">
-                  <div className="image img-2">
+              {singlePhoto ? (
+                <div className="wrap-image reovana-listing-detail__gallery-single">
+                  <div className="image img-1">
                     <span className="image-wrap relative d-block">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={thumbImages[0] ?? mainImage} alt="" />
+                      <img src={mainImage} alt={model.title} />
                     </span>
-                  </div>
-                  <div className="bot">
-                    <div className="image img-3">
-                      <span className="image-wrap relative d-block">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={thumbImages[1] ?? mainImage} alt="" />
-                      </span>
-                    </div>
-                    <div className="image img-4">
-                      <span className="image-wrap relative d-block">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={thumbImages[2] ?? mainImage} alt="" />
-                      </span>
+                    <div className="tag-property">
+                      <div className="text-16 text_white fw-6 lh-20">{model.categoryLabel}</div>
                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="wrap-image">
+                  <div className="image img-1">
+                    <span className="image-wrap relative d-block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={mainImage} alt={model.title} />
+                    </span>
+                    <div className="tag-property">
+                      <div className="text-16 text_white fw-6 lh-20">{model.categoryLabel}</div>
+                    </div>
+                  </div>
+                  {thumbImages.length > 0 ? (
+                    <div className="wrap-image-right">
+                      {thumbImages[0] ? (
+                        <div className="image img-2">
+                          <span className="image-wrap relative d-block">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={thumbImages[0]} alt="" />
+                          </span>
+                        </div>
+                      ) : null}
+                      {thumbImages.length > 1 ? (
+                        <div className="bot">
+                          {thumbImages[1] ? (
+                            <div className="image img-3">
+                              <span className="image-wrap relative d-block">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={thumbImages[1]} alt="" />
+                              </span>
+                            </div>
+                          ) : null}
+                          {thumbImages[2] ? (
+                            <div className="image img-4">
+                              <span className="image-wrap relative d-block">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={thumbImages[2]} alt="" />
+                              </span>
+                            </div>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+              )}
             </div>
           </div>
         </div>
