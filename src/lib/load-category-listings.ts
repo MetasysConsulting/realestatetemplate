@@ -19,6 +19,7 @@ export type PropertyListing = {
   detailPath: string;
   lat: number;
   lng: number;
+  hasRealCoordinates: boolean;
   isNew: boolean;
   subtitle?: string;
   yearBuilt?: string | null;

@@ -101,7 +101,10 @@ function ListingOverview({
 
 export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
   const [unlocked, setUnlocked] = useState(false);
-  const mapUrl = useMemo(() => buildMapEmbedUrl(model), [model]);
+  const mapUrl = useMemo(
+    () => (model.hasRealCoordinates ? buildMapEmbedUrl(model) : ""),
+    [model],
+  );
   const amenityColumns = useMemo(() => chunkAmenities(model.amenities), [model.amenities]);
   const galleryImages = useMemo(
     () => [...new Set(model.galleryImages.filter(Boolean))],
@@ -283,50 +286,52 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
                 </div>
               </div>
 
-              <div className="wg-property single-property-map reovana-blur-target">
-                <div className="wg-title text-11 fw-6 text-color-heading">Get Direction</div>
-                <iframe
-                  className="map reovana-listing-detail__map"
-                  src={mapUrl}
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title={`Map for ${model.title}`}
-                />
-                <div className="info-map">
-                  <ul className="box-left">
-                    <li>
-                      <span className="label fw-6">Address</span>
-                      <div className="text text-variant-1">{model.mapAddress}</div>
-                    </li>
-                    <li>
-                      <span className="label fw-6">City</span>
-                      <div className="text text-variant-1">{model.mapCity}</div>
-                    </li>
-                    <li>
-                      <span className="label fw-6">State</span>
-                      <div className="text text-variant-1">{model.mapState}</div>
-                    </li>
-                  </ul>
-                  <ul className="box-right">
-                    <li>
-                      <span className="label fw-6">Postal code</span>
-                      <div className="text text-variant-1">{model.mapZip}</div>
-                    </li>
-                    {model.mapCounty ? (
+              {model.hasRealCoordinates ? (
+                <div className="wg-property single-property-map reovana-blur-target">
+                  <div className="wg-title text-11 fw-6 text-color-heading">Get Direction</div>
+                  <iframe
+                    className="map reovana-listing-detail__map"
+                    src={mapUrl}
+                    style={{ border: 0 }}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title={`Map for ${model.title}`}
+                  />
+                  <div className="info-map">
+                    <ul className="box-left">
                       <li>
-                        <span className="label fw-6">County</span>
-                        <div className="text text-variant-1">{model.mapCounty}</div>
+                        <span className="label fw-6">Address</span>
+                        <div className="text text-variant-1">{model.mapAddress}</div>
                       </li>
-                    ) : null}
-                    <li>
-                      <span className="label fw-6">Category</span>
-                      <div className="text text-variant-1">{model.categoryLabel}</div>
-                    </li>
-                  </ul>
+                      <li>
+                        <span className="label fw-6">City</span>
+                        <div className="text text-variant-1">{model.mapCity}</div>
+                      </li>
+                      <li>
+                        <span className="label fw-6">State</span>
+                        <div className="text text-variant-1">{model.mapState}</div>
+                      </li>
+                    </ul>
+                    <ul className="box-right">
+                      <li>
+                        <span className="label fw-6">Postal code</span>
+                        <div className="text text-variant-1">{model.mapZip}</div>
+                      </li>
+                      {model.mapCounty ? (
+                        <li>
+                          <span className="label fw-6">County</span>
+                          <div className="text text-variant-1">{model.mapCounty}</div>
+                        </li>
+                      ) : null}
+                      <li>
+                        <span className="label fw-6">Category</span>
+                        <div className="text text-variant-1">{model.categoryLabel}</div>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
-              </div>
+              ) : null}
 
               {model.disclaimer ? (
                 <p className="reovana-listing-detail__disclaimer reovana-blur-target">{model.disclaimer}</p>

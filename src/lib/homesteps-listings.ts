@@ -7,6 +7,7 @@ export type HomeStepsListing = {
   listPrice: number;
   lat: number;
   lng: number;
+  hasRealCoordinates: boolean;
   imageUrl: string | null;
   hasImage: boolean;
   displayImageUrl: string | null;

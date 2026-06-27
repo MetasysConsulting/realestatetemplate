@@ -79,6 +79,10 @@ function hashString(input: string): number {
   return Math.abs(h);
 }
 
+function rowHasRealCoordinates(row: DatabaseListingRow): boolean {
+  return row.lat != null && row.lng != null;
+}
+
 function vrmCoords(id: string, state: string): [number, number] {
   const base = VRM_STATE_COORDS[state] ?? [39.8283, -98.5795];
   const spread = hashString(id) % 40;
@@ -256,6 +260,7 @@ function rowToHudListing(row: DatabaseListingRow): HudListing {
     eligibleBidders: metaString(row, "eligibleBidders"),
     lat: row.lat ?? 0,
     lng: row.lng ?? 0,
+    hasRealCoordinates: rowHasRealCoordinates(row),
     imageUrl: image.imageUrl,
     hasImage: image.hasImage,
     displayImageUrl: image.displayImageUrl,
@@ -306,6 +311,7 @@ function rowToHomeStepsListing(row: DatabaseListingRow): HomeStepsListing {
     listPrice: Number(row.price) || 0,
     lat: row.lat ?? 0,
     lng: row.lng ?? 0,
+    hasRealCoordinates: rowHasRealCoordinates(row),
     imageUrl: image.imageUrl,
     hasImage: image.hasImage,
     displayImageUrl: image.displayImageUrl,
@@ -391,6 +397,7 @@ function hudToPropertyListing(h: HudListing): PropertyListing {
     detailPath: hudDetailPath(h.caseNumber),
     lat: h.lat,
     lng: h.lng,
+    hasRealCoordinates: h.hasRealCoordinates,
     isNew: false,
     subtitle: `Case #${h.caseNumber}`,
   };
@@ -416,6 +423,7 @@ function homestepsToPropertyListing(l: HomeStepsListing): PropertyListing {
     detailPath: bankOwnedDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
+    hasRealCoordinates: l.hasRealCoordinates,
     isNew: false,
   };
 }
@@ -440,6 +448,7 @@ function vrmToPropertyListing(l: VrmListing): PropertyListing {
     detailPath: bankOwnedDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
+    hasRealCoordinates: false,
     isNew: l.isNew,
   };
 }
@@ -464,6 +473,7 @@ function gsaSaleToPropertyListing(l: GsaRealEstateSale): PropertyListing {
     detailPath: auctionPropertyDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
+    hasRealCoordinates: false,
     isNew: false,
     subtitle: l.title,
   };
@@ -497,6 +507,7 @@ function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListin
     detailPath: propertyRadarDetailPath(category, row.id),
     lat,
     lng,
+    hasRealCoordinates: rowHasRealCoordinates(row),
     isNew: row.is_new ?? false,
     subtitle: distressScore > 0 ? `Distress score ${distressScore}` : undefined,
     yearBuilt: row.year_built,
@@ -553,6 +564,7 @@ function gsaDispositionToPropertyListing(l: GsaDispositionListing): PropertyList
     detailPath: auctionPropertyDetailPath(l.id),
     lat: l.lat,
     lng: l.lng,
+    hasRealCoordinates: false,
     isNew: false,
     subtitle: l.title,
   };

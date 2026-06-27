@@ -23,6 +23,7 @@ export type ProtyListingDetailModel = {
   galleryImages: string[];
   lat: number;
   lng: number;
+  hasRealCoordinates: boolean;
   detailPath: string;
   description: string;
   detailFacts: { label: string; value: string }[];
@@ -103,6 +104,7 @@ export function propertyListingToProtyDetail(
     galleryImages: resolveGalleryImages(listing.imageUrl),
     lat: listing.lat,
     lng: listing.lng,
+    hasRealCoordinates: listing.hasRealCoordinates,
     detailPath: listing.detailPath,
     description: `${categoryLabel} opportunity at ${listing.address} in ${listing.city}, ${listing.state}. ${listing.priceLabel}: ${priceDisplay}. Browse distressed inventory on REOVANA and register interest to connect with our team.`,
     detailFacts,
@@ -150,6 +152,7 @@ export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string):
     galleryImages: resolveGalleryImages(listing.imageUrl ?? listing.displayImageUrl),
     lat: listing.lat,
     lng: listing.lng,
+    hasRealCoordinates: listing.hasRealCoordinates,
     detailPath: hudDetailPath(listing.caseNumber),
     description: `HUD home at ${listing.address} in ${listing.city}, ${listing.state}. List price ${priceDisplay}. Listing period ${listing.listingPeriod || "—"}. Register interest through REOVANA and work with a HUD-registered broker to place a bid.`,
     detailFacts: [

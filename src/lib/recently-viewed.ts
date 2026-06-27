@@ -64,6 +64,7 @@ export function getHomeRecentlyViewedListings(): PropertyListing[] {
     detailPath: item.detailPath,
     lat: 0,
     lng: 0,
+    hasRealCoordinates: false,
     isNew: false,
   }));
 }
