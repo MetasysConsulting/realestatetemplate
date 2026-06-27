@@ -19,7 +19,7 @@ export function ListingDetailPageShell({
   backHref,
   scrapedAt,
   sourceAgency,
-  bodyClass = "theme-color-4 listing-detail-route",
+  bodyClass = "theme-color-4 hud-detail-route",
 }: ListingDetailPageShellProps) {
   const home = loadTemplatePageBySlug("index");
   const chrome = home
