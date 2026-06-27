@@ -238,6 +238,33 @@ function injectHomeCategoryRowsMount(html) {
   );
 }
 
+function moveLoanSectionBelowListings(html) {
+  const preStartMarker = "<!-- .section-pre-approved -->";
+  const preEndMarker = "<!-- /.section-pre-approved -->";
+  const catMarker = 'id="reovana-home-category-rows"';
+
+  const preStart = html.indexOf(preStartMarker);
+  const preEnd = html.indexOf(preEndMarker);
+  if (preStart < 0 || preEnd < 0) return html;
+  const preEndPos = preEnd + preEndMarker.length;
+
+  const catIdx = html.indexOf(catMarker);
+  if (catIdx < 0) return html;
+
+  const catDivStart = html.lastIndexOf("<div", catIdx);
+  const catDivEnd = html.indexOf("</div>", catIdx) + "</div>".length;
+  const preBlock = html.slice(preStart, preEndPos);
+  const catBlock = html.slice(catDivStart, catDivEnd);
+
+  let rest = html.slice(0, preStart) + html.slice(preEndPos);
+  const catIdx2 = rest.indexOf(catMarker);
+  const catDivStart2 = rest.lastIndexOf("<div", catIdx2);
+  const catDivEnd2 = rest.indexOf("</div>", catIdx2) + "</div>".length;
+  rest = rest.slice(0, catDivStart2) + rest.slice(catDivEnd2);
+
+  return `${rest.slice(0, preStart)}${catBlock}${preBlock}${rest.slice(preStart)}`;
+}
+
 /** All homepage listing / neighborhood / open-house content updates. */
 export function applyHomePageContent(html) {
   let out = applyHomeCategoryLabels(html);
@@ -247,5 +274,6 @@ export function applyHomePageContent(html) {
   out = injectHomeCategoryRowsMount(out);
   out = stripLuxuryEnthusiastsText(out);
   out = stripHomeSections(out);
+  out = moveLoanSectionBelowListings(out);
   return out;
 }
