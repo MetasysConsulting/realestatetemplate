@@ -20,7 +20,7 @@ export function HudDetailPageShell({ listing, scrapedAt }: HudDetailPageShellPro
       headerHtml={chrome.headerHtml}
       footerHtml={chrome.footerHtml}
       tailHtml={chrome.tailHtml}
-      bodyClass="theme-color-4 hud-detail-route"
+      bodyClass="theme-color-4 listing-detail-route reovana-listing-detail-route"
     >
       <HudDetailContent listing={listing} scrapedAt={scrapedAt} />
     </TemplateChrome>

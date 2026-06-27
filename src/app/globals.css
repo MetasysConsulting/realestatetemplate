@@ -2149,6 +2149,152 @@ body.hud-detail-route #template-chrome-root.reovana-site {
   }
 }
 
+/* ── Proty-style /buy listing detail pages ─────────────────────────────── */
+body.listing-detail-route,
+body.reovana-listing-detail-route {
+  overflow: auto;
+  height: auto;
+}
+
+body.listing-detail-route #template-chrome-root.reovana-site,
+body.reovana-listing-detail-route #template-chrome-root.reovana-site {
+  height: auto;
+  overflow: visible;
+}
+
+.reovana-listing-detail {
+  background: #fff;
+}
+
+.reovana-listing-detail__breadcrumb {
+  padding-top: 24px;
+  padding-bottom: 8px;
+}
+
+.reovana-listing-detail__gallery {
+  padding-top: 8px;
+  padding-bottom: 32px;
+}
+
+.reovana-listing-detail__gallery .wrap-image {
+  min-height: clamp(320px, 42vw, 520px);
+}
+
+.reovana-listing-detail__gallery .img-1 img,
+.reovana-listing-detail__gallery .wrap-image-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reovana-listing-detail__gallery .tag-property {
+  background: rgba(22, 30, 45, 0.72);
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+
+.reovana-listing-detail__body {
+  padding-bottom: 72px;
+}
+
+.reovana-listing-detail__body .box-overview .title {
+  font-size: clamp(1.65rem, 2.4vw, 2.35rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.reovana-listing-detail__body .box-overview .price {
+  font-size: clamp(1.5rem, 2vw, 2rem);
+  color: var(--Primary);
+}
+
+.reovana-listing-detail__body .location {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.reovana-listing-detail__map {
+  width: 100%;
+  min-height: 360px;
+  border-radius: 16px;
+}
+
+.reovana-listing-detail__disclaimer {
+  margin-top: 24px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--Sub-primary-1, #f2f5ff);
+  color: var(--Note, #a8abae);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.reovana-listing-detail__sidebar .seller-info .avartar img {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #fff;
+  padding: 6px;
+}
+
+.reovana-listing-detail--locked .reovana-blur-target {
+  filter: blur(7px);
+  pointer-events: none;
+  user-select: none;
+  transition: filter 0.25s ease;
+}
+
+.reovana-listing-detail--unlocked .reovana-blur-target {
+  filter: none;
+  pointer-events: auto;
+  user-select: auto;
+}
+
+.reovana-listing-unlock-banner {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.reovana-listing-unlock-cta {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+}
+
+.reovana-listing-unlocked-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 24px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(22, 163, 74, 0.1);
+  color: #15803d;
+  font-weight: 600;
+}
+
+.proty-unlock-sidebar {
+  margin-bottom: 24px;
+}
+
+@media (max-width: 991px) {
+  .reovana-listing-detail__gallery .wrap-image {
+    min-height: 280px;
+  }
+
+  .reovana-listing-detail__map {
+    min-height: 280px;
+  }
+}
+
 @media (max-width: 1100px) {
   .auctions-layout {
     grid-template-columns: 1fr;
