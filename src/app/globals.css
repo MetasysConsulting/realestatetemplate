@@ -219,7 +219,6 @@ body.auctions-route .reovana-site .header {
 /* ── REOVANA hero: two-column, text bottom-left / search fills right ─────── */
 #template-root .page-title.home01.reovana-home-hero {
   padding: clamp(40px, 5vh, 72px) 0 clamp(24px, 3vh, 40px) !important;
-  margin-bottom: 16px;
   min-height: clamp(420px, 44vw, 560px) !important;
   display: flex;
   align-items: center;
@@ -2177,7 +2176,6 @@ body.hud-detail-route #template-chrome-root.reovana-site {
 
 /* ── Homepage: Explore The Neighborhoods (carousel city rows) ───────────── */
 .section-neighborhoods.reovana-neighborhoods {
-  padding-top: 48px;
   padding-bottom: 72px;
   margin-bottom: 24px;
   position: relative;

@@ -226,7 +226,7 @@ function applyHomePreApprovedSection(html) {
 }
 
 function injectHomeCategoryRowsMount(html) {
-  const marker = "<!-- /.section-neighborhoods -->";
+  const marker = "</section><!-- /.section-pre-approved -->";
   if (!html.includes(marker) || html.includes('id="reovana-home-category-rows"')) {
     return html;
   }
@@ -238,40 +238,6 @@ function injectHomeCategoryRowsMount(html) {
   );
 }
 
-function reorderHomeListingSections(html) {
-  const preStartMarker = "<!-- .section-pre-approved -->";
-  const preEndMarker = "<!-- /.section-pre-approved -->";
-  const neighEndMarker = "<!-- /.section-neighborhoods -->";
-  const catMarker = 'id="reovana-home-category-rows"';
-
-  const preStart = html.indexOf(preStartMarker);
-  const preEnd = html.indexOf(preEndMarker);
-  if (preStart < 0 || preEnd < 0) return html;
-  const preEndPos = preEnd + preEndMarker.length;
-
-  const catIdx = html.indexOf(catMarker);
-  if (catIdx < 0) return html;
-
-  const catDivStart = html.lastIndexOf("<div", catIdx);
-  const catDivEnd = html.indexOf("</div>", catIdx) + "</div>".length;
-  const preBlock = html.slice(preStart, preEndPos);
-  const catBlock = html.slice(catDivStart, catDivEnd);
-
-  let rest = html.slice(0, preStart) + html.slice(preEndPos);
-  const catIdx2 = rest.indexOf(catMarker);
-  const catDivStart2 = rest.lastIndexOf("<div", catIdx2);
-  const catDivEnd2 = rest.indexOf("</div>", catIdx2) + "</div>".length;
-  rest = rest.slice(0, catDivStart2) + rest.slice(catDivEnd2);
-
-  const neighEnd = rest.indexOf(neighEndMarker);
-  if (neighEnd < 0) return html;
-  const insertAt = neighEnd + neighEndMarker.length;
-
-  return `${rest.slice(0, insertAt)}
-            ${catBlock}
-            ${preBlock}${rest.slice(insertAt)}`;
-}
-
 /** All homepage listing / neighborhood / open-house content updates. */
 export function applyHomePageContent(html) {
   let out = applyHomeCategoryLabels(html);
@@ -281,6 +247,5 @@ export function applyHomePageContent(html) {
   out = injectHomeCategoryRowsMount(out);
   out = stripLuxuryEnthusiastsText(out);
   out = stripHomeSections(out);
-  out = reorderHomeListingSections(out);
   return out;
 }
