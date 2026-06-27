@@ -25,7 +25,7 @@ export function HudDetailContent({ listing, scrapedAt }: HudDetailContentProps) 
         zip={listing.zip}
         price={listing.listPrice}
         priceLabel="List Price"
-        imageUrl={listing.displayImageUrl}
+        imageUrl={listing.displayImageUrl ?? ""}
         detailPath={hudDetailPath(listing.caseNumber)}
       />
       <div className="hud-detail-page__breadcrumb">

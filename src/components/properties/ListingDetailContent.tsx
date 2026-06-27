@@ -36,7 +36,7 @@ export function ListingDetailContent({
         zip={listing.zip}
         price={listing.price}
         priceLabel={listing.priceLabel}
-        imageUrl={listing.imageUrl}
+        imageUrl={listing.imageUrl ?? ""}
         detailPath={listing.detailPath}
       />
       <div className="hud-detail-page__breadcrumb">
