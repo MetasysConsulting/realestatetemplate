@@ -27,6 +27,78 @@ function chunkAmenities(items: string[]): string[][] {
   return columns.filter((col) => col.length > 0);
 }
 
+function ListingOverview({
+  model,
+  compact = false,
+}: {
+  model: ProtyListingDetailModel;
+  compact?: boolean;
+}) {
+  return (
+    <>
+      <div className={`heading flex justify-between${compact ? " reovana-listing-detail__compact-heading" : ""}`}>
+        <div className="title text-5 fw-6 text-color-heading">{model.title}</div>
+        <div className="price text-5 fw-6 text-color-heading reovana-blur-target">
+          {model.priceDisplay}
+          {model.priceSuffix ? (
+            <span className="h5 lh-30 fw-4 text-color-default">{model.priceSuffix}</span>
+          ) : null}
+        </div>
+      </div>
+      <div className="info flex justify-between">
+        <div className="feature">
+          <p className="location text-1 flex items-center gap-10 reovana-blur-target">
+            <i className="icon-location" />
+            {model.locationLine}
+          </p>
+          <ul className="meta-list flex reovana-blur-target">
+            {model.bedrooms > 0 ? (
+              <li className="text-1 flex">
+                <span>{model.bedrooms}</span>Bed
+              </li>
+            ) : null}
+            {model.bathrooms > 0 ? (
+              <li className="text-1 flex">
+                <span>{model.bathrooms}</span>Bath
+              </li>
+            ) : null}
+            {model.squareFootage > 0 ? (
+              <li className="text-1 flex">
+                <span>{model.squareFootage.toLocaleString()}</span>Sqft
+              </li>
+            ) : null}
+          </ul>
+        </div>
+      </div>
+      <div className="info-detail reovana-blur-target">
+        <div className="wrap-box">
+          <div className="box-icon">
+            <div className="icons">
+              <i className="icon-SlidersHorizontal" />
+            </div>
+            <div className="content">
+              <div className="text-4 text-color-default">Type</div>
+              <div className="text-1 text-color-heading">{model.propertyType}</div>
+            </div>
+          </div>
+          <div className="box-icon">
+            <div className="icons">
+              <i className="icon-Hammer" />
+            </div>
+            <div className="content">
+              <div className="text-4 text-color-default">Status</div>
+              <div className="text-1 text-color-heading">{model.status}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Link href="/contact" className="tf-btn bg-color-primary pd-21 fw-6">
+        Ask a question
+      </Link>
+    </>
+  );
+}
+
 export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
   const [unlocked, setUnlocked] = useState(false);
   const mapUrl = useMemo(() => buildMapEmbedUrl(model), [model]);
@@ -67,25 +139,11 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
         </div>
       </section>
 
-      <section
-        className={`section-property-image reovana-listing-detail__gallery${singlePhoto ? " reovana-listing-detail__gallery--single" : ""}`}
-      >
-        <div className="tf-container">
-          <div className="row">
-            <div className="col-12">
-              {singlePhoto ? (
-                <div className="wrap-image reovana-listing-detail__gallery-single">
-                  <div className="image img-1">
-                    <span className="image-wrap relative d-block">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={mainImage} alt={model.title} />
-                    </span>
-                    <div className="tag-property">
-                      <div className="text-16 text_white fw-6 lh-20">{model.categoryLabel}</div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
+      {!singlePhoto ? (
+        <section className="section-property-image reovana-listing-detail__gallery">
+          <div className="tf-container">
+            <div className="row">
+              <div className="col-12">
                 <div className="wrap-image">
                   <div className="image img-1">
                     <span className="image-wrap relative d-block">
@@ -129,77 +187,33 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
                     </div>
                   ) : null}
                 </div>
-              )}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       <section className="section-property-detail reovana-listing-detail__body">
         <div className="tf-container">
+          {singlePhoto ? (
+            <div className="wg-property box-overview reovana-listing-detail__compact-hero">
+              <div className="reovana-listing-detail__compact-photo">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={mainImage} alt={model.title} />
+                <span className="reovana-listing-detail__compact-badge">{model.categoryLabel}</span>
+              </div>
+              <div className="reovana-listing-detail__compact-info">
+                <ListingOverview model={model} compact />
+              </div>
+            </div>
+          ) : null}
           <div className="row">
             <div className="col-xl-8 col-lg-7">
-              <div className="wg-property box-overview">
-                <div className="heading flex justify-between">
-                  <div className="title text-5 fw-6 text-color-heading">{model.title}</div>
-                  <div className="price text-5 fw-6 text-color-heading reovana-blur-target">
-                    {model.priceDisplay}
-                    {model.priceSuffix ? (
-                      <span className="h5 lh-30 fw-4 text-color-default">{model.priceSuffix}</span>
-                    ) : null}
-                  </div>
+              {!singlePhoto ? (
+                <div className="wg-property box-overview">
+                  <ListingOverview model={model} />
                 </div>
-                <div className="info flex justify-between">
-                  <div className="feature">
-                    <p className="location text-1 flex items-center gap-10 reovana-blur-target">
-                      <i className="icon-location" />
-                      {model.locationLine}
-                    </p>
-                    <ul className="meta-list flex reovana-blur-target">
-                      {model.bedrooms > 0 ? (
-                        <li className="text-1 flex">
-                          <span>{model.bedrooms}</span>Bed
-                        </li>
-                      ) : null}
-                      {model.bathrooms > 0 ? (
-                        <li className="text-1 flex">
-                          <span>{model.bathrooms}</span>Bath
-                        </li>
-                      ) : null}
-                      {model.squareFootage > 0 ? (
-                        <li className="text-1 flex">
-                          <span>{model.squareFootage.toLocaleString()}</span>Sqft
-                        </li>
-                      ) : null}
-                    </ul>
-                  </div>
-                </div>
-                <div className="info-detail reovana-blur-target">
-                  <div className="wrap-box">
-                    <div className="box-icon">
-                      <div className="icons">
-                        <i className="icon-SlidersHorizontal" />
-                      </div>
-                      <div className="content">
-                        <div className="text-4 text-color-default">Type</div>
-                        <div className="text-1 text-color-heading">{model.propertyType}</div>
-                      </div>
-                    </div>
-                    <div className="box-icon">
-                      <div className="icons">
-                        <i className="icon-Hammer" />
-                      </div>
-                      <div className="content">
-                        <div className="text-4 text-color-default">Status</div>
-                        <div className="text-1 text-color-heading">{model.status}</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <Link href="/contact" className="tf-btn bg-color-primary pd-21 fw-6">
-                  Ask a question
-                </Link>
-              </div>
+              ) : null}
 
               {!unlocked ? (
                 <button
