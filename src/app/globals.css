@@ -218,7 +218,7 @@ body.auctions-route .reovana-site .header {
 
 /* ── REOVANA hero: two-column, text bottom-left / search fills right ─────── */
 #template-root .page-title.home01.reovana-home-hero {
-  padding: clamp(40px, 5vh, 72px) 0 clamp(24px, 3vh, 40px) !important;
+  padding: clamp(40px, 5vh, 72px) 0 clamp(36px, 4.5vh, 56px) !important;
   min-height: clamp(420px, 44vw, 560px) !important;
   display: flex;
   align-items: center;
@@ -771,7 +771,15 @@ body.auctions-route .reovana-site .header {
 /* ── Homepage category rows (under loan steps) ───────────────────────────── */
 .reovana-home-category-rows {
   background: #fff;
-  padding: 12px 0 56px;
+  padding: 56px 0 64px;
+}
+
+.reovana-home-category-row + .reovana-home-category-row-group {
+  margin-top: 48px;
+}
+
+.reovana-home-category-row-group + .reovana-home-category-row-group {
+  margin-top: 32px;
 }
 
 .reovana-home-category-row + .reovana-home-category-row {
@@ -839,7 +847,7 @@ body.auctions-route .reovana-site .header {
   grid-auto-columns: calc((100% - 48px) / 4);
   gap: 16px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-bottom: 20px;
   scroll-snap-type: x proximity;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;

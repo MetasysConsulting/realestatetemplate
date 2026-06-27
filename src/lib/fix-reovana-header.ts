@@ -1,5 +1,7 @@
 export const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Login</a></div>`;
 
+export const REOVANA_ACCOUNT_HTML = `<div class="reovana-header-auth"><a href="/my-profile" class="tf-btn bg-color-primary pd-23 reovana-login-btn">Account</a></div>`;
+
 export const REOVANA_LOGO = "/images/reovana/logo.png";
 export const REOVANA_LOGO_DARK = "/images/reovana/logo-dark.jpeg";
 

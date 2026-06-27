@@ -6,6 +6,7 @@ import {
   Poppins,
 } from "next/font/google";
 import { TemplateScripts } from "@/components/template/TemplateScripts";
+import { WireTemplateAuth } from "@/components/auth/WireTemplateAuth";
 import "./globals.css";
 
 const lexend = Lexend({
@@ -63,6 +64,7 @@ export default function RootLayout({
       </head>
       <body className="theme-color-4 popup-loader">
         {children}
+        <WireTemplateAuth />
         <TemplateScripts />
       </body>
     </html>
