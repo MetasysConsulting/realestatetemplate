@@ -7,18 +7,22 @@ import { hudDetailPath } from "@/lib/property-categories";
 
 export type ProtyListingDetailModel = {
   id: string;
+  listingId: string;
   categoryLabel: string;
   backHref: string;
   backLabel: string;
   title: string;
   priceDisplay: string;
   priceSuffix?: string;
+  priceLabel: string;
   locationLine: string;
   bedrooms: number;
   bathrooms: number;
   squareFootage: number;
   propertyType: string;
   status: string;
+  yearBuilt?: string | null;
+  lotSize?: number | null;
   imageUrl: string;
   galleryImages: string[];
   lat: number;
@@ -56,6 +60,22 @@ function buildAmenities(tags: string[]): string[] {
   return tags.filter(Boolean).slice(0, 12);
 }
 
+function formatSqFt(value: number | null | undefined): string {
+  if (!value || value <= 0) return "—";
+  return `${value.toLocaleString()} SqFt`;
+}
+
+function formatRooms(value: number): string {
+  if (value <= 0) return "—";
+  return `${value} ${value === 1 ? "Room" : "Rooms"}`;
+}
+
+function resolveListingId(listing: PropertyListing): string {
+  if (listing.radarId) return listing.radarId;
+  const stripped = listing.id.replace(/^propertyradar-/, "");
+  return stripped.length > 12 ? stripped.slice(0, 12) : stripped;
+}
+
 export function propertyListingToProtyDetail(
   listing: PropertyListing,
   categoryLabel: string,
@@ -76,22 +96,28 @@ export function propertyListingToProtyDetail(
   ];
 
   if (listing.subtitle) detailFacts.unshift({ label: "Listing", value: listing.subtitle });
+  if (listing.yearBuilt) detailFacts.push({ label: "Year Built", value: listing.yearBuilt });
+  if (listing.lotSize) detailFacts.push({ label: "Land Size", value: formatSqFt(listing.lotSize) });
   if (sourceAgency) detailFacts.push({ label: "Source Agency", value: sourceAgency });
   if (listing.tags.length) detailFacts.push({ label: "Tags", value: listing.tags.join(", ") });
 
   return {
     id: listing.id,
+    listingId: resolveListingId(listing),
     categoryLabel,
     backHref,
     backLabel: categoryLabel,
     title: listing.address,
     priceDisplay,
+    priceLabel: listing.priceLabel,
     locationLine: `${listing.address}, ${listing.city}, ${listing.state} ${listing.zip}`,
     bedrooms: listing.bedrooms,
     bathrooms: listing.bathrooms,
     squareFootage: listing.squareFootage,
     propertyType: listing.propertyType || "Residential",
     status: listing.status || "Active",
+    yearBuilt: listing.yearBuilt,
+    lotSize: listing.lotSize,
     imageUrl: hasListingImage(listing.imageUrl) ? listing.imageUrl!.trim() : DEFAULT_AUCTION_PROPERTY_IMAGE,
     galleryImages: resolveGalleryImages(listing.imageUrl),
     lat: listing.lat,
@@ -127,17 +153,21 @@ export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string):
 
   return {
     id: `hud-${listing.caseNumber}`,
+    listingId: listing.caseNumber,
     categoryLabel: "HUD Home",
     backHref: "/buy/hud-home",
     backLabel: "HUD Homes",
     title: listing.address,
     priceDisplay,
+    priceLabel: "List Price",
     locationLine: `${listing.address}, ${listing.city}, ${listing.state} ${listing.zip}`,
     bedrooms: listing.bedrooms,
     bathrooms: listing.bathrooms,
     squareFootage: listing.squareFootage,
     propertyType: listing.propertyType || "Residential",
     status: listing.propertyStatus || "Active",
+    yearBuilt: null,
+    lotSize: null,
     imageUrl: hasListingImage(listing.imageUrl)
       ? listing.imageUrl!.trim()
       : listing.displayImageUrl?.trim() || DEFAULT_AUCTION_PROPERTY_IMAGE,
