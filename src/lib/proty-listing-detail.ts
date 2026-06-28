@@ -52,16 +52,8 @@ function resolveGalleryImages(imageUrl: string | null | undefined): string[] {
   return [primary];
 }
 
-function buildAmenities(tags: string[], categoryLabel: string): string[] {
-  const fromTags = tags.filter(Boolean).slice(0, 8);
-  if (fromTags.length >= 4) return fromTags;
-  return [
-    ...fromTags,
-    categoryLabel,
-    "Distressed opportunity",
-    "Investor eligible",
-    "REOVANA verified listing",
-  ].slice(0, 8);
+function buildAmenities(tags: string[]): string[] {
+  return tags.filter(Boolean).slice(0, 12);
 }
 
 export function propertyListingToProtyDetail(
@@ -108,7 +100,7 @@ export function propertyListingToProtyDetail(
     detailPath: listing.detailPath,
     description: `${categoryLabel} opportunity at ${listing.address} in ${listing.city}, ${listing.state}. ${listing.priceLabel}: ${priceDisplay}. Browse distressed inventory on REOVANA and register interest to connect with our team.`,
     detailFacts,
-    amenities: buildAmenities(listing.tags, categoryLabel),
+    amenities: buildAmenities(listing.tags),
     mapAddress: listing.address,
     mapCity: listing.city,
     mapState: listing.state,
@@ -166,7 +158,7 @@ export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string):
       { label: "FHA Financing", value: listing.fhaFinancing || "—" },
       { label: "Eligible Bidders", value: listing.eligibleBidders || "—" },
     ],
-    amenities: buildAmenities(["HUD Home", "Government owned"], "HUD Home"),
+    amenities: buildAmenities(["HUD Home", "Government owned"]),
     mapAddress: listing.address,
     mapCity: listing.city,
     mapState: listing.state,

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
 import { ListingUnlockPaywall } from "@/components/properties/ListingUnlockPaywall";
-import { ProtyDetailTemplateSections } from "@/components/properties/ProtyDetailTemplateSections";
 import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
 import { UNLOCK_STORAGE_KEY } from "@/lib/property-gate";
 
@@ -230,17 +229,6 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
 
               <ListingUnlockPaywall unlocked={unlocked} onUnlock={handleUnlock} />
 
-              <div className="wg-property video reovana-blur-target">
-                <div className="wg-title text-11 fw-6 text-color-heading">Video</div>
-                <div className="widget-video style-1">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={mainImage} alt={model.title} />
-                  <span className="reovana-listing-detail__video-play" aria-hidden="true">
-                    <i className="icon-play" />
-                  </span>
-                </div>
-              </div>
-
               <div className="wg-property box-property-detail reovana-blur-target">
                 <div className="wg-title text-11 fw-6 text-color-heading">Property Details</div>
                 <div className="content">
@@ -330,8 +318,6 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
                 </div>
               ) : null}
 
-              <ProtyDetailTemplateSections imageUrl={mainImage} title={model.title} />
-
               {model.disclaimer ? (
                 <p className="reovana-listing-detail__disclaimer reovana-blur-target">{model.disclaimer}</p>
               ) : null}
@@ -357,7 +343,7 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
                       <ul className="contact">
                         <li>
                           <i className="icon-phone-1" />
-                          <span>Register for details</span>
+                          <span>Register interest to inquire</span>
                         </li>
                         <li>
                           <i className="icon-mail" />
