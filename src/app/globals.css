@@ -2188,6 +2188,43 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   min-height: clamp(320px, 42vw, 520px);
 }
 
+.reovana-listing-detail__gallery--single .reovana-listing-detail__gallery-single {
+  display: block;
+  min-height: clamp(280px, 38vw, 480px);
+}
+
+.reovana-listing-detail__gallery--single .img-1 {
+  width: 100%;
+  min-height: clamp(280px, 38vw, 480px);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.reovana-listing-detail__gallery--single .img-1 img {
+  width: 100%;
+  min-height: clamp(280px, 38vw, 480px);
+  object-fit: cover;
+}
+
+.reovana-listing-detail__video-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.reovana-listing-detail__video-play .icon-play {
+  font-size: 48px;
+  color: #fff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.reovana-listing-detail .widget-video.style-1 {
+  position: relative;
+}
+
 .reovana-listing-detail__compact-hero {
   display: flex;
   align-items: flex-start;

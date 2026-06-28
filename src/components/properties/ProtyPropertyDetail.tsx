@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
+import { ListingUnlockPaywall } from "@/components/properties/ListingUnlockPaywall";
+import { ProtyDetailTemplateSections } from "@/components/properties/ProtyDetailTemplateSections";
 import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
+import { UNLOCK_STORAGE_KEY } from "@/lib/property-gate";
 
 type ProtyPropertyDetailProps = {
   model: ProtyListingDetailModel;
@@ -27,16 +30,10 @@ function chunkAmenities(items: string[]): string[][] {
   return columns.filter((col) => col.length > 0);
 }
 
-function ListingOverview({
-  model,
-  compact = false,
-}: {
-  model: ProtyListingDetailModel;
-  compact?: boolean;
-}) {
+function ListingOverview({ model }: { model: ProtyListingDetailModel }) {
   return (
     <>
-      <div className={`heading flex justify-between${compact ? " reovana-listing-detail__compact-heading" : ""}`}>
+      <div className="heading flex justify-between">
         <div className="title text-5 fw-6 text-color-heading">{model.title}</div>
         <div className="price text-5 fw-6 text-color-heading reovana-blur-target">
           {model.priceDisplay}
@@ -101,6 +98,19 @@ function ListingOverview({
 
 export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
   const [unlocked, setUnlocked] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && sessionStorage.getItem(UNLOCK_STORAGE_KEY) === "1") {
+      setUnlocked(true);
+    }
+  }, []);
+
+  const handleUnlock = () => {
+    setUnlocked(true);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(UNLOCK_STORAGE_KEY, "1");
+    }
+  };
   const mapUrl = useMemo(
     () => (model.hasRealCoordinates ? buildMapEmbedUrl(model) : ""),
     [model],
@@ -142,11 +152,25 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
         </div>
       </section>
 
-      {!singlePhoto ? (
-        <section className="section-property-image reovana-listing-detail__gallery">
-          <div className="tf-container">
-            <div className="row">
-              <div className="col-12">
+      <section
+        className={`section-property-image reovana-listing-detail__gallery${singlePhoto ? " reovana-listing-detail__gallery--single" : ""}`}
+      >
+        <div className="tf-container">
+          <div className="row">
+            <div className="col-12">
+              {singlePhoto ? (
+                <div className="wrap-image reovana-listing-detail__gallery-single">
+                  <div className="image img-1">
+                    <span className="image-wrap relative d-block">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={mainImage} alt={model.title} />
+                    </span>
+                    <div className="tag-property">
+                      <div className="text-16 text_white fw-6 lh-20">{model.categoryLabel}</div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 <div className="wrap-image">
                   <div className="image img-1">
                     <span className="image-wrap relative d-block">
@@ -190,59 +214,32 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
                     </div>
                   ) : null}
                 </div>
-              </div>
+              )}
             </div>
           </div>
-        </section>
-      ) : null}
+        </div>
+      </section>
 
       <section className="section-property-detail reovana-listing-detail__body">
         <div className="tf-container">
-          {singlePhoto ? (
-            <div className="wg-property box-overview reovana-listing-detail__compact-hero">
-              <div className="reovana-listing-detail__compact-photo">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={mainImage} alt={model.title} />
-                <span className="reovana-listing-detail__compact-badge">{model.categoryLabel}</span>
-              </div>
-              <div className="reovana-listing-detail__compact-info">
-                <ListingOverview model={model} compact />
-              </div>
-            </div>
-          ) : null}
           <div className="row">
             <div className="col-xl-8 col-lg-7">
-              {!singlePhoto ? (
-                <div className="wg-property box-overview">
-                  <ListingOverview model={model} />
-                </div>
-              ) : null}
+              <div className="wg-property box-overview">
+                <ListingOverview model={model} />
+              </div>
 
-              {!unlocked ? (
-                <button
-                  type="button"
-                  className="proty-unlock-gate proty-unlock-inline reovana-listing-unlock-banner"
-                  onClick={() => setUnlocked(true)}
-                >
-                  <div className="proty-unlock-head">
-                    <div className="proty-unlock-icon">🔐</div>
-                    <h4>Unlock full property details</h4>
-                    <p>Click to reveal price, specs, amenities, map, and contact forms</p>
-                  </div>
-                  <div className="proty-unlock-body">
-                    <div className="proty-unlock-btns">
-                      <span className="tf-btn bg-color-primary w-full reovana-listing-unlock-cta">
-                        Tap to unlock — no login required
-                      </span>
-                    </div>
-                    <p className="proty-unlock-secure">Subscription checkout coming soon</p>
-                  </div>
-                </button>
-              ) : (
-                <div className="proty-unlocked-note reovana-listing-unlocked-note">
-                  ✓ Unlocked — full listing details are now visible
+              <ListingUnlockPaywall unlocked={unlocked} onUnlock={handleUnlock} />
+
+              <div className="wg-property video reovana-blur-target">
+                <div className="wg-title text-11 fw-6 text-color-heading">Video</div>
+                <div className="widget-video style-1">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={mainImage} alt={model.title} />
+                  <span className="reovana-listing-detail__video-play" aria-hidden="true">
+                    <i className="icon-play" />
+                  </span>
                 </div>
-              )}
+              </div>
 
               <div className="wg-property box-property-detail reovana-blur-target">
                 <div className="wg-title text-11 fw-6 text-color-heading">Property Details</div>
@@ -333,6 +330,8 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
                 </div>
               ) : null}
 
+              <ProtyDetailTemplateSections imageUrl={mainImage} title={model.title} />
+
               {model.disclaimer ? (
                 <p className="reovana-listing-detail__disclaimer reovana-blur-target">{model.disclaimer}</p>
               ) : null}
@@ -340,24 +339,11 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
 
             <div className="col-xl-4 col-lg-5">
               <div className="tf-sidebar sticky-sidebar reovana-listing-detail__sidebar">
-                {!unlocked ? (
-                  <button
-                    type="button"
-                    className="proty-unlock-gate proty-unlock-sidebar reovana-listing-unlock-banner mb-30"
-                    onClick={() => setUnlocked(true)}
-                  >
-                    <div className="proty-unlock-head">
-                      <div className="proty-unlock-icon">🔐</div>
-                      <h4>Unlock seller contact</h4>
-                      <p>Click to reveal contact forms and full listing data</p>
-                    </div>
-                    <div className="proty-unlock-body">
-                      <span className="tf-btn bg-color-primary w-full reovana-listing-unlock-cta">
-                        Tap to unlock
-                      </span>
-                    </div>
-                  </button>
-                ) : null}
+                <ListingUnlockPaywall
+                  unlocked={unlocked}
+                  variant="sidebar"
+                  onUnlock={handleUnlock}
+                />
 
                 <form className="form-contact-seller mb-30 reovana-blur-target" onSubmit={(e) => e.preventDefault()}>
                   <h4 className="heading-title mb-30">Contact Sellers</h4>

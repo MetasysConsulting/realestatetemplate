@@ -33,6 +33,7 @@ const ROUTE_MAP = {
   "blog-details.html": "/blog/details",
   "project-list.html": "/project/list",
   "project-details.html": "/project/details",
+  "property-detail-v1.html": "/property/detail/v1",
   "contact.html": "/contact",
   "faq.html": "/faq",
   "compare.html": "/compare",

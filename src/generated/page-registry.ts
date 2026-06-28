@@ -10,6 +10,7 @@ import blog__list from "./pages/blog__list.json";
 import blog__details from "./pages/blog__details.json";
 import project__list from "./pages/project__list.json";
 import project__details from "./pages/project__details.json";
+import property__detail__v1 from "./pages/property__detail__v1.json";
 import contact from "./pages/contact.json";
 import faq from "./pages/faq.json";
 import compare from "./pages/compare.json";
@@ -38,6 +39,7 @@ export const TEMPLATE_PAGE_REGISTRY: Record<string, TemplatePageData> = {
   "blog__details": blog__details,
   "project__list": project__list,
   "project__details": project__details,
+  "property__detail__v1": property__detail__v1,
   "contact": contact,
   "faq": faq,
   "compare": compare,
