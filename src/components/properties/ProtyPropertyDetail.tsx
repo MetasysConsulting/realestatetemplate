@@ -5,7 +5,11 @@ import { useEffect, useMemo, useState } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
 import { ListingUnlockPaywall } from "@/components/properties/ListingUnlockPaywall";
 import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
-import { UNLOCK_STORAGE_KEY } from "@/lib/property-gate";
+import {
+  readListingUnlocked,
+  syncBlurTargets,
+  writeListingUnlocked,
+} from "@/lib/property-gate";
 
 type ProtyPropertyDetailProps = {
   model: ProtyListingDetailModel;
@@ -239,16 +243,26 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
   const [unlocked, setUnlocked] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && sessionStorage.getItem(UNLOCK_STORAGE_KEY) === "1") {
+    if (readListingUnlocked(model.id)) {
       setUnlocked(true);
     }
-  }, []);
+  }, [model.id]);
+
+  useEffect(() => {
+    const root = document.getElementById("listing-detail-root");
+    if (!root) return;
+
+    syncBlurTargets(root, !unlocked);
+
+    const timer = window.setTimeout(() => syncBlurTargets(root, !unlocked), 100);
+    return () => window.clearTimeout(timer);
+  }, [unlocked]);
 
   const handleUnlock = () => {
     setUnlocked(true);
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem(UNLOCK_STORAGE_KEY, "1");
-    }
+    writeListingUnlocked(model.id);
+    const root = document.getElementById("listing-detail-root");
+    if (root) syncBlurTargets(root, false);
   };
   const mapUrl = useMemo(
     () => (model.hasRealCoordinates ? buildMapEmbedUrl(model) : ""),
@@ -356,6 +370,14 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
         </div>
       </section>
 
+      <div className="tf-container">
+        <div className="row">
+          <div className="col-xl-8 col-lg-7">
+            <ListingUnlockPaywall unlocked={unlocked} onUnlock={handleUnlock} />
+          </div>
+        </div>
+      </div>
+
       <section className="section-property-detail">
         <div className="tf-container">
           <div className="row">
@@ -363,8 +385,6 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
               <div className="wg-property box-overview">
                 <ListingOverview model={model} />
               </div>
-
-              <ListingUnlockPaywall unlocked={unlocked} onUnlock={handleUnlock} />
 
               <div className="wg-property box-property-detail reovana-blur-target">
                 <div className="wg-title text-11 fw-6 text-color-heading">Property Details</div>

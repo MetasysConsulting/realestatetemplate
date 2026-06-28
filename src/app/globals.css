@@ -2215,14 +2215,25 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 }
 
 .reovana-listing-detail--locked .reovana-blur-target {
-  filter: blur(7px);
+  filter: blur(14px) !important;
+  -webkit-filter: blur(14px) !important;
+  opacity: 0.55;
   pointer-events: none;
   user-select: none;
-  transition: filter 0.25s ease;
+  transition: filter 0.25s ease, opacity 0.25s ease;
 }
 
-.reovana-listing-detail--unlocked .reovana-blur-target {
-  filter: none;
+.reovana-listing-detail--locked .proty-blurred {
+  filter: blur(14px) !important;
+  -webkit-filter: blur(14px) !important;
+  opacity: 0.55;
+}
+
+.reovana-listing-detail--unlocked .reovana-blur-target,
+.reovana-listing-detail--unlocked .proty-blurred {
+  filter: none !important;
+  -webkit-filter: none !important;
+  opacity: 1;
   pointer-events: auto;
   user-select: auto;
 }

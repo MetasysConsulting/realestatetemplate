@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect } from "react";
-import { UNLOCK_STORAGE_KEY } from "@/lib/property-gate";
+import {
+  applyLockedBlur,
+  clearLockedBlur,
+  readListingUnlocked,
+  writeListingUnlocked,
+} from "@/lib/property-gate";
 import { recordRecentlyViewed } from "@/lib/recently-viewed";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 
@@ -36,11 +41,7 @@ const BLUR_SELECTORS = [
 
 function unlockAll(root: HTMLElement) {
   root.querySelectorAll(".proty-blurred").forEach((el) => {
-    const node = el as HTMLElement;
-    node.style.filter = "none";
-    node.style.userSelect = "auto";
-    node.style.pointerEvents = "auto";
-    node.classList.remove("proty-blurred");
+    clearLockedBlur(el as HTMLElement);
   });
 
   root.querySelectorAll(".proty-unlock-gate").forEach((gate) => {
@@ -49,18 +50,6 @@ function unlockAll(root: HTMLElement) {
     if (btns) (btns as HTMLElement).style.display = "none";
     if (note) (note as HTMLElement).style.display = "flex";
   });
-
-  if (typeof window !== "undefined") {
-    sessionStorage.setItem(UNLOCK_STORAGE_KEY, "1");
-  }
-}
-
-function applyBlur(el: HTMLElement) {
-  if (el.classList.contains("proty-blurred")) return;
-  el.classList.add("proty-blurred");
-  el.style.filter = "blur(7px)";
-  el.style.userSelect = "none";
-  el.style.pointerEvents = "none";
 }
 
 function buildPaywallHtml(variant: "inline" | "sidebar"): string {
@@ -92,10 +81,11 @@ function buildPaywallHtml(variant: "inline" | "sidebar"): string {
   `;
 }
 
-function attachUnlockHandlers(root: HTMLElement, gate: HTMLElement) {
+function attachUnlockHandlers(root: HTMLElement, gate: HTMLElement, scope: string) {
   gate.querySelectorAll("[data-proty-unlock]").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
+      writeListingUnlocked(scope);
       unlockAll(root);
     });
   });
@@ -105,6 +95,7 @@ function insertPaywall(
   root: HTMLElement,
   parent: HTMLElement,
   variant: "inline" | "sidebar",
+  scope: string,
   before?: Element | null,
 ) {
   if (parent.querySelector(`.proty-unlock-${variant}`)) return;
@@ -119,41 +110,48 @@ function insertPaywall(
     parent.appendChild(gate);
   }
 
-  attachUnlockHandlers(root, gate);
+  attachUnlockHandlers(root, gate, scope);
 }
 
-function initGate(root: HTMLElement) {
-  if (root.dataset.protyGateInit === "true") return;
-  root.dataset.protyGateInit = "true";
-
-  const alreadyUnlocked =
-    typeof window !== "undefined" &&
-    sessionStorage.getItem(UNLOCK_STORAGE_KEY) === "1";
+function initGate(root: HTMLElement, scope: string) {
+  const alreadyUnlocked = readListingUnlocked(scope);
 
   BLUR_SELECTORS.forEach((selector) => {
     root.querySelectorAll(selector).forEach((el) => {
-      applyBlur(el as HTMLElement);
+      if (alreadyUnlocked) {
+        clearLockedBlur(el as HTMLElement);
+      } else {
+        applyLockedBlur(el as HTMLElement);
+      }
     });
   });
 
-  const overview = root.querySelector(
-    ".wg-property.box-overview",
-  ) as HTMLElement | null;
+  const propertyDetailSection = root.querySelector(".section-property-detail");
+  const mainContent = root.querySelector(".main-content") ?? root;
 
-  if (overview) {
-    const insertBefore =
-      overview.nextElementSibling?.classList.contains("proty-unlock-inline")
-        ? overview.nextElementSibling.nextElementSibling
-        : overview.nextElementSibling;
-    insertPaywall(root, overview.parentElement ?? overview, "inline", insertBefore);
+  if (propertyDetailSection && mainContent) {
+    insertPaywall(
+      root,
+      mainContent as HTMLElement,
+      "inline",
+      scope,
+      propertyDetailSection,
+    );
+  } else {
+    const overview = root.querySelector(".wg-property.box-overview") as HTMLElement | null;
+    if (overview) {
+      const insertBefore =
+        overview.nextElementSibling?.classList.contains("proty-unlock-inline")
+          ? overview.nextElementSibling.nextElementSibling
+          : overview.nextElementSibling;
+      insertPaywall(root, overview.parentElement ?? overview, "inline", scope, insertBefore);
+    }
   }
 
-  const sidebar = root.querySelector(
-    ".section-property-detail .tf-sidebar",
-  ) as HTMLElement | null;
+  const sidebar = root.querySelector(".section-property-detail .tf-sidebar") as HTMLElement | null;
 
   if (sidebar) {
-    insertPaywall(root, sidebar, "sidebar", sidebar.firstElementChild);
+    insertPaywall(root, sidebar, "sidebar", scope, sidebar.firstElementChild);
   }
 
   if (alreadyUnlocked) {
@@ -167,7 +165,8 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
 
     const run = () => {
       const root = document.getElementById("template-root");
-      if (root) initGate(root);
+      if (!root) return;
+      initGate(root, window.location.pathname);
     };
 
     run();
@@ -186,7 +185,7 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
         root.querySelector(".wg-property.box-overview .price")?.textContent?.trim() || "$0";
       const price = Number(priceText.replace(/[^0-9.]/g, "")) || 0;
       const imageUrl =
-        root.querySelector<HTMLImageElement>(".wg-property .swiper-slide img")?.src ||
+        root.querySelector<HTMLImageElement>(".section-property-image img")?.src ||
         DEFAULT_AUCTION_PROPERTY_IMAGE;
       const parts = location.split(",").map((part) => part.trim());
       const address = parts[0] || location;
