@@ -9,11 +9,15 @@ type PropertyUnlockGateProps = {
   enabled: boolean;
 };
 
-/** Sensitive listing fields — gallery, title & video stay visible for intrigue */
+/** Sensitive listing fields — paywall hides price, address, specs, gallery & contact */
 const BLUR_SELECTORS = [
+  ".section-property-image",
+  ".flat-title .breadcrumb li:last-child",
+  ".wg-property.box-overview .title",
   ".wg-property.box-overview .price",
   ".wg-property.box-overview .location",
   ".wg-property.box-overview .meta-list",
+  ".wg-property.box-overview .action",
   ".wg-property.box-overview .info-detail",
   ".wg-property.box-property-detail",
   ".wg-property.box-amenities",
@@ -25,6 +29,7 @@ const BLUR_SELECTORS = [
   ".wg-property.single-property-nearby",
   ".wg-property.box-comment",
   ".section-property-detail .form-contact-seller",
+  ".section-property-detail .sidebar-ads",
   ".section-property-detail .form-contact-agent",
   ".section-similar-properties .box-house .content",
 ];

@@ -135,7 +135,7 @@ function ListingOverview({ model }: { model: ProtyListingDetailModel }) {
   return (
     <>
       <div className="heading flex justify-between">
-        <div className="title text-5 fw-6 text-color-heading">{model.title}</div>
+        <div className="title text-5 fw-6 text-color-heading reovana-blur-target">{model.title}</div>
         <div className="price text-5 fw-6 text-color-heading reovana-blur-target">
           {model.priceDisplay}
           {model.priceSuffix ? (
@@ -167,7 +167,7 @@ function ListingOverview({ model }: { model: ProtyListingDetailModel }) {
             ) : null}
           </ul>
         </div>
-        <div className="action">
+        <div className="action reovana-blur-target">
           <ul className="list-action">
             {OVERVIEW_ACTION_ICONS.map((icon, index) => (
               <li key={index}>
@@ -284,7 +284,7 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
                   <li>
                     <Link href={model.backHref}>{model.backLabel}</Link>
                   </li>
-                  <li>{model.title}</li>
+                  <li className="reovana-blur-target">{model.title}</li>
                 </ul>
               </div>
             </div>
@@ -297,7 +297,7 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
       >
         <div className="tf-container">
           <div className="row">
-            <div className="col-12">
+            <div className="col-12 reovana-blur-target">
               {singlePhoto ? (
                 <div className="wrap-image">
                   <div className="image img-1">
