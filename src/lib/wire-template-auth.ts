@@ -226,6 +226,56 @@ function wireRegisterForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
   submitLink.addEventListener("click", handleRegister);
 }
 
+function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserClient>) {
+  if (!supabase) return;
+
+  const startOAuth = async (modal: HTMLElement, provider: "google" | "facebook") => {
+    clearAuthMessage(modal);
+
+    const redirectTo = `${window.location.origin}/auth/callback?next=/dashboard`;
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo },
+    });
+
+    if (error) {
+      showAuthMessage(modal, error.message);
+      return;
+    }
+
+    if (data?.url) {
+      window.location.assign(data.url);
+    }
+  };
+
+  const wireModal = (modalId: string) => {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+
+    modal.querySelectorAll<HTMLAnchorElement>(".group-btn .btn-social, .group-btn a.btn-social").forEach((link) => {
+      if (link.getAttribute("data-reovana-auth-wired") === "oauth") return;
+
+      const label = link.textContent?.trim().toLowerCase() ?? "";
+      const provider = label.includes("google")
+        ? "google"
+        : label.includes("facebook")
+          ? "facebook"
+          : null;
+      if (!provider) return;
+
+      link.setAttribute("data-reovana-auth-wired", "oauth");
+      link.setAttribute("href", "#");
+      link.addEventListener("click", (event) => {
+        event.preventDefault();
+        void startOAuth(modal, provider);
+      });
+    });
+  };
+
+  wireModal("modalLogin");
+  wireModal("modalRegister");
+}
+
 function handleLoginQueryParam() {
   const params = new URLSearchParams(window.location.search);
   const login = params.get("login");
@@ -286,6 +336,7 @@ export function wireTemplateAuth() {
 
   wireLoginForm(supabase);
   wireRegisterForm(supabase);
+  wireOAuthButtons(supabase);
   wireLogoutLinks();
   handleLoginQueryParam();
 

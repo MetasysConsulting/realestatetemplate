@@ -7,13 +7,15 @@ export function WireTemplateAuth() {
   useEffect(() => {
     let unsubscribe = wireTemplateAuth();
 
-    const retry = window.setTimeout(() => {
-      unsubscribe?.();
-      unsubscribe = wireTemplateAuth();
-    }, 600);
+    const retryTimers = [600, 1500, 3000].map((delay) =>
+      window.setTimeout(() => {
+        unsubscribe?.();
+        unsubscribe = wireTemplateAuth();
+      }, delay),
+    );
 
     return () => {
-      window.clearTimeout(retry);
+      retryTimers.forEach((timer) => window.clearTimeout(timer));
       unsubscribe?.();
     };
   }, []);
