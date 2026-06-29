@@ -2548,6 +2548,71 @@ body.learn-route #template-chrome-root.reovana-site {
   padding: 32px 0 88px;
 }
 
+.legal-document {
+  max-width: 820px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--Line, #ececec);
+  border-radius: 16px;
+  padding: 40px clamp(20px, 4vw, 48px);
+  box-shadow: 0 8px 32px rgba(22, 30, 45, 0.06);
+}
+
+.legal-document__header {
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--Line, #ececec);
+}
+
+.legal-document h1 {
+  margin: 0 0 12px;
+  font-size: clamp(28px, 4vw, 36px);
+  font-weight: 700;
+  color: var(--Heading, #161e2d);
+}
+
+.legal-document__intro {
+  margin: 0 0 12px;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--Text, #5c5e61);
+}
+
+.legal-document__updated,
+.legal-document__notice {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--Note, #a8abae);
+}
+
+.legal-document__notice {
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.legal-document__section + .legal-document__section {
+  margin-top: 28px;
+}
+
+.legal-document__section h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--Heading, #161e2d);
+}
+
+.legal-document__section p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--Text, #5c5e61);
+}
+
+.legal-document__section p:last-child {
+  margin-bottom: 0;
+}
+
 .learn-hero {
   max-width: 720px;
   margin-bottom: 32px;
