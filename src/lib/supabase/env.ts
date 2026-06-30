@@ -1,8 +1,15 @@
+/** Backend (listings + auth) is off unless explicitly enabled on Vercel / .env.local. */
+export function isReovanaBackendEnabled(): boolean {
+  return process.env.NEXT_PUBLIC_REOVANA_BACKEND_ENABLED === "true";
+}
+
 export function getSupabaseUrl(): string | undefined {
+  if (!isReovanaBackendEnabled()) return undefined;
   return process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 }
 
 export function getSupabaseAnonKey(): string | undefined {
+  if (!isReovanaBackendEnabled()) return undefined;
   return (
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
     process.env.SUPABASE_PUBLISHABLE_KEY ||
@@ -12,5 +19,5 @@ export function getSupabaseAnonKey(): string | undefined {
 }
 
 export function isSupabaseAuthConfigured(): boolean {
-  return Boolean(getSupabaseUrl() && getSupabaseAnonKey());
+  return isReovanaBackendEnabled() && Boolean(getSupabaseUrl() && getSupabaseAnonKey());
 }

@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { isReovanaBackendEnabled } from "@/lib/supabase/env";
 
 export type DatabaseListingRow = {
   id: string;
@@ -32,9 +33,12 @@ export type DatabaseListingRow = {
   scraped_at: string | null;
 };
 
-/** Listings are on by default; set NEXT_PUBLIC_USE_SUPABASE_LISTINGS=false to hide. */
+/** Listings require backend enabled; set NEXT_PUBLIC_USE_SUPABASE_LISTINGS=false to hide. */
 export function areSiteListingsEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_USE_SUPABASE_LISTINGS !== "false";
+  return (
+    isReovanaBackendEnabled() &&
+    process.env.NEXT_PUBLIC_USE_SUPABASE_LISTINGS !== "false"
+  );
 }
 
 function getSupabaseUrl(): string | undefined {

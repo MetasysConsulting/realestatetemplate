@@ -12,6 +12,7 @@ const ROOT = path.join(__dirname, "..");
 const ENV_FILE = path.join(ROOT, ".env.local");
 
 const KEYS = [
+  "NEXT_PUBLIC_REOVANA_BACKEND_ENABLED",
   "DATABASE_URL",
   "NEXT_PUBLIC_SUPABASE_URL",
   "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
