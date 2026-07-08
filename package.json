@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build",
+    "verify": "pnpm install --frozen-lockfile && pnpm exec tsc --noEmit",
     "start": "next start",
     "lint": "eslint",
     "convert-template": "node scripts/convert-template.mjs",
