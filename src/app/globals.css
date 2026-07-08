@@ -2407,6 +2407,27 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   white-space: nowrap;
 }
 
+.reovana-search-suggest__item-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.reovana-search-suggest__icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--Note, #a8abae);
+  flex-shrink: 0;
+}
+
+.reovana-suggest-icon {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
 .reovana-search-page-form__row {
   display: flex;
   gap: 12px;

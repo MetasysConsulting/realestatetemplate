@@ -125,8 +125,20 @@ async function main() {
       pending.push(listing);
 
       if (pending.length >= args.dbBatch) {
-        await upsertPropertyRadarListings(pending, scrapedAt);
-        uploaded += pending.length;
+        try {
+          await upsertPropertyRadarListings(pending, scrapedAt);
+          uploaded += pending.length;
+        } catch (error) {
+          for (const listing of pending) {
+            try {
+              await upsertPropertyRadarListings([listing], scrapedAt);
+              uploaded++;
+            } catch (oneError) {
+              errors++;
+              console.error(`  error ${listing.id}: ${oneError.message}`);
+            }
+          }
+        }
         pending = [];
       }
     } catch (error) {

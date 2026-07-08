@@ -4,7 +4,7 @@ import type { SearchSuggestion, SearchSuggestionType } from "@/lib/search-sugges
 import { buildSearchHref } from "@/lib/search-suggestion-types";
 import { createSupabaseServerClient, areSiteListingsEnabled, isSupabaseConfigured } from "@/lib/supabase/server";
 import { getDatabaseUrl } from "@/lib/supabase/listings-query";
-import { matchStateSuggestions } from "@/lib/us-states";
+import { matchStateSuggestions, parseLocationQuery } from "@/lib/us-states";
 
 export type { SearchSuggestion, SearchSuggestionType } from "@/lib/search-suggestion-types";
 export { buildSearchHref, suggestionTypeLabel } from "@/lib/search-suggestion-types";
@@ -99,48 +99,54 @@ async function withPgClient<T>(fn: (client: InstanceType<(typeof import("pg"))["
   }
 }
 
-async function fetchSuggestionsFromPostgres(query: string): Promise<SearchSuggestion[] | null> {
+async function fetchSuggestionsFromPostgres(query: string, state: string): Promise<SearchSuggestion[] | null> {
   const pattern = `%${escapeIlike(query)}%`;
   const zipPattern = /^\d+$/.test(query) ? `${query}%` : null;
+  const stateVal = state ? state.toUpperCase() : null;
 
   return withPgClient(async (client) => {
+    const stateFilter = stateVal ? "AND state = $2" : "";
+    const params = stateVal ? [pattern, stateVal] : [pattern];
+    const zipParams = stateVal ? (zipPattern ? [zipPattern, stateVal] : []) : (zipPattern ? [zipPattern] : []);
+    const zipStateFilter = stateVal ? "AND state = $2" : "";
+
     const [cities, counties, zips, addresses] = await Promise.all([
       client.query<{ city: string; state: string; listing_count: number }>(
         `SELECT city, state, COUNT(*)::int AS listing_count
          FROM listings
-         WHERE is_active = true AND city ILIKE $1
+         WHERE is_active = true AND city ILIKE $1 ${stateFilter}
          GROUP BY city, state
          ORDER BY listing_count DESC, city ASC
          LIMIT 8`,
-        [pattern],
+        params,
       ),
       client.query<{ county: string; state: string; listing_count: number }>(
         `SELECT county, state, COUNT(*)::int AS listing_count
          FROM listings
-         WHERE is_active = true AND county IS NOT NULL AND county ILIKE $1
+         WHERE is_active = true AND county IS NOT NULL AND county ILIKE $1 ${stateFilter}
          GROUP BY county, state
          ORDER BY listing_count DESC, county ASC
          LIMIT 5`,
-        [pattern],
+        params,
       ),
       zipPattern
         ? client.query<{ zip: string; city: string; state: string; listing_count: number }>(
             `SELECT zip, city, state, COUNT(*)::int AS listing_count
              FROM listings
-             WHERE is_active = true AND zip LIKE $1
+             WHERE is_active = true AND zip LIKE $1 ${zipStateFilter}
              GROUP BY zip, city, state
              ORDER BY listing_count DESC, zip ASC
              LIMIT 5`,
-            [zipPattern],
+            zipParams,
           )
         : Promise.resolve({ rows: [] as { zip: string; city: string; state: string; listing_count: number }[] }),
       client.query<{ address: string; city: string; state: string }>(
         `SELECT DISTINCT ON (address, city, state) address, city, state
          FROM listings
-         WHERE is_active = true AND address ILIKE $1
+         WHERE is_active = true AND address ILIKE $1 ${stateFilter}
          ORDER BY address, city, state, address ASC
          LIMIT 5`,
-        [pattern],
+        params,
       ),
     ]);
 
@@ -200,7 +206,7 @@ function bumpCount(map: Map<AggregateKey, number>, key: AggregateKey): number {
   return map.get(key)!;
 }
 
-async function fetchSuggestionsFromSupabase(query: string): Promise<SearchSuggestion[]> {
+async function fetchSuggestionsFromSupabase(query: string, state: string): Promise<SearchSuggestion[]> {
   const client = createSupabaseServerClient();
   if (!client) return [];
 
@@ -214,12 +220,18 @@ async function fetchSuggestionsFromSupabase(query: string): Promise<SearchSugges
     clauses.push(`zip.ilike.${query}%`);
   }
 
-  const { data, error } = await client
+  let dbQuery = client
     .from("listings")
     .select("city, state, zip, county, address")
     .eq("is_active", true)
     .or(clauses.join(","))
     .limit(200);
+
+  if (state) {
+    dbQuery = dbQuery.eq("state", state.toUpperCase());
+  }
+
+  const { data, error } = await dbQuery;
 
   if (error || !data) {
     console.error("[search-suggestions] Supabase fallback failed:", error?.message ?? "unknown error");
@@ -329,36 +341,49 @@ async function fetchSuggestionsFromSupabase(query: string): Promise<SearchSugges
   return suggestions;
 }
 
-function appendStateSuggestions(query: string, suggestions: SearchSuggestion[]): SearchSuggestion[] {
-  const states = matchStateSuggestions(query, 4).map((state) => ({
-    id: `state:${state.abbr}`,
+function appendStateSuggestions(query: string, state: string, suggestions: SearchSuggestion[]): SearchSuggestion[] {
+  const stateQuery = state || query;
+  const states = matchStateSuggestions(stateQuery, state ? 1 : 4).map((s) => ({
+    id: `state:${s.abbr}`,
     type: "state" as const,
-    label: state.name,
-    sublabel: `${state.abbr} · all listings`,
-    href: buildSearchHref(undefined, state.abbr),
+    label: s.name,
+    sublabel: `${s.abbr} · all listings`,
+    href: buildSearchHref(undefined, s.abbr),
   }));
 
   return [...states, ...suggestions];
 }
 
-async function loadSuggestions(query: string): Promise<SearchSuggestion[]> {
-  const fromPostgres = await fetchSuggestionsFromPostgres(query);
-  const inventorySuggestions = fromPostgres ?? (await fetchSuggestionsFromSupabase(query));
-  return finalizeSuggestions(query, appendStateSuggestions(query, inventorySuggestions));
+async function loadSuggestions(q: string, state: string): Promise<SearchSuggestion[]> {
+  const fromPostgres = await fetchSuggestionsFromPostgres(q, state);
+  const inventorySuggestions = fromPostgres ?? (await fetchSuggestionsFromSupabase(q, state));
+  return finalizeSuggestions(q, appendStateSuggestions(q, state, inventorySuggestions));
 }
 
 export async function fetchSearchSuggestions(query: string): Promise<SearchSuggestion[]> {
   const trimmed = query.trim();
   if (trimmed.length < 2) return [];
 
-  const cacheKey = trimmed.toLowerCase();
+  const { q, state } = parseLocationQuery(trimmed);
+
+  const cacheKey = `${q.toLowerCase()}:${state.toLowerCase()}`;
   const cached = suggestionCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) {
     return cached.suggestions;
   }
 
   if (!areSiteListingsEnabled() || !isSupabaseConfigured()) {
-    return matchStateSuggestions(trimmed, 6).map((state) => ({
+    if (state) {
+      const match = matchStateSuggestions(state, 1);
+      return match.map((s) => ({
+        id: `state:${s.abbr}`,
+        type: "state",
+        label: s.name,
+        sublabel: `${s.abbr} · all listings`,
+        href: buildSearchHref(undefined, s.abbr),
+      }));
+    }
+    return matchStateSuggestions(q, 6).map((state) => ({
       id: `state:${state.abbr}`,
       type: "state",
       label: state.name,
@@ -367,7 +392,7 @@ export async function fetchSearchSuggestions(query: string): Promise<SearchSugge
     }));
   }
 
-  const suggestions = await loadSuggestions(trimmed);
+  const suggestions = await loadSuggestions(q, state);
   suggestionCache.set(cacheKey, {
     expiresAt: Date.now() + CACHE_TTL_MS,
     suggestions,

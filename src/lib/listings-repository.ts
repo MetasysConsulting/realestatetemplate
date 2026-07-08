@@ -26,7 +26,7 @@ import {
 } from "@/lib/supabase/listings-query";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { VrmListing, VrmListingsDataset } from "@/lib/vrm-listings";
-import { normalizeStateQuery } from "@/lib/us-states";
+import { normalizeStateQuery, parseLocationQuery } from "@/lib/us-states";
 import { connection } from "next/server";
 
 const LISTING_PAGE_SIZE = 1000;
@@ -877,11 +877,15 @@ export async function searchListings(
     .select("*", { count: "estimated" })
     .eq("is_active", true);
 
-  if (state) {
-    if (state.length === 2) {
-      query = query.eq("state", state.toUpperCase());
+  const parsed = parseLocationQuery(q);
+  const searchQ = parsed.q;
+  const parsedState = parsed.state || state;
+
+  if (parsedState) {
+    if (parsedState.length === 2) {
+      query = query.eq("state", parsedState.toUpperCase());
     } else {
-      query = query.ilike("state", `%${state}%`);
+      query = query.ilike("state", `%${parsedState}%`);
     }
   }
 
@@ -905,8 +909,8 @@ export async function searchListings(
     query = query.lte("price", maxPrice);
   }
 
-  if (q) {
-    const escaped = q.replace(/[%_,]/g, "\\$&");
+  if (searchQ) {
+    const escaped = searchQ.replace(/[%_,]/g, "\\$&");
     const clauses = [
       `address.ilike.%${escaped}%`,
       `city.ilike.%${escaped}%`,
@@ -914,8 +918,8 @@ export async function searchListings(
       `county.ilike.%${escaped}%`,
       `property_type.ilike.%${escaped}%`,
     ];
-    if (/^\d{5}$/.test(q)) {
-      clauses.push(`zip.eq.${q}`);
+    if (/^\d+$/.test(searchQ)) {
+      clauses.push(`zip.like.${searchQ}%`);
     }
     query = query.or(clauses.join(","));
   }

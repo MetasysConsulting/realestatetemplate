@@ -300,6 +300,26 @@ const PROPERTY_RADAR_TYPE_LABELS = {
   COM: "Commercial",
 };
 
+/** Keep values within Postgres column limits (NUMERIC(12,2), NUMERIC(4,1), INTEGER). */
+export function sanitizePropertyRadarNumerics(raw) {
+  const clamp = (value, min, max) => {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return min;
+    return Math.min(max, Math.max(min, n));
+  };
+
+  return {
+    ...raw,
+    estValue: clamp(raw.estValue ?? 0, 0, 9_999_999_999.99),
+    estEquity: raw.estEquity != null ? clamp(raw.estEquity, 0, 9_999_999_999.99) : raw.estEquity,
+    bedrooms: Math.round(clamp(raw.bedrooms ?? 0, 0, 99)),
+    bathrooms: clamp(raw.bathrooms ?? 0, 0, 99.9),
+    squareFootage: Math.round(clamp(raw.squareFootage ?? 0, 0, 2_147_483_647)),
+    lotSize: raw.lotSize != null ? clamp(raw.lotSize, 0, 9_999_999_999.99) : raw.lotSize,
+    distressScore: raw.distressScore != null ? Math.round(clamp(raw.distressScore, 0, 100)) : raw.distressScore,
+  };
+}
+
 export function resolvePropertyRadarCategory(raw) {
   const distress = Number(raw.distressScore) || 0;
   if (distress >= 80) return "pre-foreclosure";
@@ -309,65 +329,66 @@ export function resolvePropertyRadarCategory(raw) {
 }
 
 export function mapPropertyRadarListingToRow(raw, scrapedAt) {
-  const category = resolvePropertyRadarCategory(raw);
+  const safe = sanitizePropertyRadarNumerics(raw);
+  const category = resolvePropertyRadarCategory(safe);
   const tags = ["PropertyRadar"];
-  if (raw.distressScore != null) tags.push(`Distress ${raw.distressScore}`);
-  if (raw.ownerOccupied) tags.push("Owner Occupied");
-  if (raw.listedForSale) tags.push("Listed");
-  if (raw.listedByOwner) tags.push("FSBO");
-  if (raw.importSource === "pilot-html-100") tags.push("Pilot 100");
-  if (raw.importSource?.startsWith("propertyradar-html")) tags.push("HTML Scrape");
+  if (safe.distressScore != null) tags.push(`Distress ${safe.distressScore}`);
+  if (safe.ownerOccupied) tags.push("Owner Occupied");
+  if (safe.listedForSale) tags.push("Listed");
+  if (safe.listedByOwner) tags.push("FSBO");
+  if (safe.importSource === "pilot-html-100") tags.push("Pilot 100");
+  if (safe.importSource?.startsWith("propertyradar-html")) tags.push("HTML Scrape");
 
-  const imageUrl = raw.imageUrl ?? null;
+  const imageUrl = safe.imageUrl ?? null;
 
   return {
-    id: raw.id,
+    id: safe.id,
     source_id: "propertyradar",
     category,
     external_id:
-      raw.externalId ??
-      (typeof raw.id === "string" ? raw.id.replace(/^propertyradar-/, "") : raw.id),
-    address: raw.address,
-    city: raw.city,
-    state: raw.state ?? "",
-    zip: raw.zip ?? "",
+      safe.externalId ??
+      (typeof safe.id === "string" ? safe.id.replace(/^propertyradar-/, "") : safe.id),
+    address: safe.address,
+    city: safe.city,
+    state: safe.state ?? "",
+    zip: safe.zip ?? "",
     county: null,
-    price: raw.estValue ?? 0,
+    price: safe.estValue ?? 0,
     price_label: "Est. Value",
-    bedrooms: raw.bedrooms ?? 0,
-    bathrooms: raw.bathrooms ?? 0,
-    square_footage: raw.squareFootage ?? 0,
-    lot_size: raw.lotSize ?? null,
-    year_built: raw.yearBuilt != null ? String(raw.yearBuilt) : null,
-    property_type: PROPERTY_RADAR_TYPE_LABELS[raw.propertyType] ?? raw.propertyType ?? null,
-    status: raw.listedForSale ? "Listed" : "Off Market",
+    bedrooms: safe.bedrooms ?? 0,
+    bathrooms: safe.bathrooms ?? 0,
+    square_footage: safe.squareFootage ?? 0,
+    lot_size: safe.lotSize ?? null,
+    year_built: safe.yearBuilt != null ? String(safe.yearBuilt) : null,
+    property_type: PROPERTY_RADAR_TYPE_LABELS[safe.propertyType] ?? safe.propertyType ?? null,
+    status: safe.listedForSale ? "Listed" : "Off Market",
     tags,
     lat: null,
     lng: null,
     image_url: imageUrl,
-    detail_url: raw.detailUrl ?? null,
+    detail_url: safe.detailUrl ?? null,
     source_agency: "PropertyRadar",
-    is_new: raw.importSource === "pilot-html-100",
+    is_new: safe.importSource === "pilot-html-100",
     is_active: true,
     metadata: {
-      propertyTypeCode: raw.propertyType,
-      estValue: raw.estValue,
-      estEquity: raw.estEquity,
-      distressScore: raw.distressScore,
-      radarId: raw.radarId ?? null,
-      listingId: raw.id,
-      owner: raw.owner,
-      ownerOccupied: raw.ownerOccupied,
-      listedForSale: raw.listedForSale,
-      listedByOwner: raw.listedByOwner,
+      propertyTypeCode: safe.propertyType,
+      estValue: safe.estValue,
+      estEquity: safe.estEquity,
+      distressScore: safe.distressScore,
+      radarId: safe.radarId ?? null,
+      listingId: safe.id,
+      owner: safe.owner,
+      ownerOccupied: safe.ownerOccupied,
+      listedForSale: safe.listedForSale,
+      listedByOwner: safe.listedByOwner,
       imageUrl,
-      overviewPhotoUrl: raw.overviewPhotoUrl ?? null,
-      hasImage: Boolean(imageUrl || raw.overviewPhotoUrl),
-      pendingImage: !imageUrl && !raw.overviewPhotoUrl,
-      sourceUrl: raw.detailUrl ?? "https://www.propertyradar.com",
+      overviewPhotoUrl: safe.overviewPhotoUrl ?? null,
+      hasImage: Boolean(imageUrl || safe.overviewPhotoUrl),
+      pendingImage: !imageUrl && !safe.overviewPhotoUrl,
+      sourceUrl: safe.detailUrl ?? "https://www.propertyradar.com",
       scrapeSource: "propertyradar",
-      importSource: raw.importSource ?? "xlsx",
-      htmlSnapshotPath: raw.htmlSnapshotPath ?? null,
+      importSource: safe.importSource ?? "xlsx",
+      htmlSnapshotPath: safe.htmlSnapshotPath ?? null,
     },
     scraped_at: scrapedAt,
   };

@@ -4,6 +4,23 @@ import { suggestionTypeLabel } from "@/lib/search-suggestion-types";
 const DEBOUNCE_MS = 260;
 const MIN_QUERY_LENGTH = 2;
 
+function getSuggestionTypeIcon(type: SearchSuggestionType): string {
+  switch (type) {
+    case "city":
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="reovana-suggest-icon"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    case "zip":
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="reovana-suggest-icon"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18M9 21V9M15 21V9"/></svg>`;
+    case "county":
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="reovana-suggest-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg>`;
+    case "state":
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="reovana-suggest-icon"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/></svg>`;
+    case "address":
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="reovana-suggest-icon"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+    default:
+      return "";
+  }
+}
+
 type AttachOptions = {
   onSelect?: (suggestion: SearchSuggestion) => void;
 };
@@ -188,10 +205,20 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
         button.setAttribute("role", "option");
         button.id = `${inputId}-option-${flat.length - 1}`;
 
+        const leftContainer = document.createElement("span");
+        leftContainer.className = "reovana-search-suggest__item-left";
+
+        const iconSpan = document.createElement("span");
+        iconSpan.className = "reovana-search-suggest__icon-wrapper";
+        iconSpan.innerHTML = getSuggestionTypeIcon(suggestion.type);
+        leftContainer.appendChild(iconSpan);
+
         const label = document.createElement("span");
         label.className = "reovana-search-suggest__label";
         label.appendChild(highlightMatch(suggestion.label, query));
-        button.appendChild(label);
+        leftContainer.appendChild(label);
+
+        button.appendChild(leftContainer);
 
         if (suggestion.sublabel) {
           const sublabel = document.createElement("span");

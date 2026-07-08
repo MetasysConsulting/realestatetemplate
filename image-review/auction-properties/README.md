@@ -17,7 +17,7 @@ Live copies are in `public/images/auction-properties/`.
 ## Re-download
 
 ```bash
-cd proty-web
+cd Reovana
 node scripts/download-auction-images.mjs
 ```
 

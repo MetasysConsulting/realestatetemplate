@@ -1,6 +1,6 @@
-# Site 1 — Proty Real Estate (Next.js)
+# Reovana — REOVANA Public Site (Next.js)
 
-**Site 1** in the Hawai Guy Project. Site 2 lives in `../site-2-web`.
+**Public site** in the Hawai Guy Project. Admin dashboard lives in `../Reovana Admin Dashboard`.
 
 Complete port of the **Proty** ThemeForest HTML template into Next.js, preserving original markup, styles, fonts, icons, images, and JavaScript behavior.
 
