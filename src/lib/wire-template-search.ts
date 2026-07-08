@@ -1,5 +1,6 @@
 "use client";
 
+import { attachSearchSuggestions } from "@/lib/attach-search-suggestions";
 import { normalizeStateQuery } from "@/lib/us-states";
 
 type SearchPayload = {
@@ -111,5 +112,6 @@ export function wireTemplateSearch(): void {
 
   form.addEventListener("submit", submit);
   submitLink.addEventListener("click", submit);
+  attachSearchSuggestions(input);
 }
 

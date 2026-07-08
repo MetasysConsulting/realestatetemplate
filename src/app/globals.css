@@ -2319,6 +2319,106 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   background: #fff;
 }
 
+.reovana-search-suggest-host {
+  position: relative;
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.reovana-search-suggest {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 120;
+  max-height: 360px;
+  overflow: auto;
+  border-radius: 14px;
+  border: 1px solid var(--Line, #e4e6eb);
+  background: #fff;
+  box-shadow: 0 18px 40px rgba(21, 21, 21, 0.12);
+  padding: 8px 0;
+}
+
+.reovana-search-suggest__group + .reovana-search-suggest__group {
+  border-top: 1px solid var(--Line, #e4e6eb);
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.reovana-search-suggest__heading {
+  padding: 8px 16px 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--Note, #a8abae);
+}
+
+.reovana-search-suggest__item {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.reovana-search-suggest__item:hover,
+.reovana-search-suggest__item.is-active {
+  background: var(--Sub-primary-1, #f2f5ff);
+}
+
+.reovana-search-suggest__label {
+  color: var(--Heading, #1c1c1e);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.reovana-search-suggest__sublabel {
+  color: var(--Note, #a8abae);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.reovana-search-page-form__row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.reovana-search-page-form__q {
+  flex: 1 1 260px;
+  min-width: 220px;
+}
+
+.reovana-search-page-form__state,
+.reovana-search-page-form__type {
+  width: 220px;
+}
+
+.reovana-search-page-form__compact {
+  width: 110px;
+}
+
+.reovana-search-page-form__price {
+  width: 140px;
+}
+
+#template-root .wg-filter .form-title {
+  position: relative;
+}
+
+#template-root .wg-filter .form-title input[type="text"] {
+  width: 100%;
+}
+
 .reovana-listing-gallery .wrap-image .image .image-wrap,
 .reovana-listing-gallery .reovana-gallery-thumb-btn {
   display: flex;

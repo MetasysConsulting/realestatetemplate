@@ -4,6 +4,7 @@ import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import { searchListings } from "@/lib/listings-repository";
 import { PropertyCategoryExplorer } from "@/components/properties/PropertyCategoryExplorer";
+import { SearchPageForm } from "@/components/search/SearchPageForm";
 import { normalizeStateQuery } from "@/lib/us-states";
 import Link from "next/link";
 
@@ -93,40 +94,16 @@ export default async function SearchPage({ searchParams }: PageProps) {
       bodyClass="theme-color-4 auctions-route"
     >
       <div className="tf-container" style={{ paddingTop: 24 }}>
-        <div className="wg-filter" style={{ marginBottom: 18 }}>
-          <div className="form-title">
-            <form action="/search" method="get">
-              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
-                <input
-                  name="q"
-                  defaultValue={q}
-                  placeholder="City, address, ZIP, or property type…"
-                  style={{ flex: "1 1 260px", minWidth: 220 }}
-                />
-                <input
-                  name="state"
-                  defaultValue={state}
-                  placeholder="State (e.g. FL or Florida)"
-                  style={{ width: 220 }}
-                />
-                <input
-                  name="propertyType"
-                  defaultValue={propertyType}
-                  placeholder="Property type (e.g. Condo)"
-                  style={{ width: 220 }}
-                />
-                <input name="beds" defaultValue={beds ? String(beds) : ""} placeholder="Beds +" style={{ width: 110 }} />
-                <input name="baths" defaultValue={baths ? String(baths) : ""} placeholder="Baths +" style={{ width: 110 }} />
-                <input name="minPrice" defaultValue={minPrice ? String(minPrice) : ""} placeholder="Min $" style={{ width: 140 }} />
-                <input name="maxPrice" defaultValue={maxPrice ? String(maxPrice) : ""} placeholder="Max $" style={{ width: 140 }} />
-                <input type="hidden" name="pageSize" value={String(pageSize)} />
-                <button type="submit" className="tf-btn bg-color-primary pd-3">
-                  Search
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <SearchPageForm
+          q={q}
+          state={state}
+          propertyType={propertyType}
+          beds={beds}
+          baths={baths}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          pageSize={pageSize}
+        />
 
         {showPager ? (
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>

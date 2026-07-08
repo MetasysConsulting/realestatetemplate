@@ -52,6 +52,27 @@ const STATE_NAME_TO_ABBR: Record<string, string> = {
   "district of columbia": "DC",
 };
 
+export function matchStateSuggestions(
+  query: string,
+  limit = 3,
+): { name: string; abbr: string }[] {
+  const q = query.trim().toLowerCase();
+  if (q.length < 2) return [];
+
+  const matches: { name: string; abbr: string }[] = [];
+  for (const [name, abbr] of Object.entries(STATE_NAME_TO_ABBR)) {
+    const title = name
+      .split(" ")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" ");
+    if (name.includes(q) || abbr.toLowerCase().startsWith(q)) {
+      matches.push({ name: title, abbr });
+    }
+    if (matches.length >= limit) break;
+  }
+  return matches;
+}
+
 /** Normalize a state filter to a 2-letter code when possible. */
 export function normalizeStateQuery(input: string): string {
   const trimmed = input.trim();

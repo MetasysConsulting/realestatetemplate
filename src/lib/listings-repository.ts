@@ -911,6 +911,7 @@ export async function searchListings(
       `address.ilike.%${escaped}%`,
       `city.ilike.%${escaped}%`,
       `state.ilike.%${escaped}%`,
+      `county.ilike.%${escaped}%`,
       `property_type.ilike.%${escaped}%`,
     ];
     if (/^\d{5}$/.test(q)) {
