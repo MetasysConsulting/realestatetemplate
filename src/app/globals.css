@@ -212,6 +212,53 @@ body.auctions-route .reovana-site .header {
   border: 1px solid var(--Primary);
 }
 
+.reovana-site .reovana-account-btn {
+  gap: 10px;
+}
+
+.reovana-site .reovana-account-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.reovana-site .reovana-account-label {
+  display: inline-block;
+}
+
+.reovana-site .reovana-account-btn.dropdown-toggle::after {
+  margin-left: 10px;
+  opacity: 0.9;
+}
+
+.reovana-site .reovana-account-menu {
+  border-radius: 14px;
+  border: 1px solid var(--Line, #ececec);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+  padding: 8px;
+  min-width: 220px;
+}
+
+.reovana-site .reovana-account-menu .dropdown-item {
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-weight: 600;
+}
+
+.reovana-site .reovana-account-menu .dropdown-item:active {
+  background-color: var(--Primary);
+}
+
+.reovana-site .reovana-account-menu .dropdown-divider {
+  margin: 8px 0;
+}
+
 .reovana-site .reovana-login-btn::after {
   background-color: #fff !important;
 }

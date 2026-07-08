@@ -1,6 +1,24 @@
 export const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Login</a></div>`;
 
-export const REOVANA_ACCOUNT_HTML = `<div class="reovana-header-auth"><a href="/my-profile" class="tf-btn bg-color-primary pd-23 reovana-login-btn">Account</a></div>`;
+export const REOVANA_ACCOUNT_HTML = `
+<div class="reovana-header-auth dropdown">
+  <a
+    href="#"
+    class="tf-btn bg-color-primary pd-23 reovana-login-btn reovana-account-btn dropdown-toggle"
+    role="button"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+  >
+    <span class="reovana-account-icon" aria-hidden="true">👤</span>
+    <span class="reovana-account-label">Account</span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end reovana-account-menu">
+    <li><a class="dropdown-item" href="/my-profile">Account settings</a></li>
+    <li><hr class="dropdown-divider" /></li>
+    <li><a class="dropdown-item" href="/logout">Logout</a></li>
+  </ul>
+</div>
+`.trim();
 
 export const REOVANA_LOGO = "/images/reovana/logo.png";
 export const REOVANA_LOGO_DARK = "/images/reovana/logo-dark.jpeg";

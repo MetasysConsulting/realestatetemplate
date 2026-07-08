@@ -109,12 +109,15 @@ export default function MyProfilePage() {
   };
 
   return (
-    <div className="tf-container xl" style={{ paddingTop: 32, paddingBottom: 56 }}>
+    <div className="tf-container xl" style={{ paddingTop: 64, paddingBottom: 72 }}>
       <div className="row justify-content-center">
         <div className="col-12 col-lg-8">
           <div className="widget-box-2">
             <div className="box">
               <h3 className="title">Account settings</h3>
+              <p className="body-2" style={{ marginTop: 8, color: "var(--Note, #A8ABAE)" }}>
+                Update your name. Your email is managed by your sign-in method.
+              </p>
 
               {loading ? (
                 <p className="body-1" style={{ marginTop: 12 }}>
@@ -122,7 +125,7 @@ export default function MyProfilePage() {
                 </p>
               ) : (
                 <>
-                  <div className="box grid-layout-2 gap-30" style={{ marginTop: 16 }}>
+                  <div className="box grid-layout-2 gap-30" style={{ marginTop: 18 }}>
                     <fieldset className="box-fieldset">
                       <label htmlFor="firstName">First name</label>
                       <input
@@ -146,7 +149,7 @@ export default function MyProfilePage() {
                     </fieldset>
                   </div>
 
-                  <fieldset className="box box-fieldset" style={{ marginTop: 16 }}>
+                  <fieldset className="box box-fieldset" style={{ marginTop: 18 }}>
                     <label htmlFor="email">Email</label>
                     <input id="email" type="email" className="form-control" value={state.email} disabled />
                   </fieldset>
@@ -162,7 +165,7 @@ export default function MyProfilePage() {
                     </p>
                   ) : null}
 
-                  <div className="box" style={{ display: "flex", gap: 12, marginTop: 16 }}>
+                  <div className="box" style={{ display: "flex", gap: 12, marginTop: 18, flexWrap: "wrap" }}>
                     <button
                       type="button"
                       className="tf-btn bg-color-primary pd-10"
