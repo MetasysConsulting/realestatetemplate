@@ -1,6 +1,9 @@
-/** Backend (listings + auth) is off unless explicitly enabled on Vercel / .env.local. */
+/**
+ * Backend (listings + auth) is ON by default.
+ * Set NEXT_PUBLIC_REOVANA_BACKEND_ENABLED=false to temporarily disconnect it.
+ */
 export function isReovanaBackendEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_REOVANA_BACKEND_ENABLED === "true";
+  return process.env.NEXT_PUBLIC_REOVANA_BACKEND_ENABLED !== "false";
 }
 
 export function getSupabaseUrl(): string | undefined {
