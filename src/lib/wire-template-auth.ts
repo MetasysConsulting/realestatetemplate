@@ -120,7 +120,7 @@ function wireLoginForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserClien
     }
 
     closeModal("modalLogin");
-    window.location.href = "/dashboard";
+    window.location.href = "/";
   };
 
   form.addEventListener("submit", handleLogin);
@@ -199,7 +199,7 @@ function wireRegisterForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
       },
     });
     submitLink.classList.remove("disabled");
@@ -211,7 +211,7 @@ function wireRegisterForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
 
     if (data.session) {
       closeModal("modalRegister");
-      window.location.href = "/dashboard";
+      window.location.href = "/";
       return;
     }
 
@@ -232,7 +232,7 @@ function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
   const startOAuth = async (modal: HTMLElement, provider: "google" | "facebook") => {
     clearAuthMessage(modal);
 
-    const redirectTo = `${window.location.origin}/auth/callback?next=/dashboard`;
+    const redirectTo = `${window.location.origin}/auth/callback?next=/`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: { redirectTo },

@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   const key = getSupabaseAnonKey();
   const { searchParams, origin } = request.nextUrl;
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  const next = searchParams.get("next") ?? "/";
 
   if (!url || !key || !code) {
     return NextResponse.redirect(`${origin}/?login=required`);
