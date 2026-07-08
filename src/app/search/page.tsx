@@ -5,6 +5,7 @@ import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import { searchListings } from "@/lib/listings-repository";
 import { PropertyCategoryExplorer } from "@/components/properties/PropertyCategoryExplorer";
 import { normalizeStateQuery } from "@/lib/us-states";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -27,20 +28,24 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const q = readParam(params, "q").trim();
   const state = normalizeStateQuery(readParam(params, "state"));
+  const propertyType = readParam(params, "propertyType").trim();
   const beds = Number(readParam(params, "beds")) || 0;
   const baths = Number(readParam(params, "baths")) || 0;
   const minPrice = Number(readParam(params, "minPrice")) || 0;
   const maxPrice = Number(readParam(params, "maxPrice")) || 0;
+  const page = Math.max(1, Number(readParam(params, "page")) || 1);
+  const pageSize = Math.min(100, Math.max(20, Number(readParam(params, "pageSize")) || 40));
 
   const { listings, total } = await searchListings({
     q,
     state,
+    propertyType,
     beds,
     baths,
     minPrice,
     maxPrice,
-    page: 1,
-    pageSize: 250,
+    page,
+    pageSize,
   });
 
   const home = loadTemplatePageBySlug("index");
@@ -51,6 +56,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const title = q ? `Search: ${q}` : "Search Results";
   const descriptionParts = [
     state ? `State: ${state}` : "",
+    propertyType ? `Type: ${propertyType}` : "",
     beds ? `Beds: ${beds}+` : "",
     baths ? `Baths: ${baths}+` : "",
     minPrice ? `Min $${minPrice.toLocaleString()}` : "",
@@ -60,6 +66,25 @@ export default async function SearchPage({ searchParams }: PageProps) {
     ? descriptionParts.join(" · ")
     : "Browse distressed property listings based on your search.";
 
+  const safeTotal = typeof total === "number" ? total : undefined;
+  const totalPages = safeTotal ? Math.max(1, Math.ceil(safeTotal / pageSize)) : 1;
+  const showPager = totalPages > 1;
+
+  const buildHref = (nextPage: number) => {
+    const next = new URLSearchParams();
+    if (q) next.set("q", q);
+    if (state) next.set("state", state);
+    if (propertyType) next.set("propertyType", propertyType);
+    if (beds) next.set("beds", String(beds));
+    if (baths) next.set("baths", String(baths));
+    if (minPrice) next.set("minPrice", String(minPrice));
+    if (maxPrice) next.set("maxPrice", String(maxPrice));
+    if (pageSize !== 40) next.set("pageSize", String(pageSize));
+    if (nextPage > 1) next.set("page", String(nextPage));
+    const qs = next.toString();
+    return qs ? `/search?${qs}` : "/search";
+  };
+
   return (
     <TemplateChrome
       headerHtml={chrome.headerHtml}
@@ -67,6 +92,71 @@ export default async function SearchPage({ searchParams }: PageProps) {
       tailHtml={chrome.tailHtml}
       bodyClass="theme-color-4 auctions-route"
     >
+      <div className="tf-container" style={{ paddingTop: 24 }}>
+        <div className="wg-filter" style={{ marginBottom: 18 }}>
+          <div className="form-title">
+            <form action="/search" method="get">
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+                <input
+                  name="q"
+                  defaultValue={q}
+                  placeholder="City, address, ZIP, or property type…"
+                  style={{ flex: "1 1 260px", minWidth: 220 }}
+                />
+                <input
+                  name="state"
+                  defaultValue={state}
+                  placeholder="State (e.g. FL or Florida)"
+                  style={{ width: 220 }}
+                />
+                <input
+                  name="propertyType"
+                  defaultValue={propertyType}
+                  placeholder="Property type (e.g. Condo)"
+                  style={{ width: 220 }}
+                />
+                <input name="beds" defaultValue={beds ? String(beds) : ""} placeholder="Beds +" style={{ width: 110 }} />
+                <input name="baths" defaultValue={baths ? String(baths) : ""} placeholder="Baths +" style={{ width: 110 }} />
+                <input name="minPrice" defaultValue={minPrice ? String(minPrice) : ""} placeholder="Min $" style={{ width: 140 }} />
+                <input name="maxPrice" defaultValue={maxPrice ? String(maxPrice) : ""} placeholder="Max $" style={{ width: 140 }} />
+                <input type="hidden" name="pageSize" value={String(pageSize)} />
+                <button type="submit" className="tf-btn bg-color-primary pd-3">
+                  Search
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {showPager ? (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+            <div>
+              Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              {page > 1 ? (
+                <Link className="tf-btn style-border pd-3" href={buildHref(page - 1)}>
+                  Prev
+                </Link>
+              ) : (
+                <span className="tf-btn style-border pd-3" aria-disabled="true" style={{ opacity: 0.5 }}>
+                  Prev
+                </span>
+              )}
+              {page < totalPages ? (
+                <Link className="tf-btn bg-color-primary pd-3" href={buildHref(page + 1)}>
+                  Next
+                </Link>
+              ) : (
+                <span className="tf-btn bg-color-primary pd-3" aria-disabled="true" style={{ opacity: 0.5 }}>
+                  Next
+                </span>
+              )}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
       <PropertyCategoryExplorer
         title={title}
         description={description}
@@ -74,6 +164,36 @@ export default async function SearchPage({ searchParams }: PageProps) {
         totalCount={total}
         emptyMessage="No properties match your search yet. Try a different city, state, or filter."
       />
+
+      {showPager ? (
+        <div className="tf-container" style={{ paddingBottom: 28 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16 }}>
+            <div>
+              Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              {page > 1 ? (
+                <Link className="tf-btn style-border pd-3" href={buildHref(page - 1)}>
+                  Prev
+                </Link>
+              ) : (
+                <span className="tf-btn style-border pd-3" aria-disabled="true" style={{ opacity: 0.5 }}>
+                  Prev
+                </span>
+              )}
+              {page < totalPages ? (
+                <Link className="tf-btn bg-color-primary pd-3" href={buildHref(page + 1)}>
+                  Next
+                </Link>
+              ) : (
+                <span className="tf-btn bg-color-primary pd-3" aria-disabled="true" style={{ opacity: 0.5 }}>
+                  Next
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </TemplateChrome>
   );
 }

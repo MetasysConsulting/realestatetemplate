@@ -842,6 +842,7 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
 type SearchListingsOptions = {
   q?: string;
   state?: string;
+  propertyType?: string;
   beds?: number;
   baths?: number;
   minPrice?: number;
@@ -861,6 +862,7 @@ export async function searchListings(
 
   const q = (options.q ?? "").trim();
   const state = normalizeStateQuery(options.state ?? "");
+  const propertyType = (options.propertyType ?? "").trim();
   const beds = Math.max(0, options.beds ?? 0);
   const baths = Math.max(0, options.baths ?? 0);
   const minPrice = Math.max(0, options.minPrice ?? 0);
@@ -881,6 +883,10 @@ export async function searchListings(
     } else {
       query = query.ilike("state", `%${state}%`);
     }
+  }
+
+  if (propertyType) {
+    query = query.ilike("property_type", `%${propertyType.replace(/[%_]/g, "\\$&")}%`);
   }
 
   if (beds) {
