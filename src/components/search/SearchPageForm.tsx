@@ -37,13 +37,15 @@ export function SearchPageForm({
       <div className="form-title">
         <form action="/search" method="get">
           <div className="reovana-search-page-form__row">
-            <input
-              ref={qInputRef}
-              name="q"
-              defaultValue={q}
-              placeholder="City, address, ZIP, or property type…"
-              className="reovana-search-page-form__q"
-            />
+            <div className="reovana-search-page-form__q-wrap">
+              <input
+                ref={qInputRef}
+                name="q"
+                defaultValue={q}
+                placeholder="City, address, ZIP, or property type…"
+                className="reovana-search-page-form__q"
+              />
+            </div>
             <input
               name="state"
               defaultValue={state}

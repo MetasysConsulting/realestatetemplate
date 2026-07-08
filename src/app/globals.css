@@ -2321,8 +2321,6 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
 .reovana-search-suggest-host {
   position: relative;
-  flex: 1 1 260px;
-  min-width: 220px;
 }
 
 .reovana-search-suggest {
@@ -2338,6 +2336,29 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   background: #fff;
   box-shadow: 0 18px 40px rgba(21, 21, 21, 0.12);
   padding: 8px 0;
+}
+
+.reovana-search-suggest.is-loading {
+  padding: 0;
+}
+
+.reovana-search-suggest__loading,
+.reovana-search-suggest__empty {
+  padding: 14px 16px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--Note, #a8abae);
+}
+
+.reovana-search-suggest__empty {
+  color: var(--Heading, #1c1c1e);
+}
+
+.reovana-search-suggest__mark {
+  background: rgba(21, 99, 223, 0.14);
+  color: inherit;
+  padding: 0;
+  border-radius: 3px;
 }
 
 .reovana-search-suggest__group + .reovana-search-suggest__group {
@@ -2393,9 +2414,13 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   align-items: center;
 }
 
-.reovana-search-page-form__q {
+.reovana-search-page-form__q-wrap {
   flex: 1 1 260px;
   min-width: 220px;
+}
+
+.reovana-search-page-form__q {
+  width: 100%;
 }
 
 .reovana-search-page-form__state,
@@ -2413,6 +2438,16 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
 #template-root .wg-filter .form-title {
   position: relative;
+}
+
+#template-root .wg-filter .form-title form {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#template-root .wg-filter .form-title fieldset {
+  width: 100%;
+  min-width: 0;
 }
 
 #template-root .wg-filter .form-title input[type="text"] {

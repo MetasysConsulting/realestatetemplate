@@ -59,18 +59,27 @@ export function matchStateSuggestions(
   const q = query.trim().toLowerCase();
   if (q.length < 2) return [];
 
-  const matches: { name: string; abbr: string }[] = [];
+  const matches: { name: string; abbr: string; score: number }[] = [];
   for (const [name, abbr] of Object.entries(STATE_NAME_TO_ABBR)) {
     const title = name
       .split(" ")
       .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
       .join(" ");
-    if (name.includes(q) || abbr.toLowerCase().startsWith(q)) {
-      matches.push({ name: title, abbr });
+    if (name.startsWith(q) || abbr.toLowerCase().startsWith(q)) {
+      matches.push({
+        name: title,
+        abbr,
+        score: name.startsWith(q) ? 0 : abbr.toLowerCase().startsWith(q) ? 1 : 2,
+      });
+    } else if (name.includes(q)) {
+      matches.push({ name: title, abbr, score: 3 });
     }
-    if (matches.length >= limit) break;
   }
-  return matches;
+
+  return matches
+    .sort((a, b) => a.score - b.score || a.name.localeCompare(b.name))
+    .slice(0, limit)
+    .map(({ name, abbr }) => ({ name, abbr }));
 }
 
 /** Normalize a state filter to a 2-letter code when possible. */

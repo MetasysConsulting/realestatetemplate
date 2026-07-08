@@ -1,7 +1,7 @@
 import type { SearchSuggestion, SearchSuggestionType } from "@/lib/search-suggestions";
 import { suggestionTypeLabel } from "@/lib/search-suggestions";
 
-const DEBOUNCE_MS = 280;
+const DEBOUNCE_MS = 260;
 const MIN_QUERY_LENGTH = 2;
 
 type AttachOptions = {
@@ -13,37 +13,83 @@ type SuggestResponse = {
 };
 
 function groupSuggestions(items: SearchSuggestion[]): Array<{ type: SearchSuggestionType; items: SearchSuggestion[] }> {
-  const order: SearchSuggestionType[] = ["state", "city", "county", "zip", "address"];
   const groups = new Map<SearchSuggestionType, SearchSuggestion[]>();
+  const firstIndex = new Map<SearchSuggestionType, number>();
 
-  for (const item of items) {
+  items.forEach((item, index) => {
     const bucket = groups.get(item.type) ?? [];
     bucket.push(item);
     groups.set(item.type, bucket);
+    if (!firstIndex.has(item.type)) firstIndex.set(item.type, index);
+  });
+
+  return Array.from(groups.entries())
+    .sort((a, b) => (firstIndex.get(a[0]) ?? 0) - (firstIndex.get(b[0]) ?? 0))
+    .map(([type, groupItems]) => ({ type, items: groupItems }));
+}
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightMatch(text: string, query: string): DocumentFragment {
+  const fragment = document.createDocumentFragment();
+  const trimmed = query.trim();
+  if (!trimmed) {
+    fragment.appendChild(document.createTextNode(text));
+    return fragment;
   }
 
-  return order
-    .filter((type) => groups.has(type))
-    .map((type) => ({ type, items: groups.get(type)! }));
+  const pattern = new RegExp(`(${escapeRegExp(trimmed)})`, "ig");
+  const parts = text.split(pattern);
+  for (const part of parts) {
+    if (!part) continue;
+    if (part.toLowerCase() === trimmed.toLowerCase()) {
+      const mark = document.createElement("mark");
+      mark.className = "reovana-search-suggest__mark";
+      mark.textContent = part;
+      fragment.appendChild(mark);
+    } else {
+      fragment.appendChild(document.createTextNode(part));
+    }
+  }
+  return fragment;
 }
 
 function ensureHost(input: HTMLInputElement): HTMLElement {
+  const formTitle = input.closest(".form-title");
+  if (formTitle instanceof HTMLElement) {
+    formTitle.classList.add("reovana-search-suggest-host");
+    return formTitle;
+  }
+
   const parent = input.parentElement;
-  if (!parent) return input;
-  parent.classList.add("reovana-search-suggest-host");
-  return parent;
+  if (parent) {
+    parent.classList.add("reovana-search-suggest-host");
+    return parent;
+  }
+
+  return input;
 }
 
-function createDropdown(host: HTMLElement): HTMLDivElement {
+function createDropdown(host: HTMLElement, inputId: string): HTMLDivElement {
   const existing = host.querySelector<HTMLDivElement>(".reovana-search-suggest");
   if (existing) return existing;
 
   const dropdown = document.createElement("div");
   dropdown.className = "reovana-search-suggest";
+  dropdown.id = `${inputId}-listbox`;
   dropdown.setAttribute("role", "listbox");
   dropdown.hidden = true;
   host.appendChild(dropdown);
   return dropdown;
+}
+
+function ensureInputId(input: HTMLInputElement): string {
+  if (input.id) return input.id;
+  const id = `reovana-search-input-${Math.random().toString(36).slice(2, 9)}`;
+  input.id = id;
+  return id;
 }
 
 export function attachSearchSuggestions(input: HTMLInputElement, options: AttachOptions = {}): () => void {
@@ -55,12 +101,16 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   input.setAttribute("aria-autocomplete", "list");
   input.setAttribute("aria-expanded", "false");
 
+  const inputId = ensureInputId(input);
   const host = ensureHost(input);
-  const dropdown = createDropdown(host);
+  const dropdown = createDropdown(host, inputId);
+  input.setAttribute("aria-controls", dropdown.id);
+
   let debounceTimer = 0;
   let activeIndex = -1;
   let currentSuggestions: SearchSuggestion[] = [];
   let requestId = 0;
+  let abortController: AbortController | null = null;
 
   const flatItems = () =>
     Array.from(dropdown.querySelectorAll<HTMLButtonElement>(".reovana-search-suggest__item"));
@@ -77,8 +127,11 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   };
 
   const closeDropdown = () => {
+    abortController?.abort();
+    abortController = null;
     dropdown.hidden = true;
     dropdown.innerHTML = "";
+    dropdown.classList.remove("is-loading");
     activeIndex = -1;
     currentSuggestions = [];
     input.setAttribute("aria-expanded", "false");
@@ -93,17 +146,31 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     window.location.assign(suggestion.href);
   };
 
-  const renderSuggestions = (suggestions: SearchSuggestion[]) => {
-    currentSuggestions = suggestions;
+  const renderStatus = (message: string, className: string) => {
     dropdown.innerHTML = "";
+    const status = document.createElement("div");
+    status.className = className;
+    status.textContent = message;
+    dropdown.appendChild(status);
+    dropdown.hidden = false;
+    dropdown.classList.remove("is-loading");
+    input.setAttribute("aria-expanded", "true");
+    activeIndex = -1;
+    currentSuggestions = [];
+  };
+
+  const renderSuggestions = (suggestions: SearchSuggestion[], query: string) => {
+    dropdown.innerHTML = "";
+    dropdown.classList.remove("is-loading");
 
     if (!suggestions.length) {
-      closeDropdown();
+      renderStatus(`No locations found for “${query}”. Press Search to try anyway.`, "reovana-search-suggest__empty");
       return;
     }
 
     const grouped = groupSuggestions(suggestions);
     const flat: SearchSuggestion[] = [];
+
     for (const group of grouped) {
       const section = document.createElement("div");
       section.className = "reovana-search-suggest__group";
@@ -119,10 +186,11 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
         button.type = "button";
         button.className = "reovana-search-suggest__item";
         button.setAttribute("role", "option");
+        button.id = `${inputId}-option-${flat.length - 1}`;
 
         const label = document.createElement("span");
         label.className = "reovana-search-suggest__label";
-        label.textContent = suggestion.label;
+        label.appendChild(highlightMatch(suggestion.label, query));
         button.appendChild(label);
 
         if (suggestion.sublabel) {
@@ -150,13 +218,29 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
 
   const fetchSuggestions = async (query: string) => {
     const id = ++requestId;
+    abortController?.abort();
+    abortController = new AbortController();
+
+    dropdown.classList.add("is-loading");
+    dropdown.hidden = false;
+    dropdown.innerHTML = "";
+    const loading = document.createElement("div");
+    loading.className = "reovana-search-suggest__loading";
+    loading.textContent = "Searching locations…";
+    dropdown.appendChild(loading);
+    input.setAttribute("aria-expanded", "true");
+
     try {
-      const response = await fetch(`/api/search/suggest?q=${encodeURIComponent(query)}`);
+      const response = await fetch(`/api/search/suggest?q=${encodeURIComponent(query)}`, {
+        signal: abortController.signal,
+      });
       if (!response.ok) throw new Error("Suggest request failed");
       const payload = (await response.json()) as SuggestResponse;
       if (id !== requestId) return;
-      renderSuggestions(payload.suggestions ?? []);
-    } catch {
+      if (input.value.trim() !== query) return;
+      renderSuggestions(payload.suggestions ?? [], query);
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       if (id === requestId) closeDropdown();
     }
   };
@@ -179,11 +263,11 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
 
   const handleKeyDown = (event: KeyboardEvent) => {
     if (dropdown.hidden) return;
-    const items = flatItems();
-    if (!items.length) return;
 
     if (event.key === "ArrowDown") {
+      if (!currentSuggestions.length) return;
       event.preventDefault();
+      const items = flatItems();
       const next = activeIndex < items.length - 1 ? activeIndex + 1 : 0;
       setActiveItem(next);
       items[next]?.scrollIntoView({ block: "nearest" });
@@ -191,7 +275,9 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     }
 
     if (event.key === "ArrowUp") {
+      if (!currentSuggestions.length) return;
       event.preventDefault();
+      const items = flatItems();
       const next = activeIndex > 0 ? activeIndex - 1 : items.length - 1;
       setActiveItem(next);
       items[next]?.scrollIntoView({ block: "nearest" });
@@ -206,6 +292,7 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     }
 
     if (event.key === "Escape") {
+      event.preventDefault();
       closeDropdown();
     }
   };
@@ -217,6 +304,7 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
 
   return () => {
     window.clearTimeout(debounceTimer);
+    abortController?.abort();
     input.removeEventListener("input", scheduleFetch);
     input.removeEventListener("focus", scheduleFetch);
     input.removeEventListener("keydown", handleKeyDown);
