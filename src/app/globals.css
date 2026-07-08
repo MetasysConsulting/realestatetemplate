@@ -2321,6 +2321,7 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
 .reovana-search-suggest-host {
   position: relative;
+  z-index: 9999;
 }
 
 .reovana-search-suggest {
@@ -2328,7 +2329,7 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   top: calc(100% + 8px);
   left: 0;
   right: 0;
-  z-index: 120;
+  z-index: 99999;
   max-height: 360px;
   overflow: auto;
   border-radius: 14px;
