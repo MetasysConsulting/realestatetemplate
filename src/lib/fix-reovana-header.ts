@@ -1,24 +1,12 @@
 export const REOVANA_LOGIN_HTML = `<div class="reovana-header-auth"><a href="#modalLogin" class="tf-btn bg-color-primary pd-23 reovana-login-btn" data-bs-toggle="modal">Login</a></div>`;
 
-export const REOVANA_ACCOUNT_HTML = `
-<div class="reovana-header-auth dropdown">
-  <a
-    href="#"
-    class="tf-btn bg-color-primary pd-23 reovana-login-btn reovana-account-btn dropdown-toggle"
-    role="button"
-    data-bs-toggle="dropdown"
-    aria-expanded="false"
-  >
-    <span class="reovana-account-icon" aria-hidden="true">👤</span>
-    <span class="reovana-account-label">Account</span>
-  </a>
-  <ul class="dropdown-menu dropdown-menu-end reovana-account-menu">
-    <li><a class="dropdown-item" href="/my-profile">Account settings</a></li>
-    <li><hr class="dropdown-divider" /></li>
-    <li><a class="dropdown-item" href="/logout">Logout</a></li>
-  </ul>
-</div>
-`.trim();
+const REOVANA_USER_ICON_SVG = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15.749 6C15.749 6.99456 15.3539 7.94839 14.6507 8.65165C13.9474 9.35491 12.9936 9.75 11.999 9.75C11.0044 9.75 10.0506 9.35491 9.34735 8.65165C8.64409 7.94839 8.249 6.99456 8.249 6C8.249 5.00544 8.64409 4.05161 9.34735 3.34835C10.0506 2.64509 11.0044 2.25 11.999 2.25C12.9936 2.25 13.9474 2.64509 14.6507 3.34835C15.3539 4.05161 15.749 5.00544 15.749 6ZM4.5 20.118C4.53213 18.1504 5.33634 16.2742 6.73918 14.894C8.14202 13.5139 10.0311 12.7405 11.999 12.7405C13.9669 12.7405 15.856 13.5139 17.2588 14.894C18.6617 16.2742 19.4659 18.1504 19.498 20.118C17.1454 21.1968 14.5871 21.7535 11.999 21.75C9.323 21.75 6.783 21.166 4.5 20.118Z" stroke="#2C2E33" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const REOVANA_PROFILE_ICON_SVG = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M15 15C16.3807 15 17.5 13.8807 17.5 12.5C17.5 11.1193 16.3807 10 15 10C13.6193 10 12.5 11.1193 12.5 12.5C12.5 13.8807 13.6193 15 15 15Z" stroke="#A8ABAE" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M7.5013 9.16667C9.34225 9.16667 10.8346 7.67428 10.8346 5.83333C10.8346 3.99238 9.34225 2.5 7.5013 2.5C5.66035 2.5 4.16797 3.99238 4.16797 5.83333C4.16797 7.67428 5.66035 9.16667 7.5013 9.16667Z" stroke="#A8ABAE" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M8.33464 12.5H5.0013C4.11725 12.5 3.2694 12.8512 2.64428 13.4763C2.01916 14.1014 1.66797 14.9493 1.66797 15.8333V17.5" stroke="#A8ABAE" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+const REOVANA_LOGOUT_ICON_SVG = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7.5 17.5H4.16667C3.72464 17.5 3.30072 17.3244 2.98816 17.0118C2.67559 16.6993 2.5 16.2754 2.5 15.8333V4.16667C2.5 3.72464 2.67559 3.30072 2.98816 2.98816C3.30072 2.67559 3.72464 2.5 4.16667 2.5H7.5" stroke="#A8ABAE" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.332 14.1667L17.4987 10L13.332 5.83337" stroke="#A8ABAE" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M17.5 10H7.5" stroke="#A8ABAE" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+export const REOVANA_ACCOUNT_HTML = `<div class="reovana-header-auth"><div class="box-user tf-action-btns reovana-account-menu" role="button" tabindex="0" aria-label="Account menu" aria-haspopup="true"><div class="user">${REOVANA_USER_ICON_SVG}</div><div class="menu-user"><a class="dropdown-item" href="/my-profile">${REOVANA_PROFILE_ICON_SVG}Account settings</a><a class="dropdown-item" href="#">${REOVANA_LOGOUT_ICON_SVG}Logout</a></div></div></div>`;
 
 export const REOVANA_LOGO = "/images/reovana/logo.png";
 export const REOVANA_LOGO_DARK = "/images/reovana/logo-dark.jpeg";

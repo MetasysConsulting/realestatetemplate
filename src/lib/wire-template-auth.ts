@@ -23,6 +23,7 @@ function applyAuthHeader(user: User | null) {
       const next = wrap.firstElementChild;
       if (next) node.replaceWith(next);
     });
+    if (user) wireAccountMenus();
     return;
   }
 
@@ -35,6 +36,8 @@ function applyAuthHeader(user: User | null) {
       if (next) node.replaceWith(next);
     });
   });
+
+  if (user) wireAccountMenus();
 }
 
 function showAuthMessage(modal: HTMLElement, message: string, isError = true) {
@@ -298,6 +301,56 @@ function handleLoginQueryParam() {
   window.history.replaceState({}, "", clean.toString());
 }
 
+function wireAccountMenus() {
+  document.querySelectorAll<HTMLElement>(".reovana-account-menu.tf-action-btns").forEach((menu) => {
+    if (menu.getAttribute("data-reovana-auth-wired") === "account-menu") return;
+    menu.setAttribute("data-reovana-auth-wired", "account-menu");
+
+    const toggle = (event: Event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const isOpen = menu.classList.contains("active");
+      document.querySelectorAll(".reovana-account-menu.tf-action-btns.active").forEach((openMenu) => {
+        if (openMenu !== menu) openMenu.classList.remove("active");
+      });
+      menu.classList.toggle("active", !isOpen);
+    };
+
+    menu.addEventListener("click", (event) => {
+      const target = event.target;
+      if (target instanceof Element && target.closest(".menu-user a")) {
+        return;
+      }
+      toggle(event);
+    });
+    menu.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        toggle(event);
+      }
+      if (event.key === "Escape") {
+        menu.classList.remove("active");
+      }
+    });
+
+    menu.querySelectorAll<HTMLAnchorElement>(".menu-user a.dropdown-item").forEach((link) => {
+      link.addEventListener("click", () => {
+        menu.classList.remove("active");
+      });
+    });
+  });
+
+  if (!(document as Document & { __reovanaAccountMenuBound?: boolean }).__reovanaAccountMenuBound) {
+    (document as Document & { __reovanaAccountMenuBound?: boolean }).__reovanaAccountMenuBound = true;
+    document.addEventListener("click", (event) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      document.querySelectorAll(".reovana-account-menu.tf-action-btns.active").forEach((menu) => {
+        if (!menu.contains(target)) menu.classList.remove("active");
+      });
+    });
+  }
+}
+
 function wireLogoutLinks() {
   document.querySelectorAll('a[href*="logout"], a[href*="Logout"]').forEach((node) => {
     if (!(node instanceof HTMLAnchorElement)) return;
@@ -337,6 +390,7 @@ export function wireTemplateAuth() {
   wireLoginForm(supabase);
   wireRegisterForm(supabase);
   wireOAuthButtons(supabase);
+  wireAccountMenus();
   wireLogoutLinks();
   handleLoginQueryParam();
 
