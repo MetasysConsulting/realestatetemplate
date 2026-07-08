@@ -102,12 +102,14 @@ type PropertyCategoryExplorerProps = {
   title: string;
   description: string;
   listings: PropertyListing[];
+  totalCount?: number;
 };
 
 export function PropertyCategoryExplorer({
   title,
   description,
   listings,
+  totalCount,
 }: PropertyCategoryExplorerProps) {
   const [state, setState] = useState("All");
   const [sortBy, setSortBy] = useState("price-desc");
@@ -153,7 +155,7 @@ export function PropertyCategoryExplorer({
             <p>{description}</p>
             <p>
               Showing <strong>{filtered.length}</strong> of{" "}
-              <strong>{listings.length}</strong> properties
+              <strong>{totalCount ?? listings.length}</strong> properties
             </p>
             <div className="auctions-list-head__actions">
               <label className="auctions-sort">
@@ -173,7 +175,7 @@ export function PropertyCategoryExplorer({
             {filtered.length === 0 ? (
               <p className="auctions-empty">
                 {listings.length === 0
-                  ? "No listings available in this category yet."
+                  ? "No properties match your search yet."
                   : "No properties match your filters."}
               </p>
             ) : null}

@@ -7,6 +7,7 @@ import { LoanStepsSectionMount } from "@/components/home/LoanStepsSectionMount";
 import { NeighborhoodsCarouselMount } from "@/components/home/NeighborhoodsCarouselMount";
 import { fixReovanaHeader } from "@/lib/fix-reovana-header";
 import { normalizeTemplateHtml } from "@/lib/normalize-template-html";
+import { wireTemplateSearch } from "@/lib/wire-template-search";
 import type { PropertyListing } from "@/lib/load-category-listings";
 
 type TemplatePageProps = {
@@ -62,12 +63,18 @@ export function TemplatePage({
     applyHeaderFix();
     const raf = window.requestAnimationFrame(applyHeaderFix);
     const t1 = window.setTimeout(applyHeaderFix, 50);
+    const wireSearch = () => wireTemplateSearch();
+    wireSearch();
+    const tSearch1 = window.setTimeout(wireSearch, 50);
+    const tSearch2 = window.setTimeout(wireSearch, 800);
 
     hideLoader();
     const t = window.setTimeout(hideLoader, 800);
     return () => {
       window.cancelAnimationFrame(raf);
       window.clearTimeout(t1);
+      window.clearTimeout(tSearch1);
+      window.clearTimeout(tSearch2);
       window.clearTimeout(t);
     };
   }, [bodyClass, safeHtml]);

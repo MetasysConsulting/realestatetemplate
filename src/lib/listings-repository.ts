@@ -835,6 +835,89 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
   }
 }
 
+type SearchListingsOptions = {
+  q?: string;
+  state?: string;
+  beds?: number;
+  baths?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  page?: number;
+  pageSize?: number;
+};
+
+export async function searchListings(
+  options: SearchListingsOptions,
+): Promise<{ listings: PropertyListing[]; total?: number }> {
+  connection();
+  if (!areSiteListingsEnabled() || !isSupabaseConfigured()) return { listings: [] };
+
+  const client = createSupabaseServerClient();
+  if (!client) return { listings: [] };
+
+  const q = (options.q ?? "").trim();
+  const state = (options.state ?? "").trim();
+  const beds = Math.max(0, options.beds ?? 0);
+  const baths = Math.max(0, options.baths ?? 0);
+  const minPrice = Math.max(0, options.minPrice ?? 0);
+  const maxPrice = Math.max(0, options.maxPrice ?? 0);
+  const pageSize = Math.min(500, Math.max(10, options.pageSize ?? 100));
+  const page = Math.max(1, options.page ?? 1);
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = client
+    .from("listings")
+    .select("*", { count: "estimated" })
+    .eq("is_active", true);
+
+  if (state) {
+    query = query.ilike("state", state.length <= 2 ? state.toUpperCase() : `%${state}%`);
+  }
+
+  if (beds) {
+    query = query.gte("bedrooms", beds);
+  }
+
+  if (baths) {
+    query = query.gte("bathrooms", baths);
+  }
+
+  if (minPrice) {
+    query = query.gte("price", minPrice);
+  }
+
+  if (maxPrice) {
+    query = query.lte("price", maxPrice);
+  }
+
+  if (q) {
+    const escaped = q.replace(/[%_]/g, "\\$&");
+    query = query.or(
+      [
+        `address.ilike.%${escaped}%`,
+        `city.ilike.%${escaped}%`,
+        `zip.eq.${escaped}`,
+      ].join(","),
+    );
+  }
+
+  const { data, error, count } = await query
+    .order("price", { ascending: false })
+    .range(from, to);
+
+  if (error || !data) {
+    console.error("[listings-repository] searchListings failed:", error?.message ?? "unknown error");
+    return { listings: [] };
+  }
+
+  const listings = (data as DatabaseListingRow[])
+    .map(rowToPropertyListing)
+    .filter(Boolean) as PropertyListing[];
+
+  return { listings, total: typeof count === "number" ? count : undefined };
+}
+
 export async function fetchHomeCategoryRows(): Promise<Record<string, PropertyListing[]>> {
   const entries = await Promise.all(
     HOME_CATEGORY_ROWS.map(async (row) => {
