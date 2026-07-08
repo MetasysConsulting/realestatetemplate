@@ -367,7 +367,7 @@ body.auctions-route .reovana-site .header {
   min-height: clamp(420px, 44vw, 560px) !important;
   display: flex;
   align-items: center;
-  overflow: visible !important;
+  overflow: hidden;
   background-image: url(/images/reovana/hero-house.jpeg) !important;
   /* Zoom in and crop sky (top) + lawn (bottom) */
   background-size: 115% 158% !important;

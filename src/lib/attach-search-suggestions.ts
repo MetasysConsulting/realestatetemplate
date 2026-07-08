@@ -89,8 +89,8 @@ function ensureHost(input: HTMLInputElement): HTMLElement {
   return input;
 }
 
-function createDropdown(host: HTMLElement, inputId: string): HTMLDivElement {
-  const existing = host.querySelector<HTMLDivElement>(".reovana-search-suggest");
+function createDropdown(inputId: string): HTMLDivElement {
+  const existing = document.getElementById(`${inputId}-listbox`) as HTMLDivElement | null;
   if (existing) return existing;
 
   const dropdown = document.createElement("div");
@@ -98,7 +98,7 @@ function createDropdown(host: HTMLElement, inputId: string): HTMLDivElement {
   dropdown.id = `${inputId}-listbox`;
   dropdown.setAttribute("role", "listbox");
   dropdown.hidden = true;
-  host.appendChild(dropdown);
+  document.body.appendChild(dropdown);
   return dropdown;
 }
 
@@ -120,7 +120,7 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
 
   const inputId = ensureInputId(input);
   const host = ensureHost(input);
-  const dropdown = createDropdown(host, inputId);
+  const dropdown = createDropdown(inputId);
   input.setAttribute("aria-controls", dropdown.id);
 
   let debounceTimer = 0;
@@ -128,6 +128,20 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   let currentSuggestions: SearchSuggestion[] = [];
   let requestId = 0;
   let abortController: AbortController | null = null;
+
+  const updatePosition = () => {
+    const rect = input.getBoundingClientRect();
+    dropdown.style.position = "absolute";
+    dropdown.style.left = `${rect.left + window.scrollX}px`;
+    dropdown.style.top = `${rect.bottom + window.scrollY + 8}px`;
+    dropdown.style.width = `${rect.width}px`;
+  };
+
+  const handleResizeOrScroll = () => {
+    if (!dropdown.hidden) {
+      updatePosition();
+    }
+  };
 
   const flatItems = () =>
     Array.from(dropdown.querySelectorAll<HTMLButtonElement>(".reovana-search-suggest__item"));
@@ -169,6 +183,7 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     status.className = className;
     status.textContent = message;
     dropdown.appendChild(status);
+    updatePosition();
     dropdown.hidden = false;
     dropdown.classList.remove("is-loading");
     input.setAttribute("aria-expanded", "true");
@@ -238,6 +253,7 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     }
 
     currentSuggestions = flat;
+    updatePosition();
     dropdown.hidden = false;
     input.setAttribute("aria-expanded", "true");
     setActiveItem(-1);
@@ -249,6 +265,7 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     abortController = new AbortController();
 
     dropdown.classList.add("is-loading");
+    updatePosition();
     dropdown.hidden = false;
     dropdown.innerHTML = "";
     const loading = document.createElement("div");
@@ -328,10 +345,14 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   input.addEventListener("focus", scheduleFetch);
   input.addEventListener("keydown", handleKeyDown);
   document.addEventListener("mousedown", handleDocumentClick);
+  window.addEventListener("resize", handleResizeOrScroll);
+  window.addEventListener("scroll", handleResizeOrScroll, { passive: true });
 
   return () => {
     window.clearTimeout(debounceTimer);
     abortController?.abort();
+    window.removeEventListener("resize", handleResizeOrScroll);
+    window.removeEventListener("scroll", handleResizeOrScroll);
     input.removeEventListener("input", scheduleFetch);
     input.removeEventListener("focus", scheduleFetch);
     input.removeEventListener("keydown", handleKeyDown);
