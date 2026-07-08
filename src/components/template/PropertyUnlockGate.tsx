@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import {
   applyLockedBlur,
+  clearGalleryBlur,
   clearLockedBlur,
   readListingUnlocked,
   writeListingUnlocked,
@@ -14,9 +15,8 @@ type PropertyUnlockGateProps = {
   enabled: boolean;
 };
 
-/** Sensitive listing fields — paywall hides price, address, specs, gallery & contact */
+/** Sensitive listing fields — paywall hides price, address, specs & contact (photos stay visible). */
 const BLUR_SELECTORS = [
-  ".section-property-image",
   ".flat-title .breadcrumb li:last-child",
   ".wg-property.box-overview .title",
   ".wg-property.box-overview .price",
@@ -115,6 +115,8 @@ function insertPaywall(
 
 function initGate(root: HTMLElement, scope: string) {
   const alreadyUnlocked = readListingUnlocked(scope);
+
+  clearGalleryBlur(root);
 
   BLUR_SELECTORS.forEach((selector) => {
     root.querySelectorAll(selector).forEach((el) => {

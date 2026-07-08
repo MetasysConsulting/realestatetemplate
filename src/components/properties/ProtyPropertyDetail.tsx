@@ -307,11 +307,11 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
       </section>
 
       <section
-        className={`section-property-image${singlePhoto ? " reovana-listing-detail__gallery--single" : ""}`}
+        className={`section-property-image reovana-listing-gallery${singlePhoto ? " reovana-listing-detail__gallery--single" : ""}`}
       >
         <div className="tf-container">
           <div className="row">
-            <div className="col-12 reovana-blur-target">
+            <div className="col-12">
               {singlePhoto ? (
                 <div className="wrap-image">
                   <div className="image img-1">

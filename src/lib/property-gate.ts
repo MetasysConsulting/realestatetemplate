@@ -22,7 +22,20 @@ export function writeListingUnlocked(scope: string): void {
 
 export const LOCKED_BLUR_FILTER = "blur(14px)";
 
+/** Property photos stay visible; only text/detail blocks are blurred. */
+export const BLUR_EXEMPT_SELECTORS = [
+  ".section-property-image",
+  ".reovana-listing-gallery",
+] as const;
+
+export function isBlurExemptElement(el: HTMLElement): boolean {
+  return BLUR_EXEMPT_SELECTORS.some(
+    (selector) => el.matches(selector) || Boolean(el.closest(selector)),
+  );
+}
+
 export function applyLockedBlur(el: HTMLElement): void {
+  if (isBlurExemptElement(el)) return;
   el.classList.add("proty-blurred");
   el.style.filter = LOCKED_BLUR_FILTER;
   el.style.setProperty("-webkit-filter", LOCKED_BLUR_FILTER);
@@ -41,8 +54,21 @@ export function clearLockedBlur(el: HTMLElement): void {
 }
 
 export function syncBlurTargets(root: HTMLElement, locked: boolean): void {
+  clearGalleryBlur(root);
+
   root.querySelectorAll<HTMLElement>(".reovana-blur-target, .proty-blurred").forEach((el) => {
+    if (isBlurExemptElement(el)) {
+      clearLockedBlur(el);
+      return;
+    }
+
     if (locked) applyLockedBlur(el);
     else clearLockedBlur(el);
+  });
+}
+
+export function clearGalleryBlur(root: HTMLElement): void {
+  root.querySelectorAll<HTMLElement>(BLUR_EXEMPT_SELECTORS.join(", ")).forEach((el) => {
+    clearLockedBlur(el);
   });
 }

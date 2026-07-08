@@ -98,6 +98,17 @@ body {
   transition: filter 0.2s ease;
 }
 
+#template-root .section-property-image.proty-blurred,
+#template-root .reovana-listing-gallery.proty-blurred,
+#template-root .section-property-image img,
+#template-root .reovana-listing-gallery img {
+  filter: none !important;
+  -webkit-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  user-select: auto !important;
+}
+
 .proty-unlock-inline {
   margin: 28px 0;
 }
@@ -2221,6 +2232,19 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   pointer-events: none;
   user-select: none;
   transition: filter 0.25s ease, opacity 0.25s ease;
+}
+
+.reovana-listing-detail--locked .section-property-image,
+.reovana-listing-detail--locked .reovana-listing-gallery,
+.reovana-listing-detail--locked .section-property-image img,
+.reovana-listing-detail--locked .reovana-listing-gallery img,
+.section-property-image.proty-blurred,
+.reovana-listing-gallery.proty-blurred {
+  filter: none !important;
+  -webkit-filter: none !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  user-select: auto !important;
 }
 
 .reovana-listing-detail--locked .proty-blurred {
