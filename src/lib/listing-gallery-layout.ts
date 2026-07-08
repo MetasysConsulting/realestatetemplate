@@ -15,6 +15,7 @@ export type GalleryFrameStyle = {
   width?: string;
   maxWidth?: string;
   maxHeight?: number | string;
+  height?: string;
   aspectRatio?: string;
   margin?: string;
 };
@@ -56,11 +57,14 @@ export function galleryFrameStyle(
   const maxHeight = hero ? 520 : 220;
 
   if (meta.layout === "small") {
+    const cap = hero ? 960 : 320;
+    const width = Math.min(meta.width, cap);
+    const height = Math.round((width / meta.width) * meta.height);
     return {
-      width: "auto",
-      maxWidth: `min(100%, ${Math.min(meta.width, hero ? 960 : 320)}px)`,
+      width: `${width}px`,
+      maxWidth: "100%",
+      height: `${height}px`,
       maxHeight: hero ? 420 : 180,
-      margin: "0 auto",
     };
   }
 
@@ -68,8 +72,8 @@ export function galleryFrameStyle(
     return {
       aspectRatio: `${meta.width} / ${meta.height}`,
       maxHeight: hero ? 480 : 200,
-      maxWidth: hero ? "min(100%, 520px)" : "100%",
-      margin: hero ? "0 auto" : undefined,
+      maxWidth: hero ? `min(100%, ${Math.min(meta.width, 520)}px)` : "100%",
+      width: hero ? "auto" : "100%",
     };
   }
 
@@ -80,7 +84,7 @@ export function galleryFrameStyle(
       aspectRatio: "1 / 1",
       maxWidth: hero ? `min(100%, ${size}px)` : "100%",
       maxHeight: hero ? size : 200,
-      margin: hero ? "0 auto" : undefined,
+      width: hero ? "auto" : "100%",
     };
   }
 

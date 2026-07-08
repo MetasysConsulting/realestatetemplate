@@ -2321,7 +2321,9 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
 .reovana-listing-gallery .wrap-image .image .image-wrap,
 .reovana-listing-gallery .reovana-gallery-thumb-btn {
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
   width: 100%;
   overflow: hidden;
   border-radius: 16px;
@@ -2334,6 +2336,14 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   overflow: hidden;
   border-radius: 16px;
   background: #eef1f6;
+  flex: 0 0 auto;
+}
+
+.reovana-listing-gallery .reovana-gallery-frame--hero.reovana-gallery-frame--small,
+.reovana-listing-gallery .reovana-gallery-frame--hero.reovana-gallery-frame--portrait,
+.reovana-listing-gallery .reovana-gallery-frame--hero.reovana-gallery-frame--square {
+  width: auto;
+  max-width: 100%;
 }
 
 .reovana-listing-gallery .reovana-gallery-frame--loading {
@@ -2350,12 +2360,14 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
 .reovana-listing-gallery .reovana-gallery-frame--fit-cover img {
   object-fit: cover;
+  object-position: top left;
 }
 
 .reovana-listing-gallery .reovana-gallery-frame--fit-contain img {
   object-fit: contain;
-  height: auto;
-  max-height: 100%;
+  object-position: top left;
+  width: 100%;
+  height: 100%;
 }
 
 .reovana-listing-gallery.reovana-listing-detail__gallery--single .wrap-image {
@@ -2364,24 +2376,19 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
 .reovana-listing-gallery.reovana-listing-detail__gallery--single .wrap-image .image.img-1 {
   width: 100%;
-}
-
-.reovana-listing-gallery--layout-small.reovana-listing-detail__gallery--single .wrap-image .image.img-1 {
   display: flex;
   flex-direction: column;
-  align-items: center;
-}
-
-.reovana-listing-gallery--layout-portrait.reovana-listing-detail__gallery--single .wrap-image .image.img-1,
-.reovana-listing-gallery--layout-square.reovana-listing-detail__gallery--single .wrap-image .image.img-1 {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .reovana-listing-gallery.reovana-listing-detail__gallery--multi .wrap-image .image.img-1 {
   flex: 1 1 62%;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
 }
 
 .reovana-listing-gallery .reovana-gallery-thumb-btn {
