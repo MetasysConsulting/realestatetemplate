@@ -51,9 +51,20 @@ export type ProtyListingDetailModel = {
   };
 };
 
-function resolveGalleryImages(imageUrl: string | null | undefined): string[] {
-  const primary = hasListingImage(imageUrl) ? imageUrl!.trim() : DEFAULT_AUCTION_PROPERTY_IMAGE;
-  return [primary];
+function resolveGalleryImages(...urls: (string | null | undefined)[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const url of urls) {
+    if (!hasListingImage(url)) continue;
+    const trimmed = url!.trim();
+    if (seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    result.push(trimmed);
+  }
+
+  if (!result.length) result.push(DEFAULT_AUCTION_PROPERTY_IMAGE);
+  return result.slice(0, 4);
 }
 
 function buildAmenities(tags: string[]): string[] {
@@ -171,7 +182,7 @@ export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string):
     imageUrl: hasListingImage(listing.imageUrl)
       ? listing.imageUrl!.trim()
       : listing.displayImageUrl?.trim() || DEFAULT_AUCTION_PROPERTY_IMAGE,
-    galleryImages: resolveGalleryImages(listing.imageUrl ?? listing.displayImageUrl),
+    galleryImages: resolveGalleryImages(listing.imageUrl, listing.displayImageUrl),
     lat: listing.lat,
     lng: listing.lng,
     hasRealCoordinates: listing.hasRealCoordinates,
