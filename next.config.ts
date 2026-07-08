@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["pg"],
   async redirects() {
     return [
       { source: "/properties", destination: "/buy/foreclosure", permanent: true },

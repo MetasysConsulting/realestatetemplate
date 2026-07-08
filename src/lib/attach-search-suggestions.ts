@@ -1,5 +1,5 @@
-import type { SearchSuggestion, SearchSuggestionType } from "@/lib/search-suggestions";
-import { suggestionTypeLabel } from "@/lib/search-suggestions";
+import type { SearchSuggestion, SearchSuggestionType } from "@/lib/search-suggestion-types";
+import { suggestionTypeLabel } from "@/lib/search-suggestion-types";
 
 const DEBOUNCE_MS = 260;
 const MIN_QUERY_LENGTH = 2;

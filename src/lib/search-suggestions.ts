@@ -1,28 +1,13 @@
-import pg from "pg";
+import "server-only";
+
+import type { SearchSuggestion, SearchSuggestionType } from "@/lib/search-suggestion-types";
+import { buildSearchHref } from "@/lib/search-suggestion-types";
 import { createSupabaseServerClient, areSiteListingsEnabled, isSupabaseConfigured } from "@/lib/supabase/server";
 import { getDatabaseUrl } from "@/lib/supabase/listings-query";
 import { matchStateSuggestions } from "@/lib/us-states";
 
-const { Client } = pg;
-
-export type SearchSuggestionType = "city" | "county" | "zip" | "state" | "address";
-
-export type SearchSuggestion = {
-  id: string;
-  type: SearchSuggestionType;
-  label: string;
-  sublabel?: string;
-  href: string;
-  count?: number;
-};
-
-const TYPE_LABELS: Record<SearchSuggestionType, string> = {
-  city: "Cities",
-  county: "Counties",
-  zip: "ZIP codes",
-  state: "States",
-  address: "Addresses",
-};
+export type { SearchSuggestion, SearchSuggestionType } from "@/lib/search-suggestion-types";
+export { buildSearchHref, suggestionTypeLabel } from "@/lib/search-suggestion-types";
 
 const TYPE_RANK: Record<SearchSuggestionType, number> = {
   city: 0,
@@ -35,20 +20,8 @@ const TYPE_RANK: Record<SearchSuggestionType, number> = {
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const suggestionCache = new Map<string, { expiresAt: number; suggestions: SearchSuggestion[] }>();
 
-export function suggestionTypeLabel(type: SearchSuggestionType): string {
-  return TYPE_LABELS[type];
-}
-
 function escapeIlike(value: string): string {
   return value.replace(/[%_\\]/g, "\\$&");
-}
-
-export function buildSearchHref(q?: string, state?: string): string {
-  const params = new URLSearchParams();
-  if (q) params.set("q", q);
-  if (state) params.set("state", state);
-  const qs = params.toString();
-  return qs ? `/search?${qs}` : "/search";
 }
 
 function titleCase(value: string): string {
@@ -105,11 +78,12 @@ function finalizeSuggestions(query: string, suggestions: SearchSuggestion[]): Se
     .slice(0, 12);
 }
 
-async function withPgClient<T>(fn: (client: pg.Client) => Promise<T>): Promise<T | null> {
+async function withPgClient<T>(fn: (client: InstanceType<(typeof import("pg"))["Client"]>) => Promise<T>): Promise<T | null> {
   const databaseUrl = getDatabaseUrl();
   if (!databaseUrl) return null;
 
-  const client = new Client({
+  const pg = await import("pg");
+  const client = new pg.Client({
     connectionString: databaseUrl,
     ssl: { rejectUnauthorized: false },
   });
