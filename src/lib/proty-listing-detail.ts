@@ -63,8 +63,8 @@ function resolveGalleryImages(...urls: (string | null | undefined)[]): string[] 
     result.push(trimmed);
   }
 
-  if (!result.length) result.push(DEFAULT_AUCTION_PROPERTY_IMAGE);
-  return result.slice(0, 4);
+  if (!result.length) return [];
+  return result.slice(0, 5);
 }
 
 function buildAmenities(tags: string[]): string[] {

@@ -2454,76 +2454,110 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   width: 100%;
 }
 
-.reovana-listing-gallery .wrap-image .image .image-wrap,
-.reovana-listing-gallery .reovana-gallery-thumb-btn {
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
+.reovana-listing-gallery--grid {
   width: 100%;
-  overflow: hidden;
-  border-radius: 16px;
-  background: transparent;
 }
 
-.reovana-listing-gallery .reovana-gallery-frame {
-  display: block;
+.reovana-gallery-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 8px;
   width: 100%;
+  height: clamp(320px, 42vw, 480px);
+}
+
+.reovana-gallery-grid__hero {
+  position: relative;
+  grid-column: 1;
+  grid-row: 1 / span 2;
   overflow: hidden;
   border-radius: 16px;
   background: #eef1f6;
-  flex: 0 0 auto;
 }
 
-.reovana-listing-gallery .reovana-gallery-frame--hero.reovana-gallery-frame--small,
-.reovana-listing-gallery .reovana-gallery-frame--hero.reovana-gallery-frame--portrait,
-.reovana-listing-gallery .reovana-gallery-frame--hero.reovana-gallery-frame--square {
-  width: auto;
-  max-width: 100%;
+.reovana-gallery-grid__hero > .reovana-gallery-grid__cell-inner,
+.reovana-gallery-grid__hero > .reovana-gallery-grid__cell-btn,
+.reovana-gallery-grid__cell > .reovana-gallery-grid__cell-inner,
+.reovana-gallery-grid__cell > .reovana-gallery-grid__cell-btn {
+  position: absolute;
+  inset: 0;
 }
 
-.reovana-listing-gallery .reovana-gallery-frame--loading {
-  aspect-ratio: 16 / 9;
-  max-height: 420px;
-}
-
-.reovana-listing-gallery .reovana-gallery-frame img {
+.reovana-gallery-grid__hero img,
+.reovana-gallery-grid__cell img {
   display: block;
   width: 100%;
   height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.reovana-gallery-grid__hero .reovana-gallery-grid__cell-inner,
+.reovana-gallery-grid__hero .reovana-gallery-grid__cell-btn,
+.reovana-gallery-grid__cell .reovana-gallery-grid__cell-inner,
+.reovana-gallery-grid__cell .reovana-gallery-grid__cell-btn {
+  width: 100%;
+  height: 100%;
+}
+
+.reovana-gallery-grid__cell {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #eef1f6;
   min-height: 0;
 }
 
-.reovana-listing-gallery .reovana-gallery-frame--fit-cover img {
-  object-fit: cover;
-  object-position: top left;
-}
-
-.reovana-listing-gallery .reovana-gallery-frame--fit-contain img {
-  object-fit: contain;
-  object-position: top left;
+.reovana-gallery-grid__cell-inner,
+.reovana-gallery-grid__cell-btn {
+  display: block;
+  position: relative;
   width: 100%;
   height: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: default;
 }
 
-.reovana-listing-gallery.reovana-listing-detail__gallery--single .wrap-image {
-  display: block;
+.reovana-gallery-grid__cell-btn {
+  cursor: pointer;
 }
 
-.reovana-listing-gallery.reovana-listing-detail__gallery--single .wrap-image .image.img-1 {
-  width: 100%;
+.reovana-gallery-grid__cell-btn:focus-visible {
+  outline: 2px solid var(--Primary, #1563df);
+  outline-offset: 2px;
+}
+
+.reovana-gallery-grid__placeholder {
+  min-height: 100%;
+}
+
+.reovana-gallery-grid__placeholder--compact .listing-media-placeholder__label {
+  font-size: 0.62rem;
+  max-width: 7rem;
+}
+
+.reovana-gallery-grid__placeholder--compact .listing-media-placeholder__icon {
+  font-size: 1.05rem;
+}
+
+.reovana-gallery-grid__photo-tag {
+  z-index: 2;
+}
+
+.reovana-gallery-grid__overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-}
-
-.reovana-listing-gallery.reovana-listing-detail__gallery--multi .wrap-image .image.img-1 {
-  flex: 1 1 62%;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
+  align-items: center;
+  justify-content: center;
+  background: rgba(21, 21, 21, 0.52);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  pointer-events: none;
 }
 
 .reovana-listing-gallery .reovana-gallery-thumb-btn {
@@ -2635,8 +2669,20 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 }
 
 @media (max-width: 991px) {
-  .reovana-listing-gallery.reovana-listing-detail__gallery--single .wrap-image .image.img-1 .image-wrap {
-    max-height: 360px;
+  .reovana-gallery-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto;
+    height: auto;
+  }
+
+  .reovana-gallery-grid__hero {
+    grid-column: 1 / span 2;
+    grid-row: 1;
+    min-height: 240px;
+  }
+
+  .reovana-gallery-grid__cell {
+    min-height: 120px;
   }
 
   .reovana-listing-detail__map {

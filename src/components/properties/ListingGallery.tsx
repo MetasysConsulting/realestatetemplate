@@ -1,12 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import {
-  classifyGalleryImage,
-  galleryFrameStyle,
-  type GalleryImageMeta,
-  type GalleryFrameVariant,
-} from "@/lib/listing-gallery-layout";
+import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
+import { hasListingImage } from "@/lib/listing-images";
 
 const GALLERY_CAMERA_ICON = (
   <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -20,9 +16,21 @@ const GALLERY_CAMERA_ICON = (
   </svg>
 );
 
+const STOCK_IMAGE_PREFIX = "/images/auction-properties/";
+
+function isRealGalleryImage(url: string): boolean {
+  const trimmed = url.trim();
+  if (!hasListingImage(trimmed)) return false;
+  if (trimmed === DEFAULT_AUCTION_PROPERTY_IMAGE) return false;
+  if (trimmed.startsWith(STOCK_IMAGE_PREFIX)) return false;
+  return true;
+}
+
 function GalleryPhotoTag({ current, total }: { current: number; total: number }) {
+  if (total <= 0) return null;
+
   return (
-    <div className="tag-property">
+    <div className="tag-property reovana-gallery-grid__photo-tag">
       <div className="icon">{GALLERY_CAMERA_ICON}</div>
       <div className="text-16 text_white fw-6 lh-20">
         {current}/{total} Photos
@@ -31,53 +39,50 @@ function GalleryPhotoTag({ current, total }: { current: number; total: number })
   );
 }
 
-type SmartGalleryImageProps = {
-  src: string;
+function GalleryPlaceholder({ compact = false }: { compact?: boolean }) {
+  return (
+    <div className={`listing-media-placeholder reovana-gallery-grid__placeholder${compact ? " reovana-gallery-grid__placeholder--compact" : ""}`}>
+      <span className="listing-media-placeholder__icon" aria-hidden="true">
+        🖼
+      </span>
+      <span className="listing-media-placeholder__label">No image available</span>
+    </div>
+  );
+}
+
+type GalleryCellProps = {
+  src: string | null;
   alt: string;
-  variant: GalleryFrameVariant;
-  onMeta?: (meta: GalleryImageMeta) => void;
   onClick?: () => void;
-  button?: boolean;
+  overlay?: string;
 };
 
-function SmartGalleryImage({ src, alt, variant, onMeta, onClick, button }: SmartGalleryImageProps) {
-  const [meta, setMeta] = useState<GalleryImageMeta | null>(null);
+function GalleryCell({ src, alt, onClick, overlay }: GalleryCellProps) {
+  const [failed, setFailed] = useState(false);
+  const showPlaceholder = !src || failed;
 
-  const handleLoad = useCallback(
-    (event: React.SyntheticEvent<HTMLImageElement>) => {
-      const img = event.currentTarget;
-      const next = classifyGalleryImage(img.naturalWidth, img.naturalHeight);
-      setMeta(next);
-      onMeta?.(next);
-    },
-    [onMeta],
+  const inner = showPlaceholder ? (
+    <GalleryPlaceholder compact />
+  ) : (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={alt} loading="lazy" decoding="async" onError={() => setFailed(true)} />
   );
 
-  const layout = meta?.layout ?? "loading";
-  const fit = meta?.fit ?? "cover";
-  const frameClass = [
-    "reovana-gallery-frame",
-    `reovana-gallery-frame--${layout}`,
-    `reovana-gallery-frame--fit-${fit}`,
-    `reovana-gallery-frame--${variant}`,
-  ].join(" ");
-
-  const frame = (
-    <span className={frameClass} style={galleryFrameStyle(meta, variant)}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt={alt} onLoad={handleLoad} />
-    </span>
-  );
-
-  if (button && onClick) {
+  if (onClick && src && !failed) {
     return (
-      <button type="button" className="reovana-gallery-thumb-btn image-wrap relative d-block" onClick={onClick}>
-        {frame}
+      <button type="button" className="reovana-gallery-grid__cell-btn" onClick={onClick}>
+        {inner}
+        {overlay ? <span className="reovana-gallery-grid__overlay">{overlay}</span> : null}
       </button>
     );
   }
 
-  return <span className="image-wrap relative d-block">{frame}</span>;
+  return (
+    <div className="reovana-gallery-grid__cell-inner">
+      {inner}
+      {overlay ? <span className="reovana-gallery-grid__overlay">{overlay}</span> : null}
+    </div>
+  );
 }
 
 type ListingGalleryProps = {
@@ -86,80 +91,47 @@ type ListingGalleryProps = {
 };
 
 export function ListingGallery({ images, alt }: ListingGalleryProps) {
-  const unique = images.filter((url, index, all) => url && all.indexOf(url) === index);
+  const unique = images.filter((url, index, all) => isRealGalleryImage(url) && all.indexOf(url) === index);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [heroLayout, setHeroLayout] = useState<string | null>(null);
 
-  if (!unique.length) return null;
+  const safeIndex = unique.length ? Math.min(activeIndex, unique.length - 1) : 0;
+  const heroImage = unique[safeIndex] ?? null;
+  const sidePool = unique.filter((_, index) => index !== safeIndex);
+  const sideSlots = Array.from({ length: 4 }, (_, index) => sidePool[index] ?? null);
+  const extraPhotoCount = Math.max(0, unique.length - 5);
 
-  const safeIndex = Math.min(activeIndex, unique.length - 1);
-  const mainImage = unique[safeIndex];
-  const thumbImages = unique.filter((_, index) => index !== safeIndex).slice(0, 3);
-  const singlePhoto = unique.length <= 1;
-
-  const galleryClass = [
-    "reovana-listing-gallery",
-    "reovana-listing-detail__gallery",
-    singlePhoto ? "reovana-listing-detail__gallery--single" : "reovana-listing-detail__gallery--multi",
-    heroLayout ? `reovana-listing-gallery--layout-${heroLayout}` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const handleSelect = useCallback(
+    (src: string) => {
+      const nextIndex = unique.indexOf(src);
+      if (nextIndex >= 0) setActiveIndex(nextIndex);
+    },
+    [unique],
+  );
 
   return (
-    <div className={galleryClass}>
-      <div className="wrap-image">
-        <div className="image img-1">
-          <SmartGalleryImage
-            src={mainImage}
-            alt={alt}
-            variant="hero"
-            onMeta={(meta) => setHeroLayout(meta.layout)}
-          />
+    <div className="reovana-listing-gallery reovana-listing-detail__gallery reovana-listing-gallery--grid">
+      <div className="reovana-gallery-grid">
+        <div className="reovana-gallery-grid__hero">
+          <GalleryCell src={heroImage} alt={alt} />
           <GalleryPhotoTag current={safeIndex + 1} total={unique.length} />
         </div>
 
-        {!singlePhoto && thumbImages.length > 0 ? (
-          <div className="wrap-image-right">
-            {thumbImages[0] ? (
-              <div className="image img-2">
-                <SmartGalleryImage
-                  src={thumbImages[0]}
-                  alt=""
-                  variant="thumb"
-                  button
-                  onClick={() => setActiveIndex(unique.indexOf(thumbImages[0]))}
-                />
-              </div>
-            ) : null}
-            {thumbImages.length > 1 ? (
-              <div className="bot">
-                {thumbImages[1] ? (
-                  <div className="image img-3">
-                    <SmartGalleryImage
-                      src={thumbImages[1]}
-                      alt=""
-                      variant="thumb"
-                      button
-                      onClick={() => setActiveIndex(unique.indexOf(thumbImages[1]))}
-                    />
-                  </div>
-                ) : null}
-                {thumbImages[2] ? (
-                  <div className="image img-4">
-                    <SmartGalleryImage
-                      src={thumbImages[2]}
-                      alt=""
-                      variant="thumb"
-                      button
-                      onClick={() => setActiveIndex(unique.indexOf(thumbImages[2]))}
-                    />
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-        ) : null}
+        {sideSlots.map((src, index) => {
+          const isLast = index === 3;
+          const overlay = isLast && extraPhotoCount > 0 ? `+${extraPhotoCount} more` : undefined;
+          const sideImage = src;
+
+          return (
+            <div key={`side-${index}`} className="reovana-gallery-grid__cell">
+              <GalleryCell
+                src={sideImage}
+                alt={sideImage ? `${alt} photo ${index + 2}` : ""}
+                onClick={sideImage ? () => handleSelect(sideImage) : undefined}
+                overlay={overlay}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
