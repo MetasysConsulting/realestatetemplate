@@ -380,8 +380,8 @@ body.auctions-route .reovana-site .header {
 /* Blurred dark overlay — backdrop-filter blurs the bg image, rgba dims it */
 #template-root .page-title.home01.reovana-home-hero::after {
   background: rgba(0, 0, 0, 0.5) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
+  backdrop-filter: blur(2px) !important;
+  -webkit-backdrop-filter: blur(2px) !important;
 }
 
 #template-root .page-title.home01.reovana-home-hero > .tf-container {
