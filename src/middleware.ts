@@ -2,6 +2,14 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 
+function shouldRedirectToWww(request: NextRequest): boolean {
+  // Avoid breaking local dev and Vercel preview domains.
+  if (process.env.NODE_ENV !== "production") return false;
+
+  const host = request.headers.get("host")?.toLowerCase() ?? "";
+  return host === "reovana.com";
+}
+
 const PROTECTED_PREFIXES = [
   "/dashboard",
   "/my-profile",
@@ -19,6 +27,12 @@ function isProtectedPath(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  if (shouldRedirectToWww(request)) {
+    const url = request.nextUrl.clone();
+    url.host = "www.reovana.com";
+    return NextResponse.redirect(url, 308);
+  }
+
   const url = getSupabaseUrl();
   const key = getSupabaseAnonKey();
 
