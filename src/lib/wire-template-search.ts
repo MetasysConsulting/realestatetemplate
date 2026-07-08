@@ -1,5 +1,7 @@
 "use client";
 
+import { normalizeStateQuery } from "@/lib/us-states";
+
 type SearchPayload = {
   q?: string;
   state?: string;
@@ -24,12 +26,22 @@ function readNiceSelectCurrentText(wrapper: Element | null): string {
 }
 
 function parseState(value: string): string {
-  const v = value.trim();
-  if (!v) return "";
-  if (/^(province|states?)\s*\/\s*states?$/i.test(v)) return "";
-  if (/^province\s*\/\s*states$/i.test(v)) return "";
-  if (/^any$/i.test(v)) return "";
-  return v;
+  return normalizeStateQuery(value);
+}
+
+function readNiceSelectCurrent(wrapper: Element | null): string {
+  return readNiceSelectCurrentText(wrapper);
+}
+
+function readOptionalCount(wrapper: Element | null): string {
+  if (!wrapper) return "";
+  const current = readNiceSelectCurrent(wrapper);
+  if (!current || /any/i.test(current) || /^rooms?$/i.test(current)) return "";
+  return asNumberToken(current);
+}
+
+function advancedFiltersActive(advanced: Element | null): boolean {
+  return Boolean(advanced?.classList.contains("show"));
 }
 
 function buildSearchUrl(payload: SearchPayload): string {
@@ -74,21 +86,21 @@ export function wireTemplateSearch(): void {
     event?.preventDefault();
 
     const q = normalizeToken(input.value);
-    const state = parseState(readNiceSelectCurrentText(stateSelect));
-    const beds = asNumberToken(readNiceSelectCurrentText(bedsSelect));
-    const baths = asNumberToken(readNiceSelectCurrentText(bathSelect));
-    const rooms = asNumberToken(readNiceSelectCurrentText(roomsSelect));
+    const useAdvanced = advancedFiltersActive(advanced);
 
-    const minPrice = minPriceInput?.value ? asNumberToken(minPriceInput.value) : "";
-    const maxPrice = maxPriceInput?.value ? asNumberToken(maxPriceInput.value) : "";
+    const state = useAdvanced ? parseState(readNiceSelectCurrent(stateSelect)) : "";
+    const beds = useAdvanced ? readOptionalCount(bedsSelect) || readOptionalCount(roomsSelect) : "";
+    const baths = useAdvanced ? readOptionalCount(bathSelect) : "";
 
-    // If template says "Rooms", treat it as "beds" when beds is not provided.
-    const resolvedBeds = beds || rooms;
+    const minPrice =
+      useAdvanced && minPriceInput?.value ? asNumberToken(minPriceInput.value) : "";
+    const maxPrice =
+      useAdvanced && maxPriceInput?.value ? asNumberToken(maxPriceInput.value) : "";
 
     const url = buildSearchUrl({
       q: q || undefined,
       state: state || undefined,
-      beds: resolvedBeds || undefined,
+      beds: beds || undefined,
       baths: baths || undefined,
       minPrice: minPrice || undefined,
       maxPrice: maxPrice || undefined,

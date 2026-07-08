@@ -26,6 +26,7 @@ import {
 } from "@/lib/supabase/listings-query";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { VrmListing, VrmListingsDataset } from "@/lib/vrm-listings";
+import { normalizeStateQuery } from "@/lib/us-states";
 import { connection } from "next/server";
 
 const LISTING_PAGE_SIZE = 1000;
@@ -769,6 +770,9 @@ export async function fetchPropertyListingById(listingId: string): Promise<Prope
 }
 
 function rowToPropertyListing(row: DatabaseListingRow): PropertyListing | null {
+  if (row.source_id === "hud") {
+    return hudToPropertyListing(rowToHudListing(row));
+  }
   if (row.source_id === "vrm") {
     return vrmToPropertyListing(rowToVrmListing(row));
   }
@@ -856,7 +860,7 @@ export async function searchListings(
   if (!client) return { listings: [] };
 
   const q = (options.q ?? "").trim();
-  const state = (options.state ?? "").trim();
+  const state = normalizeStateQuery(options.state ?? "");
   const beds = Math.max(0, options.beds ?? 0);
   const baths = Math.max(0, options.baths ?? 0);
   const minPrice = Math.max(0, options.minPrice ?? 0);
@@ -872,7 +876,11 @@ export async function searchListings(
     .eq("is_active", true);
 
   if (state) {
-    query = query.ilike("state", state.length <= 2 ? state.toUpperCase() : `%${state}%`);
+    if (state.length === 2) {
+      query = query.eq("state", state.toUpperCase());
+    } else {
+      query = query.ilike("state", `%${state}%`);
+    }
   }
 
   if (beds) {
@@ -892,14 +900,17 @@ export async function searchListings(
   }
 
   if (q) {
-    const escaped = q.replace(/[%_]/g, "\\$&");
-    query = query.or(
-      [
-        `address.ilike.%${escaped}%`,
-        `city.ilike.%${escaped}%`,
-        `zip.eq.${escaped}`,
-      ].join(","),
-    );
+    const escaped = q.replace(/[%_,]/g, "\\$&");
+    const clauses = [
+      `address.ilike.%${escaped}%`,
+      `city.ilike.%${escaped}%`,
+      `state.ilike.%${escaped}%`,
+      `property_type.ilike.%${escaped}%`,
+    ];
+    if (/^\d{5}$/.test(q)) {
+      clauses.push(`zip.eq.${q}`);
+    }
+    query = query.or(clauses.join(","));
   }
 
   const { data, error, count } = await query

@@ -4,6 +4,7 @@ import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import { searchListings } from "@/lib/listings-repository";
 import { PropertyCategoryExplorer } from "@/components/properties/PropertyCategoryExplorer";
+import { normalizeStateQuery } from "@/lib/us-states";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -25,7 +26,7 @@ function readParam(params: Record<string, string | string[] | undefined>, key: s
 export default async function SearchPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const q = readParam(params, "q").trim();
-  const state = readParam(params, "state").trim();
+  const state = normalizeStateQuery(readParam(params, "state"));
   const beds = Number(readParam(params, "beds")) || 0;
   const baths = Number(readParam(params, "baths")) || 0;
   const minPrice = Number(readParam(params, "minPrice")) || 0;
@@ -71,6 +72,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         description={description}
         listings={listings}
         totalCount={total}
+        emptyMessage="No properties match your search yet. Try a different city, state, or filter."
       />
     </TemplateChrome>
   );
