@@ -8,7 +8,6 @@ export const REOVANA_BRAND = {
   publicSiteUrl: "https://reovana.com",
   localPublicSiteUrl: "/",
   primaryColor: "#7695ff",
-  adminUser: { name: "REOVANA Admin", email: "admin@reovana.com", role: "Site Administrator" },
 } as const;
 
 export const SUBSCRIPTION_FAQ = [

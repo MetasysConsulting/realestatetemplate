@@ -5,13 +5,13 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupConte
 import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/admin/ui/dropdown-menu";
 import { Card } from "@/components/admin/ui/card";
 import { LayoutDashboard, Wand2, Bot, CreditCard, Settings2, Activity, Gem, Home, Database, Building2, Users, Mail } from "lucide-react";
-import { REOVANA_BRAND } from "@/lib/admin/reovana-admin-data";
 import { ReovanaLogo } from "@/components/admin/reovana-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/admin/ui/button";
 import UpdateImg from "@/assets/admin/update1.svg";
 import { assetSrc } from "@/lib/admin/utils";
+import type { AdminShellUser } from "@/components/admin/app-shell";
 
 const SIDEBAR_WIDTH_ICON = "7rem"
 
@@ -29,7 +29,7 @@ const menuItems = [
   { title: "Settings", path: "/admin/settings", icon: Settings2 },
 ];
 
-const LeftSidebar = () => {
+const LeftSidebar = ({ adminUser }: { adminUser: AdminShellUser }) => {
   const pathname = usePathname()
   const { setOpenMobile, isMobile } = useSidebar()
 
@@ -90,8 +90,8 @@ const LeftSidebar = () => {
             <DropdownMenuContent side="right" align="end" className="w-72">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">{REOVANA_BRAND.adminUser.name}</p>
-                  <p className="text-xs text-muted-foreground">{REOVANA_BRAND.adminUser.email}</p>
+                  <p className="text-sm font-medium">{adminUser.fullName}</p>
+                  <p className="text-xs text-muted-foreground">{adminUser.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

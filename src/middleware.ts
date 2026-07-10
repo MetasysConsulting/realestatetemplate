@@ -1,16 +1,15 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { isAdminEmail } from "@/lib/admin/admin-allowlist";
 
 function shouldRedirectToWww(request: NextRequest): boolean {
-  // Avoid breaking local dev and Vercel preview domains.
   if (process.env.NODE_ENV !== "production") return false;
-
   const host = request.headers.get("host")?.toLowerCase() ?? "";
   return host === "reovana.com";
 }
 
-const PROTECTED_PREFIXES = [
+const MEMBER_PROTECTED_PREFIXES = [
   "/dashboard",
   "/my-profile",
   "/my-package",
@@ -20,13 +19,22 @@ const PROTECTED_PREFIXES = [
   "/add-property",
 ];
 
-function isProtectedPath(pathname: string): boolean {
-  // Admin UI uses its own demo login under /admin — do not apply member gates.
-  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
-    return false;
-  }
-  return PROTECTED_PREFIXES.some(
+function isMemberProtectedPath(pathname: string): boolean {
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) return false;
+  return MEMBER_PROTECTED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  );
+}
+
+function isAdminPath(pathname: string): boolean {
+  return pathname === "/admin" || pathname.startsWith("/admin/");
+}
+
+function isAdminAuthPath(pathname: string): boolean {
+  return (
+    pathname === "/admin" ||
+    pathname === "/admin/login" ||
+    pathname === "/admin/register"
   );
 }
 
@@ -67,7 +75,29 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (isProtectedPath(request.nextUrl.pathname) && !user) {
+  const pathname = request.nextUrl.pathname;
+  const isAdmin = Boolean(user && isAdminEmail(user.email));
+
+  if (isAdminPath(pathname)) {
+    if (isAdminAuthPath(pathname)) {
+      if (isAdmin) {
+        const redirectUrl = request.nextUrl.clone();
+        redirectUrl.pathname = "/admin/home";
+        redirectUrl.search = "";
+        return NextResponse.redirect(redirectUrl);
+      }
+    } else if (!isAdmin) {
+      const redirectUrl = request.nextUrl.clone();
+      redirectUrl.pathname = "/admin/login";
+      redirectUrl.search = "";
+      if (user) {
+        redirectUrl.searchParams.set("error", "unauthorized");
+      }
+      return NextResponse.redirect(redirectUrl);
+    }
+  }
+
+  if (isMemberProtectedPath(pathname) && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/";
     redirectUrl.searchParams.set("login", "required");

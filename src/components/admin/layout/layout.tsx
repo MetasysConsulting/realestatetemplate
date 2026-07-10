@@ -6,32 +6,38 @@ import Footer from "./footer";
 import Header from "./header";
 import { usePathname } from "next/navigation";
 import useScrollToTop from "@/hooks/admin/useScrollToTop";
+import type { AdminShellUser } from "@/components/admin/app-shell";
 
-const Layout = ({ children }: { children: React.ReactNode }) => {
-    useScrollToTop()
-    const pathname = usePathname()
-    const isChatbotPage = pathname === "/admin/chatbot" || pathname.startsWith("/admin/chatbot/")
+const Layout = ({
+  children,
+  adminUser,
+}: {
+  children: React.ReactNode;
+  adminUser: AdminShellUser;
+}) => {
+  useScrollToTop();
+  const pathname = usePathname();
+  const isChatbotPage =
+    pathname === "/admin/chatbot" || pathname.startsWith("/admin/chatbot/");
 
-    return (
-        <SidebarProvider
-            style={
-                {
-                    "--sidebar-width-icon": "7rem",
-                } as React.CSSProperties
-            }
-        >
-            <LeftSidebar />
-            <SidebarInset>
-                <Header />
-                <main className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
-                    <div className="p-5 reovana-admin-shell">
-                        {children}
-                    </div>
-                    {!isChatbotPage && <Footer />}
-                </main>
-            </SidebarInset>
-        </SidebarProvider>
-    )
-}
+  return (
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width-icon": "7rem",
+        } as React.CSSProperties
+      }
+    >
+      <LeftSidebar adminUser={adminUser} />
+      <SidebarInset>
+        <Header adminUser={adminUser} />
+        <main className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
+          <div className="p-5 reovana-admin-shell">{children}</div>
+          {!isChatbotPage && <Footer />}
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+};
 
 export default Layout;

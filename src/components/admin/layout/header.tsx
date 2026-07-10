@@ -4,16 +4,27 @@ import Link from "next/link";
 import { SidebarTrigger } from "@/components/admin/ui/sidebar";
 import { Button } from "@/components/admin/ui/button";
 import { Input } from "@/components/admin/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/admin/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/admin/ui/dropdown-menu";
 import { Search, Bell, User, Settings, LogOut, HelpCircle, UserCircle, ExternalLink } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useTransition } from "react";
 import { REOVANA_BRAND } from "@/lib/admin/reovana-admin-data";
+import { adminLogoutAction } from "@/app/admin/actions";
+import type { AdminShellUser } from "@/components/admin/app-shell";
 
-const Header = () => {
-  const router = useRouter();
+const Header = ({ adminUser }: { adminUser: AdminShellUser }) => {
+  const [isPending, startTransition] = useTransition();
 
   const handleLogout = () => {
-    router.push("/admin/login");
+    startTransition(() => {
+      void adminLogoutAction();
+    });
   };
 
   return (
@@ -64,17 +75,21 @@ const Header = () => {
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">{REOVANA_BRAND.adminUser.name}</p>
-                <p className="text-xs text-muted-foreground">{REOVANA_BRAND.adminUser.email}</p>
-                <p className="text-xs text-primary">{REOVANA_BRAND.adminUser.role}</p>
+                <p className="text-sm font-medium">{adminUser.fullName}</p>
+                <p className="text-xs text-muted-foreground">{adminUser.email}</p>
+                <p className="text-xs text-primary">{adminUser.role}</p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/admin/settings"><User className="" /> Profile</Link>
+              <Link href="/admin/settings">
+                <User className="" /> Profile
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/admin/settings"><Settings className="" /> Settings</Link>
+              <Link href="/admin/settings">
+                <Settings className="" /> Settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <a href={REOVANA_BRAND.localPublicSiteUrl} target="_blank" rel="noopener noreferrer">
@@ -85,8 +100,13 @@ const Header = () => {
               <HelpCircle className="" /> Help & Support
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-              <LogOut className="text-destructive" /> Log out
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={handleLogout}
+              disabled={isPending}
+            >
+              <LogOut className="text-destructive" />
+              {isPending ? "Signing out…" : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

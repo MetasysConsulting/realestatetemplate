@@ -1,32 +1,24 @@
 "use client";
 
-import { useState, useTransition, type FormEvent } from "react";
+import { useActionState, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/admin/ui/card";
 import { Input } from "@/components/admin/ui/input";
 import { Button } from "@/components/admin/ui/button";
 import { ReovanaLogo } from "@/components/admin/reovana-logo";
 import { REOVANA_BRAND } from "@/lib/admin/reovana-admin-data";
+import { adminLoginAction, type AdminAuthState } from "@/app/admin/actions";
 
 export default function Login() {
-  const router = useRouter();
-  const [isPending, startTransition] = useTransition();
+  const searchParams = useSearchParams();
+  const unauthorized = searchParams.get("error") === "unauthorized";
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const goToDashboard = () => {
-    startTransition(() => {
-      router.push("/admin/home");
-    });
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    goToDashboard();
-  };
+  const [state, formAction, isPending] = useActionState<AdminAuthState, FormData>(
+    adminLoginAction,
+    null,
+  );
 
   return (
     <div className="admin-root relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
@@ -50,13 +42,23 @@ export default function Login() {
                 Admin sign in
               </CardTitle>
               <CardDescription className="text-[15px] text-white/55">
-                Manage listings, feeds, and site analytics
+                Restricted to authorized REOVANA operators
               </CardDescription>
             </div>
           </CardHeader>
 
           <CardContent className="pt-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form action={formAction} className="space-y-4">
+              {(unauthorized || state?.error) && (
+                <div
+                  role="alert"
+                  className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+                >
+                  {state?.error ||
+                    "Your account is signed in but is not authorized for admin access."}
+                </div>
+              )}
+
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium text-white/80">
                   Email
@@ -65,27 +67,17 @@ export default function Login() {
                   id="email"
                   name="email"
                   type="email"
-                  autoComplete="email"
+                  autoComplete="username"
                   placeholder="you@reovana.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
                   required
                   className="h-11 border-white/10 bg-white/5 text-white placeholder:text-white/35"
                 />
               </div>
 
               <div className="space-y-2">
-                <div className="flex items-center justify-between gap-3">
-                  <label htmlFor="password" className="text-sm font-medium text-white/80">
-                    Password
-                  </label>
-                  <button
-                    type="button"
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    Forgot password?
-                  </button>
-                </div>
+                <label htmlFor="password" className="text-sm font-medium text-white/80">
+                  Password
+                </label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -93,8 +85,6 @@ export default function Login() {
                     type={showPassword ? "text" : "password"}
                     autoComplete="current-password"
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     required
                     className="h-11 border-white/10 bg-white/5 pr-10 text-white placeholder:text-white/35"
                   />
@@ -118,19 +108,8 @@ export default function Login() {
                 {isPending ? "Signing in…" : "Sign in"}
               </Button>
 
-              <Button
-                type="button"
-                variant="outline"
-                size="lg"
-                className="h-11 w-full border-white/15 bg-transparent text-white/85 hover:bg-white/5 hover:text-white"
-                onClick={goToDashboard}
-                disabled={isPending}
-              >
-                Continue without login
-              </Button>
-
               <p className="pt-1 text-center text-xs leading-relaxed text-white/40">
-                Demo access — no backend auth wired yet.
+                Admin access is invite-only. Change your password anytime in Settings.
               </p>
 
               <div className="flex items-center justify-center gap-4 border-t border-white/10 pt-4 text-sm">
@@ -142,10 +121,6 @@ export default function Login() {
                 >
                   View public site
                 </a>
-                <span className="text-white/20">·</span>
-                <Link href="/admin/register" className="font-medium text-white/70 hover:text-white">
-                  Register
-                </Link>
               </div>
             </form>
           </CardContent>
