@@ -81,7 +81,7 @@ export default function Login() {
                   </label>
                   <button
                     type="button"
-                    className="text-xs font-medium text-[#7695ff] hover:underline"
+                    className="text-xs font-medium text-primary hover:underline"
                   >
                     Forgot password?
                   </button>
@@ -112,7 +112,7 @@ export default function Login() {
               <Button
                 type="submit"
                 size="lg"
-                className="mt-1 h-11 w-full bg-[#7695ff] text-white hover:bg-[#6586f5]"
+                className="mt-1 h-11 w-full bg-primary text-white hover:bg-primary/90"
                 disabled={isPending}
               >
                 {isPending ? "Signing in…" : "Sign in"}
@@ -138,7 +138,7 @@ export default function Login() {
                   href={REOVANA_BRAND.localPublicSiteUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-medium text-[#7695ff] hover:underline"
+                  className="font-medium text-primary hover:underline"
                 >
                   View public site
                 </a>
