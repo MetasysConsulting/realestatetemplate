@@ -1,7 +1,7 @@
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { getDatabaseUrl } from "@/lib/supabase/listings-query";
-import { getSupabaseUrl } from "@/lib/supabase/env";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 const { Client } = pg;
 
@@ -391,6 +391,82 @@ async function fetchViaSupabase(): Promise<SiteActivitySummary | null> {
   };
 }
 
+async function fetchViaSummaryRpc(): Promise<SiteActivitySummary | null> {
+  const url = getSupabaseUrl();
+  const key = getServiceKey() || getSupabaseAnonKey();
+  if (!url || !key) return null;
+
+  const client = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data, error } = await client.rpc("get_site_activity_summary");
+  if (error) {
+    console.error("[site-activity] Summary RPC failed:", error.message);
+    return null;
+  }
+  if (!data || typeof data !== "object") return null;
+
+  const raw = data as Record<string, unknown>;
+  if (raw.available === false) return emptySummary();
+
+  const visitors7d = Number(raw.visitors7d) || 0;
+  const pageViews7d = Number(raw.pageViews7d) || 0;
+
+  return {
+    available: true,
+    visitorsToday: Number(raw.visitorsToday) || 0,
+    visitors7d,
+    pageViewsToday: Number(raw.pageViewsToday) || 0,
+    pageViews7d,
+    sessions7d: Number(raw.sessions7d) || 0,
+    avgPagesPerVisitor7d: roundAvg(pageViews7d, visitors7d),
+    loginEvents7d: Number(raw.loginEvents7d) || 0,
+    signupEvents7d: Number(raw.signupEvents7d) || 0,
+    logoutEvents7d: Number(raw.logoutEvents7d) || 0,
+    unlockIntents7d: Number(raw.unlockIntents7d) || 0,
+    topPages: Array.isArray(raw.topPages)
+      ? raw.topPages.map((row) => {
+          const item = row as Record<string, unknown>;
+          return { path: String(item.path ?? "/"), views: Number(item.views) || 0 };
+        })
+      : [],
+    trafficBySection: Array.isArray(raw.trafficBySection)
+      ? raw.trafficBySection.map((row) => {
+          const item = row as Record<string, unknown>;
+          return { section: String(item.section ?? "Other"), views: Number(item.views) || 0 };
+        })
+      : [],
+    dailyTrend: Array.isArray(raw.dailyTrend)
+      ? raw.dailyTrend.map((row) => {
+          const item = row as Record<string, unknown>;
+          return {
+            date: String(item.date ?? ""),
+            pageViews: Number(item.pageViews) || 0,
+            visitors: Number(item.visitors) || 0,
+          };
+        })
+      : [],
+    topReferrers: Array.isArray(raw.topReferrers)
+      ? raw.topReferrers.map((row) => {
+          const item = row as Record<string, unknown>;
+          return { referrer: String(item.referrer ?? "(direct)"), views: Number(item.views) || 0 };
+        })
+      : [],
+    recentEvents: Array.isArray(raw.recentEvents)
+      ? raw.recentEvents.map((row) => {
+          const item = row as Record<string, unknown>;
+          return {
+            id: String(item.id ?? ""),
+            createdAt: String(item.createdAt ?? new Date().toISOString()),
+            eventName: String(item.eventName ?? ""),
+            path: String(item.path ?? "/"),
+          };
+        })
+      : [],
+  };
+}
+
 export async function fetchSiteActivitySummary(): Promise<SiteActivitySummary> {
   try {
     const fromPg = await fetchViaPostgres();
@@ -398,6 +474,9 @@ export async function fetchSiteActivitySummary(): Promise<SiteActivitySummary> {
 
     const fromSupabase = await fetchViaSupabase();
     if (fromSupabase?.available) return fromSupabase;
+
+    const fromRpc = await fetchViaSummaryRpc();
+    if (fromRpc?.available) return fromRpc;
   } catch (error) {
     console.error("[site-activity] Unexpected failure:", error);
   }

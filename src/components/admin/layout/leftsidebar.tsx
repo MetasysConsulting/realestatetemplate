@@ -16,7 +16,7 @@ import { assetSrc } from "@/lib/admin/utils";
 const SIDEBAR_WIDTH_ICON = "7rem"
 
 const menuItems = [
-  { title: "Home", path: "/admin/home", icon: Home },
+  { title: "Activity", path: "/admin/home", icon: Home },
   { title: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
   { title: "Listings", path: "/admin/listings", icon: Building2 },
   { title: "Data Sources", path: "/admin/data-sources", icon: Database },
@@ -24,7 +24,7 @@ const menuItems = [
   { title: "Email Management", path: "/admin/emails", icon: Mail },
   { title: "Listing Tools", path: "/admin/content-tools", icon: Wand2 },
   { title: "Admin AI", path: "/admin/chatbot", icon: Bot },
-  { title: "Analytics", path: "/admin/analytics", icon: Activity },
+  { title: "Inventory Analytics", path: "/admin/analytics", icon: Activity },
   { title: "Plans & Billing", path: "/admin/subscription", icon: CreditCard },
   { title: "Settings", path: "/admin/settings", icon: Settings2 },
 ];

@@ -1,7 +1,7 @@
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { getDatabaseUrl } from "@/lib/supabase/listings-query";
-import { getSupabaseUrl } from "@/lib/supabase/env";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 import type { AnalyticsEventName } from "@/lib/analytics/types";
 import { normalizeAnalyticsPath } from "@/lib/analytics/types";
 
@@ -24,6 +24,19 @@ function getServiceKey(): string | undefined {
     process.env.SUPABASE_SERVICE_ROLE_KEY ||
     process.env.SUPABASE_SERVICE_KEY
   );
+}
+
+function toRpcPayload(events: AnalyticsEventInsert[]) {
+  return events.map((event) => ({
+    event_name: event.eventName,
+    path: normalizeAnalyticsPath(event.path),
+    referrer: event.referrer,
+    session_id: event.sessionId.slice(0, 128),
+    visitor_id: event.visitorId.slice(0, 128),
+    user_id: event.userId,
+    metadata: event.metadata ?? {},
+    user_agent: event.userAgent?.slice(0, 500) ?? null,
+  }));
 }
 
 async function insertViaPostgres(events: AnalyticsEventInsert[]): Promise<boolean> {
@@ -73,7 +86,7 @@ async function insertViaPostgres(events: AnalyticsEventInsert[]): Promise<boolea
   }
 }
 
-async function insertViaSupabase(events: AnalyticsEventInsert[]): Promise<boolean> {
+async function insertViaSupabaseService(events: AnalyticsEventInsert[]): Promise<boolean> {
   const url = getSupabaseUrl();
   const key = getServiceKey();
   if (!url || !key || events.length === 0) return false;
@@ -82,27 +95,51 @@ async function insertViaSupabase(events: AnalyticsEventInsert[]): Promise<boolea
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
-  const rows = events.map((event) => ({
-    event_name: event.eventName,
-    path: normalizeAnalyticsPath(event.path),
-    referrer: event.referrer,
-    session_id: event.sessionId.slice(0, 128),
-    visitor_id: event.visitorId.slice(0, 128),
-    user_id: event.userId,
-    metadata: event.metadata ?? {},
-    user_agent: event.userAgent?.slice(0, 500) ?? null,
-  }));
+  const { error } = await client.from("site_analytics_events").insert(
+    events.map((event) => ({
+      event_name: event.eventName,
+      path: normalizeAnalyticsPath(event.path),
+      referrer: event.referrer,
+      session_id: event.sessionId.slice(0, 128),
+      visitor_id: event.visitorId.slice(0, 128),
+      user_id: event.userId,
+      metadata: event.metadata ?? {},
+      user_agent: event.userAgent?.slice(0, 500) ?? null,
+    })),
+  );
 
-  const { error } = await client.from("site_analytics_events").insert(rows);
   if (error) {
-    console.error("[analytics] Supabase insert failed:", error.message);
+    console.error("[analytics] Supabase service insert failed:", error.message);
     return false;
   }
   return true;
 }
 
+/** Works with anon key via SECURITY DEFINER RPC (production-safe fallback). */
+async function insertViaRpc(events: AnalyticsEventInsert[]): Promise<boolean> {
+  const url = getSupabaseUrl();
+  const key = getServiceKey() || getSupabaseAnonKey();
+  if (!url || !key || events.length === 0) return false;
+
+  const client = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data, error } = await client.rpc("ingest_site_analytics_events", {
+    payload: toRpcPayload(events),
+  });
+
+  if (error) {
+    console.error("[analytics] RPC ingest failed:", error.message);
+    return false;
+  }
+
+  return typeof data === "number" ? data > 0 : true;
+}
+
 export async function insertAnalyticsEvents(events: AnalyticsEventInsert[]): Promise<boolean> {
   if (!events.length) return true;
   if (await insertViaPostgres(events)) return true;
-  return insertViaSupabase(events);
+  if (await insertViaSupabaseService(events)) return true;
+  return insertViaRpc(events);
 }
