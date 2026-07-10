@@ -88,7 +88,7 @@ const Register = () => {
               <ReovanaLogo size="lg" />
             </div>
             <CardTitle className="text-xl font-bold text-center">Request admin access</CardTitle>
-            <CardDescription className="text-center">Invite-only — use bypass on login for demo</CardDescription>
+            <CardDescription className="text-center">Invite-only registration</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">

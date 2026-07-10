@@ -463,7 +463,7 @@ const Settings = () => {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <Button variant="outline" className="w-full border-red-500/30 text-red-400 hover:bg-red-500/10 hover:border-red-500">
-                                <Trash2 className="h-4 w-4" /> Clear demo cache
+                                <Trash2 className="h-4 w-4" /> Clear cache
                             </Button>
                             <p className="text-xs text-white/50">Resets local UI state only — no backend connected</p>
                         </CardContent>

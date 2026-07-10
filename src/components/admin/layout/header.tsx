@@ -7,7 +7,7 @@ import { Input } from "@/components/admin/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/admin/ui/dropdown-menu";
 import { Search, Bell, User, Settings, LogOut, HelpCircle, UserCircle, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ADMIN_NOTIFICATIONS, REOVANA_BRAND } from "@/lib/admin/reovana-admin-data";
+import { REOVANA_BRAND } from "@/lib/admin/reovana-admin-data";
 
 const Header = () => {
   const router = useRouter();
@@ -39,22 +39,16 @@ const Header = () => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative group">
               <Bell className="size-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
-              <span className="absolute top-1.5 right-1.5 size-2 bg-destructive rounded-full animate-pulse" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
             <DropdownMenuLabel>Admin alerts</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <div className="max-h-[300px] overflow-y-auto">
-              {ADMIN_NOTIFICATIONS.map((n) => (
-                <DropdownMenuItem key={n.title + n.time}>
-                  <div className="flex flex-col gap-1">
-                    <p className="text-sm font-medium">{n.title}</p>
-                    <p className="text-xs text-muted-foreground">{n.detail}</p>
-                    <p className="text-xs text-muted-foreground/80">{n.time}</p>
-                  </div>
-                </DropdownMenuItem>
-              ))}
+            <div className="px-3 py-6 text-center">
+              <p className="text-sm font-medium text-foreground/80">No alerts yet</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                System notifications will appear here when available.
+              </p>
             </div>
           </DropdownMenuContent>
         </DropdownMenu>

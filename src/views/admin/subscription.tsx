@@ -2,8 +2,9 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/ui/card";
 import { Button } from "@/components/admin/ui/button";
-import { Check, Crown, Zap, Rocket, Star, Shield, Clock, Users, Sparkles, TrendingUp, CreditCard, Calendar, ArrowRight, Info } from "lucide-react";
+import { Check, Crown, Zap, Rocket, Shield, Clock, Users, Sparkles, ArrowRight, Info } from "lucide-react";
 import { SUBSCRIPTION_FAQ } from "@/lib/admin/reovana-admin-data";
+import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
 
 const pricingPlans = [
   {
@@ -77,37 +78,6 @@ const pricingPlans = [
   },
 ]
 
-const usageStats = [
-  {
-    label: "Active Pro Members",
-    value: "1,240",
-    icon: Star,
-    color: "text-primary",
-    bg: "bg-primary/10",
-  },
-  {
-    label: "Unlocks This Month",
-    value: "1,847",
-    icon: TrendingUp,
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
-  },
-  {
-    label: "Unlock Revenue",
-    value: "$16,020",
-    icon: Calendar,
-    color: "text-purple-500",
-    bg: "bg-purple-500/10",
-  },
-  {
-    label: "Subscription MRR",
-    value: "$12,380",
-    icon: CreditCard,
-    color: "text-green-500",
-    bg: "bg-green-500/10",
-  },
-]
-
 const features = [
   {
     title: "Blurred preview",
@@ -147,24 +117,18 @@ const Subscription = () => {
         <p className="text-sm sm:text-base text-white/50 mt-1">Public-site pricing for property unlocks and Pro subscriptions</p>
       </div>
 
-      {/* Current Usage Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {usageStats.map((stat, index) => (
-          <Card key={index} className="hover:border-primary/50 transition-all">
-            <CardContent className="">
-              <div className="flex items-center gap-3">
-                <div className={`p-2 sm:p-3 rounded-xl ${stat.bg} border border-primary/20`}>
-                  <stat.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${stat.color}`} />
-                </div>
-                <div>
-                  <p className="text-xs text-white/50 uppercase tracking-wider">{stat.label}</p>
-                  <p className="text-base sm:text-lg font-bold text-white mt-0.5">{stat.value}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-white text-base">Billing metrics</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AdminEmptyState
+            compact
+            title="No billing data yet"
+            description="Member counts, unlock volume, and revenue will appear here once Stripe reporting is connected."
+          />
+        </CardContent>
+      </Card>
 
       {/* Pricing Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 my-9 gap-6">
