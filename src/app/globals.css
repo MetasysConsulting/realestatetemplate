@@ -2524,17 +2524,21 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
 .reovana-search-suggest {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 10px);
   left: 0;
   right: 0;
   z-index: 99999;
-  max-height: 360px;
+  max-height: min(420px, 55vh);
   overflow: auto;
-  border-radius: 14px;
-  border: 1px solid var(--Line, #e4e6eb);
+  border-radius: 16px;
+  border: 1px solid rgba(22, 30, 45, 0.1);
   background: #fff;
-  box-shadow: 0 18px 40px rgba(21, 21, 21, 0.12);
-  padding: 8px 0;
+  box-shadow:
+    0 4px 6px rgba(15, 23, 42, 0.04),
+    0 18px 40px rgba(15, 23, 42, 0.12);
+  padding: 10px 0;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 
 .reovana-search-suggest.is-loading {
@@ -2543,10 +2547,11 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
 .reovana-search-suggest__loading,
 .reovana-search-suggest__empty {
-  padding: 14px 16px;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  padding: 18px 20px;
+  font-size: 1rem;
+  line-height: 1.5;
   color: var(--Note, #a8abae);
+  text-align: left;
 }
 
 .reovana-search-suggest__empty {
@@ -2554,77 +2559,104 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 }
 
 .reovana-search-suggest__mark {
-  background: rgba(21, 99, 223, 0.14);
+  background: rgba(118, 149, 255, 0.18);
   color: inherit;
-  padding: 0;
+  padding: 0 1px;
   border-radius: 3px;
+  font-weight: 700;
 }
 
 .reovana-search-suggest__group + .reovana-search-suggest__group {
-  border-top: 1px solid var(--Line, #e4e6eb);
-  margin-top: 4px;
-  padding-top: 4px;
+  border-top: 1px solid rgba(22, 30, 45, 0.06);
+  margin-top: 6px;
+  padding-top: 6px;
 }
 
 .reovana-search-suggest__heading {
-  padding: 8px 16px 6px;
-  font-size: 0.72rem;
+  padding: 10px 20px 8px;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--Note, #a8abae);
+  color: #8b919a;
+  text-align: left;
 }
 
 .reovana-search-suggest__item {
   display: flex;
   width: 100%;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px 16px;
+  justify-content: flex-start;
+  gap: 14px;
+  padding: 14px 20px;
   border: none;
   background: transparent;
   text-align: left;
   cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s ease;
 }
 
 .reovana-search-suggest__item:hover,
 .reovana-search-suggest__item.is-active {
-  background: var(--Sub-primary-1, #f2f5ff);
-}
-
-.reovana-search-suggest__label {
-  color: var(--Heading, #1c1c1e);
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.35;
-}
-
-.reovana-search-suggest__sublabel {
-  color: var(--Note, #a8abae);
-  font-size: 0.82rem;
-  white-space: nowrap;
+  background: #f3f6ff;
 }
 
 .reovana-search-suggest__item-left {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 14px;
   flex: 1;
+  min-width: 0;
+  text-align: left;
 }
 
 .reovana-search-suggest__icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--Note, #a8abae);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #f2f5ff;
+  color: var(--Primary, #7695ff);
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
 .reovana-suggest-icon {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   stroke: currentColor;
+}
+
+.reovana-search-suggest__text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+  text-align: left;
+}
+
+.reovana-search-suggest__label {
+  color: #161e2d;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  text-align: left;
+  width: 100%;
+}
+
+.reovana-search-suggest__sublabel {
+  color: #8b919a;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: left;
+  width: 100%;
+  white-space: normal;
 }
 
 .reovana-search-page-form__row {

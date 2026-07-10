@@ -152,12 +152,22 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   let ignoreNextInput = false;
 
   const updatePosition = () => {
-    const rect = input.getBoundingClientRect();
+    // Match the full search bar (host), not just the text input — homepage bar includes the Search button.
+    const anchor =
+      host.classList.contains("reovana-search-suggest-host") || host.classList.contains("form-title")
+        ? host
+        : input;
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.max(rect.width, input.getBoundingClientRect().width, 280);
+
     dropdown.style.position = "absolute";
     dropdown.style.left = `${rect.left + window.scrollX}px`;
-    dropdown.style.top = `${rect.bottom + window.scrollY + 8}px`;
-    dropdown.style.width = `${Math.max(rect.width, 280)}px`;
+    dropdown.style.top = `${rect.bottom + window.scrollY + 10}px`;
+    dropdown.style.width = `${width}px`;
+    dropdown.style.minWidth = `${width}px`;
+    dropdown.style.maxWidth = `${width}px`;
     dropdown.style.zIndex = "10000";
+    dropdown.style.boxSizing = "border-box";
   };
 
   const handleResizeOrScroll = () => {
@@ -263,19 +273,23 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
         iconSpan.innerHTML = getSuggestionTypeIcon(suggestion.type);
         leftContainer.appendChild(iconSpan);
 
+        const textStack = document.createElement("span");
+        textStack.className = "reovana-search-suggest__text";
+
         const label = document.createElement("span");
         label.className = "reovana-search-suggest__label";
         label.appendChild(highlightMatch(suggestion.label, query));
-        leftContainer.appendChild(label);
-
-        button.appendChild(leftContainer);
+        textStack.appendChild(label);
 
         if (suggestion.sublabel) {
           const sublabel = document.createElement("span");
           sublabel.className = "reovana-search-suggest__sublabel";
           sublabel.textContent = suggestion.sublabel;
-          button.appendChild(sublabel);
+          textStack.appendChild(sublabel);
         }
+
+        leftContainer.appendChild(textStack);
+        button.appendChild(leftContainer);
 
         // Select on pointerdown so the choice lands before document outside-click handlers
         // (dropdown is portaled to body, outside the input host).
@@ -395,9 +409,19 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   window.addEventListener("resize", handleResizeOrScroll);
   window.addEventListener("scroll", handleResizeOrScroll, { passive: true });
 
+  const resizeObserver =
+    typeof ResizeObserver !== "undefined"
+      ? new ResizeObserver(() => {
+          handleResizeOrScroll();
+        })
+      : null;
+  resizeObserver?.observe(host);
+  resizeObserver?.observe(input);
+
   return () => {
     window.clearTimeout(debounceTimer);
     abortController?.abort();
+    resizeObserver?.disconnect();
     window.removeEventListener("resize", handleResizeOrScroll);
     window.removeEventListener("scroll", handleResizeOrScroll);
     input.removeEventListener("input", scheduleFetch);
