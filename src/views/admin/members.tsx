@@ -15,11 +15,16 @@ import { Eye, Mail, Phone, Search, Unlock, User, Users } from "lucide-react";
 
 type MembersProps = {
   data: AdminMembersData;
+  initialQuery?: string;
 };
 
-export default function Members({ data }: MembersProps) {
-  const [query, setQuery] = useState("");
+export default function Members({ data, initialQuery = "" }: MembersProps) {
+  const [query, setQuery] = useState(initialQuery);
   const [selectedId, setSelectedId] = useState<string>(data.members[0]?.id ?? "");
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();

@@ -1,0 +1,42 @@
+export type AdminListingDetail = {
+  id: string;
+  sourceId: string;
+  sourceName: string;
+  sourceUrl: string | null;
+  sourceLastScrapedAt: string | null;
+  category: string;
+  categoryLabel: string;
+  externalId: string | null;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  county: string | null;
+  price: number;
+  priceLabel: string;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  squareFootage: number | null;
+  lotSize: number | null;
+  yearBuilt: string | null;
+  propertyType: string | null;
+  status: string | null;
+  tags: string[];
+  lat: number | null;
+  lng: number | null;
+  imageUrl: string | null;
+  hasImage: boolean;
+  detailUrl: string | null;
+  sourceAgency: string | null;
+  isNew: boolean;
+  isActive: boolean;
+  metadata: Record<string, unknown> | null;
+  scrapedAt: string | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
+export type AdminListingDetailData = {
+  available: boolean;
+  listing: AdminListingDetail | null;
+};
