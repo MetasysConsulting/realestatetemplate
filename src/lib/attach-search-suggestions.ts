@@ -77,6 +77,11 @@ function highlightMatch(text: string, query: string): DocumentFragment {
 }
 
 function ensureHost(input: HTMLInputElement): HTMLElement {
+  const suggestHost = input.closest(".reovana-search-suggest-host");
+  if (suggestHost instanceof HTMLElement) {
+    return suggestHost;
+  }
+
   const formTitle = input.closest(".form-title");
   if (formTitle instanceof HTMLElement) {
     formTitle.classList.add("reovana-search-suggest-host");

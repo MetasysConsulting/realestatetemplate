@@ -113,6 +113,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
           description={description}
           listings={listings}
           totalCount={total}
+          hideStateFilter
           emptyMessage="No properties match your search yet. Try a different city, state, or filter."
         />
 

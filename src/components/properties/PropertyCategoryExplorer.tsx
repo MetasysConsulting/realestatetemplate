@@ -105,6 +105,8 @@ type PropertyCategoryExplorerProps = {
   listings: PropertyListing[];
   totalCount?: number;
   emptyMessage?: string;
+  /** Hide the secondary state toolbar (e.g. search page already filters by state). */
+  hideStateFilter?: boolean;
 };
 
 export function PropertyCategoryExplorer({
@@ -113,6 +115,7 @@ export function PropertyCategoryExplorer({
   listings,
   totalCount,
   emptyMessage,
+  hideStateFilter = false,
 }: PropertyCategoryExplorerProps) {
   const [state, setState] = useState("All");
   const [sortBy, setSortBy] = useState("price-desc");
@@ -134,22 +137,24 @@ export function PropertyCategoryExplorer({
   }, [listings, state, sortBy]);
 
   return (
-    <div className="auctions-page">
-      <div className="auctions-toolbar">
-        <div className="auctions-toolbar__filters">
-          <label className="auctions-filter">
-            <span>State</span>
-            <select value={state} onChange={(e) => setState(e.target.value)}>
-              <option value="All">All</option>
-              {states.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </label>
+    <div className={`auctions-page${hideStateFilter ? " auctions-page--search" : ""}`}>
+      {hideStateFilter ? null : (
+        <div className="auctions-toolbar">
+          <div className="auctions-toolbar__filters">
+            <label className="auctions-filter">
+              <span>State</span>
+              <select value={state} onChange={(e) => setState(e.target.value)}>
+                <option value="All">All</option>
+                {states.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="auctions-layout">
         <section className="auctions-list-panel" aria-label={title}>
