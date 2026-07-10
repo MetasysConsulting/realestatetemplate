@@ -1,0 +1,605 @@
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --breakpoint-xs: 450px;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --spacing: 0.28rem;
+}
+
+.admin-root {
+  --radius: 0.625rem;
+  --background: oklch(13.558% 0.02475 282.596);
+  --foreground: oklch(0.984 0.003 247.858);
+  --spacing: 0.28rem;
+  --card: oklch(100% 0.00011 271.152 / 0.06);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(100% 0.00011 271.152 / 0.06);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: #7695ff;
+  --primary-foreground: #f2f5ff;
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(100% 0.00011 271.152 / 0.12);
+  --input: oklch(100% 0.00011 271.152 / 0.06);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: #7695ff;
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: #7695ff;
+  --sidebar-primary: #5b7de8;
+  --sidebar-primary-foreground: oklch(61.607% 0.1145 250.201 / 0.39);
+  --sidebar-accent: oklch(1 0 0 / 0.1);
+  --sidebar-accent-foreground: oklch(0.97 0 0 / 0.6);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+  --chart-bottom-font-size: 11px;
+}
+@media (min-width: 460px) {
+  .admin-root {
+    --chart-bottom-font-size: 12px;
+  }
+}
+
+.admin-root.dark, .admin-root {
+ --background: oklch(13.558% 0.02475 282.596);
+  --foreground: oklch(0.984 0.003 247.858);
+  --spacing: 0.28rem;
+  --card: oklch(100% 0.00011 271.152 / 0.06);
+  --card-foreground: oklch(0.984 0.003 247.858);
+  --popover: oklch(100% 0.00011 271.152 / 0.06);
+  --popover-foreground: oklch(0.984 0.003 247.858);
+  --primary: #7695ff;
+  --primary-foreground: #f2f5ff;
+  --secondary: oklch(0.279 0.041 260.031);
+  --secondary-foreground: oklch(0.984 0.003 247.858);
+  --muted: oklch(0.279 0.041 260.031);
+  --muted-foreground: oklch(0.704 0.04 256.788);
+  --accent: oklch(0.279 0.041 260.031);
+  --accent-foreground: oklch(0.984 0.003 247.858);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(100% 0.00011 271.152 / 0.12);
+  --input: oklch(100% 0.00011 271.152 / 0.06);
+  --ring: oklch(0.551 0.027 264.364);
+  --chart-1: #7695ff;
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.208 0.042 265.755);
+  --sidebar-foreground: #7695ff;
+  --sidebar-primary: #5b7de8;
+  --sidebar-primary-foreground: oklch(61.607% 0.1145 250.201 / 0.39);
+  --sidebar-accent: oklch(1 0 0 / 0.1);
+  --sidebar-accent-foreground: oklch(0.97 0 0 / 0.6);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.551 0.027 264.364);
+}
+
+@layer base {
+  .admin-root * {
+    @apply border-border outline-ring/50;
+  }
+
+  .admin-root {
+    @apply text-foreground bg-background;
+    min-height: 100vh;
+    background-image: url("../../assets/admin/saas-bg.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    font-family: var(--font-lexend), "Satoshi", sans-serif;
+    background-attachment: fixed;
+  }
+}
+
+
+.svg-corner path {
+  fill: var(--sidebar-foreground);
+}
+
+.svg-pink path {
+  fill: var(--sidebar-primary);
+}
+::-webkit-scrollbar{
+  display: none !important;
+}
+/* Upgrade animated-card animation */
+@keyframes float-move {
+  0% {
+    transform: translate3d(10px, -4px, 0);
+  }
+
+  100% {
+    transform: translate3d(0, 4px, 0);
+  }
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url(../../assets/admin/font/Satoshi-Bold.otf) format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url(../../assets/admin/font/Satoshi-Regular.otf) format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url(../../assets/admin/font/Satoshi-Medium.otf) format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url(../../assets/admin/font/Satoshi-Light.otf) format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Satoshi";
+  src: url(../../assets/admin/font/Satoshi-Black.otf) format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+.animate-float {
+  animation: float-move 1.5s ease-in-out infinite alternate;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Custom text selection styles for chatbot */
+::selection {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+
+/* Cus
+tom Scrollbar for Chat */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 10px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(113, 38, 221, 0.5);
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(113, 38, 221, 0.7);
+}
+
+/* Firefox scrollbar */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(113, 38, 221, 0.5) rgba(30, 41, 59, 0.3);
+}
+
+/* Admin dashboard — slightly larger readable typography */
+.reovana-admin-shell {
+  font-size: 15px;
+}
+
+.reovana-admin-shell .text-xs {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+}
+
+.reovana-admin-shell .text-sm {
+  font-size: 0.9375rem;
+  line-height: 1.375rem;
+}
+
+.reovana-admin-shell .text-base {
+  font-size: 1.0625rem;
+  line-height: 1.5rem;
+}
+
+.reovana-admin-shell .text-\[10px\] {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.reovana-admin-shell .text-\[11px\] {
+  font-size: 0.8125rem;
+  line-height: 1.125rem;
+}
+
+/* From Uiverse.io by Cobp */
+.container-vao {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-orb:not(:checked)~.orb {
+  filter: drop-shadow(0 0 4px var(--card)) drop-shadow(0 0 12px var(--foreground)) drop-shadow(0 0 12px color-mix(in srgb, var(--primary) 30%, transparent)) drop-shadow(0 0 5px color-mix(in srgb, var(--sidebar-primary) 30%, transparent));
+  transform: scale(1.2) translate(-50%, -50%);
+
+  & .ball {
+    animation: circle2 4.2s ease-in-out infinite;
+  }
+
+  &:hover {
+    transform: scale(1.4) translate(-50%, -50%);
+    filter: drop-shadow(0 0 4px var(--foreground)) drop-shadow(0 0 8px var(--foreground)) drop-shadow(0 0 12px var(--foreground)) drop-shadow(0 0 10px color-mix(in srgb, var(--primary) 30%, transparent)) drop-shadow(0 6px 26px color-mix(in srgb, var(--sidebar-primary) 30%, transparent));
+
+    & .icons .svg {
+      transform: scale(1.1);
+      filter: drop-shadow(0 0 4px var(--foreground));
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: scale(1.2) translate(-50%, -50%);
+    filter: drop-shadow(0 0 4px var(--foreground)) drop-shadow(0 0 8px var(--foreground)) drop-shadow(0 0 12px var(--foreground)) drop-shadow(0 0 10px color-mix(in srgb, var(--primary) 30%, transparent)) drop-shadow(0 6px 26px color-mix(in srgb, var(--sidebar-primary) 30%, transparent));
+  }
+
+  & * {
+    animation: none;
+  }
+}
+
+@keyframes circle2 {
+  0% {
+    transform: scale(1.5);
+  }
+
+  15% {
+    transform: scale(1.53);
+  }
+
+  30% {
+    transform: scale(1.48);
+  }
+
+  45% {
+    transform: scale(1.44);
+  }
+
+  60% {
+    transform: scale(1.47);
+  }
+
+  85% {
+    transform: scale(1.53);
+  }
+
+  100% {
+    transform: scale(1.5);
+  }
+}
+
+@keyframes animation-color-svg {
+
+  0%,
+  30% {
+    color: var(--sidebar-primary);
+  }
+
+  15% {
+    color: var(--primary);
+  }
+}
+
+@keyframes animation-color-text {
+  0% {
+    background-position: -800px;
+  }
+
+  50% {
+    background-position: 0px;
+  }
+}
+
+@keyframes animation-points {
+  0% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+
+.orb {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: left top;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  display: flex;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  z-index: 999999;
+
+  & .icons .svg .close {
+    opacity: 0;
+  }
+}
+
+.icons {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--foreground);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease-in-out;
+  z-index: 999;
+
+  & .svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+    opacity: 0.5;
+    transition: all 0.3s ease-in-out;
+  }
+}
+
+.ball {
+  display: flex;
+  width: 70px;
+  height: 70px;
+  flex-shrink: 0;
+  border-radius: 50px;
+  background-color: var(--sidebar-primary);
+  filter: url(#gooey);
+}
+
+.container-lines {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 150px;
+  background-image: radial-gradient(ellipse at center,
+      color-mix(in srgb, var(--background) 75%, transparent) 15%,
+      var(--primary) 50%);
+  clip-path: polygon(50% 25%,
+      65% 30%,
+      75% 42%,
+      75% 58%,
+      65% 70%,
+      50% 75%,
+      35% 70%,
+      26% 58%,
+      25% 42%,
+      35% 30%);
+  animation: animation-ball 15s both ease;
+  pointer-events: none;
+}
+
+@keyframes animation-ball {
+  2% {
+    clip-path: polygon(50% 25%,
+        50% 0,
+        75% 42%,
+        75% 58%,
+        65% 70%,
+        50% 75%,
+        35% 70%,
+        26% 58%,
+        25% 42%,
+        50% 0);
+  }
+
+  4% {
+    clip-path: polygon(50% 25%,
+        70% 0,
+        75% 42%,
+        85% 66%,
+        65% 100%,
+        50% 75%,
+        35% 100%,
+        15% 65%,
+        25% 42%,
+        30% 0);
+  }
+
+  6% {
+    clip-path: polygon(50% 25%,
+        50% 15%,
+        75% 42%,
+        75% 58%,
+        65% 70%,
+        50% 75%,
+        35% 70%,
+        26% 58%,
+        25% 42%,
+        50% 15%);
+  }
+
+  7%,
+  59% {
+    clip-path: polygon(50% 25%,
+        100% 12%,
+        75% 42%,
+        85% 66%,
+        65% 70%,
+        50% 75%,
+        35% 70%,
+        15% 65%,
+        25% 42%,
+        0 12%);
+  }
+
+  9%,
+  57% {
+    clip-path: polygon(50% 25%,
+        50% 0,
+        75% 42%,
+        75% 58%,
+        65% 70%,
+        50% 75%,
+        35% 70%,
+        26% 58%,
+        25% 42%,
+        50% 0);
+  }
+
+  12%,
+  55%,
+  61% {
+    clip-path: polygon(50% 25%,
+        65% 30%,
+        75% 42%,
+        75% 58%,
+        65% 70%,
+        50% 75%,
+        35% 70%,
+        26% 58%,
+        25% 42%,
+        35% 30%);
+  }
+}
+
+.container-borders {
+  position: relative;
+  display: flex;
+  width: 56px;
+  height: 56px;
+  margin: 4px;
+  border-radius: 50px;
+  border-top: 8px solid var(--color-primary);
+  border-left: 8px solid var(--color-primary);
+}
+
+.container-rings {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  position: absolute;
+  inset: 0;
+  perspective: 11rem;
+
+  &:before,
+  &:after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--sidebar-primary);
+    border-radius: 50%;
+    border: 6px solid transparent;
+    mask:
+      linear-gradient(var(--background) 0 0) padding-box,
+      linear-gradient(var(--background) 0 0);
+    background: linear-gradient(var(--background), var(--primary), var(--sidebar-primary), var(--accent), var(--muted)) border-box;
+    mask-composite: exclude;
+  }
+}
+
+.container-rings::before {
+  animation: ring180 10s linear infinite;
+}
+
+.container-rings::after {
+  animation: ring90 10s linear infinite;
+}
+
+@keyframes ring180 {
+  0% {
+    transform: rotateY(180deg) rotateX(180deg) rotateZ(180deg);
+  }
+
+  50% {
+    transform: rotateY(360deg) rotateX(360deg) rotateZ(360deg) scale(1.1);
+  }
+
+  100% {
+    transform: rotateY(540deg) rotateX(540deg) rotateZ(540deg);
+  }
+}
+
+@keyframes ring90 {
+  0% {
+    transform: rotateY(90deg) rotateX(90deg) rotateZ(90deg);
+  }
+
+  50% {
+    transform: rotateY(270deg) rotateX(270deg) rotateZ(270deg) scale(1.1);
+  }
+
+  100% {
+    transform: rotateY(450deg) rotateX(450deg) rotateZ(450deg);
+  }
+}
+
+

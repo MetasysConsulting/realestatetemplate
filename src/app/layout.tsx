@@ -5,9 +5,6 @@ import {
   Mulish,
   Poppins,
 } from "next/font/google";
-import { TemplateScripts } from "@/components/template/TemplateScripts";
-import { WireTemplateAuth } from "@/components/auth/WireTemplateAuth";
-import "./globals.css";
 
 const lexend = Lexend({
   subsets: ["latin"],
@@ -53,20 +50,7 @@ export default function RootLayout({
       lang="en"
       className={`${lexend.variable} ${manrope.variable} ${poppins.variable} ${mulish.variable}`}
     >
-      <head>
-        <link rel="stylesheet" href="/css/bootstrap.css" />
-        <link rel="stylesheet" href="/css/animate.min.css" />
-        <link rel="stylesheet" href="/css/sib-styles.css" />
-        <link rel="stylesheet" href="/css/swiper-bundle.min.css" />
-        <link rel="stylesheet" href="/css/styles.css" />
-        <link rel="stylesheet" href="/icons/icomoon/style.css" />
-        <link rel="shortcut icon" href="/images/reovana/logo.png" />
-      </head>
-      <body className="theme-color-4 popup-loader">
-        {children}
-        <WireTemplateAuth />
-        <TemplateScripts />
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

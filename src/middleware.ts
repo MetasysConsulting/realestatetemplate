@@ -21,6 +21,10 @@ const PROTECTED_PREFIXES = [
 ];
 
 function isProtectedPath(pathname: string): boolean {
+  // Admin UI uses its own demo login under /admin — do not apply member gates.
+  if (pathname === "/admin" || pathname.startsWith("/admin/")) {
+    return false;
+  }
   return PROTECTED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
   );
