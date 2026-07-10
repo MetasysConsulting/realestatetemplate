@@ -1292,17 +1292,23 @@ body.auctions-route .reovana-site .header {
 }
 
 /* ── All Auctions / buy category explorer pages ──────────────────────────── */
+/*
+ * Page can scroll to the footer. The listings column keeps its own scroll.
+ * Wheel over the map scrolls the page (map zoom uses +/- controls).
+ */
 html:has(body.auctions-route) {
-  height: 100%;
-  overflow: hidden;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body.auctions-route {
-  overflow: hidden !important;
-  height: 100dvh !important;
-  max-height: 100dvh !important;
-  display: flex;
-  flex-direction: column;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  height: auto !important;
+  max-height: none !important;
+  min-height: 100dvh;
+  display: block;
 }
 
 body.auctions-route #loading {
@@ -1312,28 +1318,33 @@ body.auctions-route #loading {
 body.auctions-route #template-chrome-root.reovana-site {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
-  min-height: 0;
-  height: 100% !important;
-  max-height: 100dvh;
-  overflow: hidden !important;
+  min-height: 100dvh;
+  height: auto !important;
+  max-height: none;
+  overflow: visible !important;
 }
 
 body.auctions-route .template-chrome-header {
   flex-shrink: 0;
-  /* Keep nav bar height stable so the list/map pane gets a real remaining height */
   max-height: 88px;
   overflow: visible;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  background: #fff;
 }
 
 body.auctions-route .template-chrome-footer {
-  display: none;
+  display: block;
+  flex-shrink: 0;
 }
 
 .auctions-page {
+  --auctions-chrome-offset: 88px;
   background: #f6f7fb;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: none;
+  min-height: calc(100dvh - var(--auctions-chrome-offset));
+  height: calc(100dvh - var(--auctions-chrome-offset));
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1488,6 +1499,7 @@ body.auctions-route .template-chrome-footer {
   flex-direction: column;
   gap: 16px;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .auctions-card {
