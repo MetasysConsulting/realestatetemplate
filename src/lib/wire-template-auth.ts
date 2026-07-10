@@ -355,54 +355,67 @@ function handleLoginQueryParam() {
   window.history.replaceState({}, "", clean.toString());
 }
 
+function setAccountMenuOpen(menu: HTMLElement, open: boolean) {
+  menu.classList.toggle("active", open);
+  menu.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
 function wireAccountMenus() {
-  document.querySelectorAll<HTMLElement>(".reovana-account-menu.tf-action-btns").forEach((menu) => {
-    if (menu.getAttribute("data-reovana-auth-wired") === "account-menu") return;
-    menu.setAttribute("data-reovana-auth-wired", "account-menu");
+  // Capture-phase delegation so template main.js `.tf-action-btns` handlers
+  // cannot double-toggle and cancel the open state (common on the homepage).
+  const doc = document as Document & { __reovanaAccountMenuBound?: boolean };
+  if (doc.__reovanaAccountMenuBound) return;
+  doc.__reovanaAccountMenuBound = true;
 
-    const toggle = (event: Event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      const isOpen = menu.classList.contains("active");
-      document.querySelectorAll(".reovana-account-menu.tf-action-btns.active").forEach((openMenu) => {
-        if (openMenu !== menu) openMenu.classList.remove("active");
-      });
-      menu.classList.toggle("active", !isOpen);
-    };
-
-    menu.addEventListener("click", (event) => {
+  document.addEventListener(
+    "click",
+    (event) => {
       const target = event.target;
-      if (target instanceof Element && target.closest(".menu-user a")) {
+      if (!(target instanceof Element)) return;
+
+      const menuLink = target.closest<HTMLAnchorElement>(
+        ".reovana-account-menu .menu-user a.dropdown-item",
+      );
+      if (menuLink) {
+        document.querySelectorAll<HTMLElement>(".reovana-account-menu.active").forEach((menu) => {
+          setAccountMenuOpen(menu, false);
+        });
         return;
       }
-      toggle(event);
-    });
-    menu.addEventListener("keydown", (event) => {
-      if (event.key === "Enter" || event.key === " ") {
-        toggle(event);
-      }
-      if (event.key === "Escape") {
-        menu.classList.remove("active");
-      }
-    });
 
-    menu.querySelectorAll<HTMLAnchorElement>(".menu-user a.dropdown-item").forEach((link) => {
-      link.addEventListener("click", () => {
-        menu.classList.remove("active");
+      const menu = target.closest<HTMLElement>(".reovana-account-menu");
+      if (menu) {
+        event.preventDefault();
+        event.stopPropagation();
+        const willOpen = !menu.classList.contains("active");
+        document.querySelectorAll<HTMLElement>(".reovana-account-menu.active").forEach((openMenu) => {
+          if (openMenu !== menu) setAccountMenuOpen(openMenu, false);
+        });
+        setAccountMenuOpen(menu, willOpen);
+        return;
+      }
+
+      document.querySelectorAll<HTMLElement>(".reovana-account-menu.active").forEach((openMenu) => {
+        setAccountMenuOpen(openMenu, false);
       });
-    });
+    },
+    true,
+  );
+
+  document.addEventListener("keydown", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const menu = target.closest<HTMLElement>(".reovana-account-menu");
+    if (!menu) return;
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setAccountMenuOpen(menu, !menu.classList.contains("active"));
+    }
+    if (event.key === "Escape") {
+      setAccountMenuOpen(menu, false);
+    }
   });
-
-  if (!(document as Document & { __reovanaAccountMenuBound?: boolean }).__reovanaAccountMenuBound) {
-    (document as Document & { __reovanaAccountMenuBound?: boolean }).__reovanaAccountMenuBound = true;
-    document.addEventListener("click", (event) => {
-      const target = event.target;
-      if (!(target instanceof Node)) return;
-      document.querySelectorAll(".reovana-account-menu.tf-action-btns.active").forEach((menu) => {
-        if (!menu.contains(target)) menu.classList.remove("active");
-      });
-    });
-  }
 }
 
 function submitSignOut() {

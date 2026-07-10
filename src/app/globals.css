@@ -317,8 +317,21 @@ body.auctions-route .reovana-site .header {
   z-index: 200;
 }
 
-#template-chrome-root.reovana-site {
+#template-chrome-root.reovana-site,
+#template-root.reovana-site {
   overflow: visible;
+}
+
+/* Keep account dropdown above homepage hero / page content */
+.reovana-site .header,
+.reovana-site .header .header-inner,
+.reovana-site .header .header-inner-wrap,
+.reovana-site .header .tf-container,
+.reovana-site .header .row,
+.reovana-site .header .header-right,
+.reovana-site .header .reovana-header-actions,
+.reovana-site .reovana-header-auth {
+  overflow: visible !important;
 }
 
 /* Login + Add property — horizontal row inside header-right */
@@ -382,6 +395,7 @@ body.auctions-route .reovana-site .header {
   align-items: center;
   gap: 0;
   cursor: pointer;
+  z-index: 30;
 }
 
 .reovana-site .reovana-header-auth .reovana-account-menu .user {
@@ -406,6 +420,14 @@ body.auctions-route .reovana-site .header {
   left: auto;
   right: 0;
   min-width: 240px;
+  z-index: 1000;
+}
+
+.reovana-site .reovana-header-auth .reovana-account-menu.active .menu-user,
+.reovana-site .header .header-right .reovana-account-menu.active .menu-user {
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 
 .reovana-site .header-right .box-user:not(.reovana-account-menu) {
