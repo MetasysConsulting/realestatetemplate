@@ -1,5 +1,7 @@
 import pg from "pg";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { getDatabaseUrl } from "@/lib/supabase/listings-query";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 
 const { Client } = pg;
 
@@ -7,6 +9,7 @@ const { Client } = pg;
 const HIDDEN_SOURCE_IDS = new Set(["mock"]);
 
 const STALE_AFTER_MS = 14 * 24 * 60 * 60 * 1000;
+const LISTING_PAGE_SIZE = 1000;
 
 export type ScrapeSourceStat = {
   id: string;
@@ -39,11 +42,66 @@ export type ScrapeAnalytics = {
   };
 };
 
+function emptyAnalytics(): ScrapeAnalytics {
+  return {
+    available: false,
+    sources: [],
+    categories: [],
+    totals: {
+      activeListings: 0,
+      inactiveListings: 0,
+      withImage: 0,
+      sourcesWithListings: 0,
+      staleSources: 0,
+    },
+  };
+}
+
 function isStale(lastScrapedAt: string | null): boolean {
   if (!lastScrapedAt) return true;
   const ts = Date.parse(lastScrapedAt);
   if (Number.isNaN(ts)) return true;
   return Date.now() - ts > STALE_AFTER_MS;
+}
+
+function buildAnalytics(
+  sources: ScrapeSourceStat[],
+  categories: ScrapeCategoryStat[],
+): ScrapeAnalytics {
+  const activeListings = sources.reduce((sum, s) => sum + s.activeListings, 0);
+  const inactiveListings = sources.reduce((sum, s) => sum + s.inactiveListings, 0);
+  const withImage = sources.reduce((sum, s) => sum + s.withImage, 0);
+  const sourcesWithListings = sources.filter((s) => s.activeListings > 0).length;
+  const staleSources = sources.filter((s) => s.isStale).length;
+
+  return {
+    available: true,
+    sources,
+    categories,
+    totals: {
+      activeListings,
+      inactiveListings,
+      withImage,
+      sourcesWithListings,
+      staleSources,
+    },
+  };
+}
+
+function createAnalyticsSupabaseClient(): SupabaseClient | null {
+  const url = getSupabaseUrl();
+  if (!url) return null;
+
+  const serviceKey =
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    process.env.SUPABASE_SERVICE_KEY;
+  const key = serviceKey || getSupabaseAnonKey();
+  if (!key) return null;
+
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 }
 
 async function withPgClient<T>(fn: (client: pg.Client) => Promise<T>): Promise<T | null> {
@@ -53,6 +111,7 @@ async function withPgClient<T>(fn: (client: pg.Client) => Promise<T>): Promise<T
   const client = new Client({
     connectionString: databaseUrl,
     ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 8_000,
   });
 
   try {
@@ -66,20 +125,7 @@ async function withPgClient<T>(fn: (client: pg.Client) => Promise<T>): Promise<T
   }
 }
 
-export async function fetchScrapeAnalytics(): Promise<ScrapeAnalytics> {
-  const empty: ScrapeAnalytics = {
-    available: false,
-    sources: [],
-    categories: [],
-    totals: {
-      activeListings: 0,
-      inactiveListings: 0,
-      withImage: 0,
-      sourcesWithListings: 0,
-      staleSources: 0,
-    },
-  };
-
+async function fetchViaPostgres(): Promise<ScrapeAnalytics | null> {
   const result = await withPgClient(async (client) => {
     const sourcesResult = await client.query(`
       SELECT
@@ -108,7 +154,7 @@ export async function fetchScrapeAnalytics(): Promise<ScrapeAnalytics> {
     return { sourcesResult, categoriesResult };
   });
 
-  if (!result) return empty;
+  if (!result) return null;
 
   const sources: ScrapeSourceStat[] = result.sourcesResult.rows
     .filter((row) => !HIDDEN_SOURCE_IDS.has(String(row.id)))
@@ -142,24 +188,139 @@ export async function fetchScrapeAnalytics(): Promise<ScrapeAnalytics> {
       count: Number(row.count) || 0,
     }));
 
-  const activeListings = sources.reduce((sum, s) => sum + s.activeListings, 0);
-  const inactiveListings = sources.reduce((sum, s) => sum + s.inactiveListings, 0);
-  const withImage = sources.reduce((sum, s) => sum + s.withImage, 0);
-  const sourcesWithListings = sources.filter((s) => s.activeListings > 0).length;
-  const staleSources = sources.filter((s) => s.isStale).length;
+  return buildAnalytics(sources, categories);
+}
 
-  return {
-    available: true,
-    sources,
-    categories,
-    totals: {
-      activeListings,
-      inactiveListings,
-      withImage,
-      sourcesWithListings,
-      staleSources,
-    },
-  };
+async function countListings(
+  client: SupabaseClient,
+  filters: { sourceId: string; active?: boolean; hasImage?: boolean },
+): Promise<number> {
+  let query = client
+    .from("listings")
+    .select("id", { count: "exact", head: true })
+    .eq("source_id", filters.sourceId);
+
+  if (filters.active === true) query = query.eq("is_active", true);
+  if (filters.active === false) query = query.eq("is_active", false);
+  if (filters.hasImage === true) query = query.eq("has_image", true);
+
+  const { count, error } = await query;
+  if (error) {
+    console.error("[listing-analytics] Supabase count failed:", error.message);
+    return 0;
+  }
+  return count ?? 0;
+}
+
+async function fetchCategoryBreakdown(
+  client: SupabaseClient,
+): Promise<ScrapeCategoryStat[]> {
+  const counts = new Map<string, number>();
+  let from = 0;
+
+  while (true) {
+    const to = from + LISTING_PAGE_SIZE - 1;
+    const { data, error } = await client
+      .from("listings")
+      .select("source_id, category")
+      .eq("is_active", true)
+      .range(from, to);
+
+    if (error) {
+      console.error("[listing-analytics] Supabase category query failed:", error.message);
+      break;
+    }
+    if (!data?.length) break;
+
+    for (const row of data) {
+      const sourceId = String(row.source_id ?? "");
+      const category = String(row.category ?? "");
+      if (!sourceId || !category || HIDDEN_SOURCE_IDS.has(sourceId)) continue;
+      const key = `${sourceId}::${category}`;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+
+    if (data.length < LISTING_PAGE_SIZE) break;
+    from += LISTING_PAGE_SIZE;
+  }
+
+  return [...counts.entries()]
+    .map(([key, count]) => {
+      const [sourceId, category] = key.split("::");
+      return { sourceId, category, count };
+    })
+    .sort((a, b) => b.count - a.count || a.sourceId.localeCompare(b.sourceId));
+}
+
+async function fetchViaSupabase(): Promise<ScrapeAnalytics | null> {
+  const client = createAnalyticsSupabaseClient();
+  if (!client) return null;
+
+  const { data: sourceRows, error } = await client
+    .from("listing_sources")
+    .select("id, name, source_url, last_scraped_at")
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("[listing-analytics] Supabase sources query failed:", error.message);
+    return null;
+  }
+  if (!sourceRows) return null;
+
+  const visibleSources = sourceRows.filter((row) => !HIDDEN_SOURCE_IDS.has(String(row.id)));
+
+  const sources: ScrapeSourceStat[] = await Promise.all(
+    visibleSources.map(async (row) => {
+      const id = String(row.id);
+      const [activeListings, inactiveListings, withImage] = await Promise.all([
+        countListings(client, { sourceId: id, active: true }),
+        countListings(client, { sourceId: id, active: false }),
+        countListings(client, { sourceId: id, active: true, hasImage: true }),
+      ]);
+
+      const lastScrapedAt = row.last_scraped_at
+        ? new Date(row.last_scraped_at as string).toISOString()
+        : null;
+
+      return {
+        id,
+        name: String(row.name),
+        sourceUrl: row.source_url ? String(row.source_url) : null,
+        lastScrapedAt,
+        newestListingScrapedAt: null,
+        activeListings,
+        inactiveListings,
+        withImage,
+        isStale: isStale(lastScrapedAt) || activeListings === 0,
+      };
+    }),
+  );
+
+  sources.sort(
+    (a, b) => b.activeListings - a.activeListings || a.name.localeCompare(b.name),
+  );
+
+  const categories = await fetchCategoryBreakdown(client);
+  return buildAnalytics(sources, categories);
+}
+
+/**
+ * Live scrape inventory for admin.
+ * Prefers direct Postgres when DATABASE_URL works; falls back to Supabase
+ * (same path the public site uses) so Vercel works without a direct DB socket.
+ */
+export async function fetchScrapeAnalytics(): Promise<ScrapeAnalytics> {
+  try {
+    const fromPg = await fetchViaPostgres();
+    if (fromPg?.available) return fromPg;
+
+    const fromSupabase = await fetchViaSupabase();
+    if (fromSupabase?.available) return fromSupabase;
+  } catch (error) {
+    console.error("[listing-analytics] Unexpected failure:", error);
+  }
+
+  return emptyAnalytics();
 }
 
 export function formatCategoryLabel(category: string): string {

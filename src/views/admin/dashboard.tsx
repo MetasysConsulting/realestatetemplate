@@ -69,7 +69,7 @@ export default function Dashboard({ analytics }: DashboardProps) {
           <CardContent className="pt-6">
             <AdminEmptyState
               title="No scrape metrics available"
-              description="Connect DATABASE_URL to load live listing counts from Supabase."
+              description="Could not reach the listings database. Check Supabase env vars on this deployment."
             />
           </CardContent>
         </Card>

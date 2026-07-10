@@ -52,7 +52,7 @@ export default function Analytics({ analytics }: AnalyticsProps) {
           <CardContent className="pt-6">
             <AdminEmptyState
               title="No analytics data yet"
-              description="Connect DATABASE_URL to load live scrape counts and category breakdowns."
+              description="Could not reach the listings database. Check Supabase env vars on this deployment."
             />
           </CardContent>
         </Card>

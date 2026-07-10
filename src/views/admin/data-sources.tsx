@@ -38,7 +38,7 @@ export default function DataSources({ analytics }: DataSourcesProps) {
           <CardContent className="pt-6">
             <AdminEmptyState
               title="Database unavailable"
-              description="Connect DATABASE_URL to load live scrape analytics from listing_sources and listings."
+              description="Could not reach listing_sources / listings. Check Supabase env vars on this deployment."
             />
           </CardContent>
         </Card>
