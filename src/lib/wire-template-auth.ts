@@ -306,11 +306,9 @@ function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
       const labeledFacebook = /\bfacebook\b/.test(label);
       const labeledGoogle = /\bgoogle\b/.test(label);
 
-      // Hide Facebook (by label, or second social button when unlabeled).
+      // Remove Facebook — Google is the only social provider.
       if (labeledFacebook || (!labeledGoogle && index === 1)) {
-        link.style.display = "none";
-        link.setAttribute("aria-hidden", "true");
-        link.tabIndex = -1;
+        link.remove();
         return;
       }
 
@@ -321,12 +319,22 @@ function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
       link.setAttribute("data-reovana-auth-wired", "oauth-google");
       link.setAttribute("href", "#");
       link.setAttribute("role", "button");
+      link.classList.add("reovana-btn-google");
+      const group = link.closest(".group-btn");
+      group?.classList.add("reovana-oauth-google-only");
       link.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
         void startGoogleOAuth(modal);
       });
     });
+
+    // If Facebook was already gone from a prior pass, still mark the group.
+    const group = modal.querySelector(".group-btn");
+    if (group && group.querySelectorAll(".btn-social").length === 1) {
+      group.classList.add("reovana-oauth-google-only");
+      group.querySelector(".btn-social")?.classList.add("reovana-btn-google");
+    }
   };
 
   wireModal("modalLogin");

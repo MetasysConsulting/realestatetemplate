@@ -389,6 +389,21 @@ body.auctions-route .reovana-site .header {
   border-color: var(--Primary) !important;
 }
 
+/* Login / register: Google-only OAuth row (Facebook removed) */
+.flat-account .group-btn.reovana-oauth-google-only {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+}
+
+.flat-account .group-btn.reovana-oauth-google-only .btn-social,
+.flat-account .group-btn.reovana-oauth-google-only .reovana-btn-google {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
 .reovana-site .reovana-header-auth .reovana-account-menu {
   position: relative;
   display: flex !important;
