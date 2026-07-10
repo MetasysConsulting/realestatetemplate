@@ -1,141 +1,156 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/admin/ui/card";
-import { Input } from "@/components/admin/ui/input";
-import { Button } from "@/components/admin/ui/button";
-import authimg from "@/assets/admin/auth-bg-img.jpg";
-import robo1 from "@/assets/admin/robo-1.png";
-import { Eye, EyeOff } from "lucide-react";
+import { useState, useTransition, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { assetSrc } from "@/lib/admin/utils";
-import { REOVANA_BRAND } from "@/lib/admin/reovana-admin-data";
+import { Eye, EyeOff } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/admin/ui/card";
+import { Input } from "@/components/admin/ui/input";
+import { Button } from "@/components/admin/ui/button";
 import { ReovanaLogo } from "@/components/admin/reovana-logo";
+import { REOVANA_BRAND } from "@/lib/admin/reovana-admin-data";
 
-const Login = () => {
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
+export default function Login() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: ""
-  })
+  const goToDashboard = () => {
+    startTransition(() => {
+      router.push("/admin/home");
+    });
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    setTimeout(() => {
-      setIsLoading(false)
-      setTimeout(() => {
-        router.push("/admin/home")
-      }, 1000)
-    }, 1000)
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    })
-  }
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    goToDashboard();
+  };
 
   return (
-    <div className="min-h-screen w-full relative flex items-center justify-center md:justify-start p-4">
-      {/* Loading Animation */}
-      <AnimatePresence>
-        {isLoading && (
-          <motion.div className="fixed inset-0 z-50 flex items-center justify-center  backdrop-blur-lg bg-background/30" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.img src={assetSrc(robo1)} alt="Loading" className="w-32"
-              initial={{ y: -200, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 200, opacity: 0 }}
-              transition={{
-                duration: 0.5,
-                ease: "easeInOut"
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <div className="admin-root relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10">
+      <div
+        className="pointer-events-none absolute inset-0"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(118, 149, 255, 0.22), transparent 55%), linear-gradient(165deg, #0f141f 0%, #161e2d 48%, #1a2233 100%)",
+        }}
+      />
 
-      {/* Background Image */}
-      <div className="absolute top-0 left-0 w-full h-full">
-        <img src={assetSrc(authimg)} className="w-full h-full object-cover" alt="Background" />
-        <div className="absolute inset-0 bg-linear-to-r from-background/80 to-transparent" />
-      </div>
-
-      {/* Login Card */}
-      <div className="w-full max-w-md relative mx-auto lg:ml-48 z-10">
-        <Card className="backdrop-blur-md bg-card">
-          <CardHeader className="space-y-3">
-            <div className="flex justify-center">
+      <div className="relative z-10 w-full max-w-[420px]">
+        <Card className="border-white/10 bg-[#1c2433]/95 shadow-2xl shadow-black/30">
+          <CardHeader className="space-y-4 pb-2 text-center">
+            <div className="flex justify-center pt-1">
               <ReovanaLogo size="lg" />
             </div>
-            <CardTitle className="text-xl font-bold text-center">Admin sign in</CardTitle>
-            <CardDescription className="text-center">
-              Sign in to manage listings, feeds, and site analytics
-            </CardDescription>
+            <div className="space-y-1.5">
+              <CardTitle className="text-2xl font-semibold tracking-tight text-white">
+                Admin sign in
+              </CardTitle>
+              <CardDescription className="text-[15px] text-white/55">
+                Manage listings, feeds, and site analytics
+              </CardDescription>
+            </div>
           </CardHeader>
-          <CardContent>
+
+          <CardContent className="pt-4">
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Email Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">Email</label>
-                <Input id="email" name="email" type="email" placeholder="Enter your email" value={formData.email} onChange={handleChange} required/>
+                <label htmlFor="email" className="text-sm font-medium text-white/80">
+                  Email
+                </label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  placeholder="you@reovana.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-11 border-white/10 bg-white/5 text-white placeholder:text-white/35"
+                />
               </div>
 
-              {/* Password Field */}
               <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">Password</label>
+                <div className="flex items-center justify-between gap-3">
+                  <label htmlFor="password" className="text-sm font-medium text-white/80">
+                    Password
+                  </label>
+                  <button
+                    type="button"
+                    className="text-xs font-medium text-[#7695ff] hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
-                  <Input id="password" name="password" type={showPassword ? "text" : "password"} placeholder="Enter your password" value={formData.password} onChange={handleChange} required className="pr-10"/>
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="h-11 border-white/10 bg-white/5 pr-10 text-white placeholder:text-white/35"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/45 transition-colors hover:text-white/80"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
 
-              {/* Forgot Password Link */}
-              <div className="flex justify-end">
-                <button type="button" className="text-sm text-primary hover:underline">Forgot password?</button>
-              </div>
-
-              {/* Login Button */}
-              <Button type="submit" className="w-full text-white" size="lg">Login</Button>
+              <Button
+                type="submit"
+                size="lg"
+                className="mt-1 h-11 w-full bg-[#7695ff] text-white hover:bg-[#6586f5]"
+                disabled={isPending}
+              >
+                {isPending ? "Signing in…" : "Sign in"}
+              </Button>
 
               <Button
                 type="button"
                 variant="outline"
-                className="w-full"
-                onClick={() => router.push("/admin/home")}
+                size="lg"
+                className="h-11 w-full border-white/15 bg-transparent text-white/85 hover:bg-white/5 hover:text-white"
+                onClick={goToDashboard}
+                disabled={isPending}
               >
                 Continue without login
               </Button>
-              <p className="text-center text-xs text-muted-foreground">
-                No backend yet — use this to explore the dashboard.
+
+              <p className="pt-1 text-center text-xs leading-relaxed text-white/40">
+                Demo access — no backend auth wired yet.
               </p>
 
-              <Button type="button" variant="outline" className="w-full" asChild>
-                <a href={REOVANA_BRAND.localPublicSiteUrl} target="_blank" rel="noopener noreferrer">
-                  View public REOVANA site
+              <div className="flex items-center justify-center gap-4 border-t border-white/10 pt-4 text-sm">
+                <a
+                  href={REOVANA_BRAND.localPublicSiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-[#7695ff] hover:underline"
+                >
+                  View public site
                 </a>
-              </Button>
-
-              {/* Sign Up Link */}
-              <div className="text-center text-sm">
-                Don't have an account?{" "}
-                <Link href="/admin/register" className="text-primary hover:underline font-medium">Register</Link>
+                <span className="text-white/20">·</span>
+                <Link href="/admin/register" className="font-medium text-white/70 hover:text-white">
+                  Register
+                </Link>
               </div>
             </form>
           </CardContent>
         </Card>
       </div>
     </div>
-  )
+  );
 }
-
-export default Login;
