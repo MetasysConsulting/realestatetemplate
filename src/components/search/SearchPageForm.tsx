@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { attachSearchSuggestions } from "@/lib/attach-search-suggestions";
+import { useEffect, useEffectEvent, useRef, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import {
+  attachSearchSuggestions,
+  suggestionInputValue,
+} from "@/lib/attach-search-suggestions";
+import type { SearchSuggestion } from "@/lib/search-suggestion-types";
 
 type SearchPageFormProps = {
   q: string;
@@ -24,12 +29,37 @@ export function SearchPageForm({
   maxPrice,
   pageSize,
 }: SearchPageFormProps) {
+  const router = useRouter();
+  const [, startTransition] = useTransition();
   const qInputRef = useRef<HTMLInputElement>(null);
+  const stateInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSuggestionSelect = useEffectEvent((suggestion: SearchSuggestion) => {
+    const qInput = qInputRef.current;
+    const stateInput = stateInputRef.current;
+    if (!qInput) return false;
+
+    qInput.value = suggestionInputValue(suggestion);
+
+    if (suggestion.type === "state" && stateInput) {
+      stateInput.value = suggestion.label;
+    } else if (suggestion.href.includes("state=") && stateInput) {
+      const stateParam = new URL(suggestion.href, window.location.origin).searchParams.get("state");
+      if (stateParam) stateInput.value = stateParam;
+    }
+
+    startTransition(() => {
+      router.push(suggestion.href);
+    });
+    return false;
+  });
 
   useEffect(() => {
     const input = qInputRef.current;
     if (!input) return;
-    return attachSearchSuggestions(input);
+    return attachSearchSuggestions(input, {
+      onSelect: (suggestion) => handleSuggestionSelect(suggestion),
+    });
   }, []);
 
   return (
@@ -47,6 +77,7 @@ export function SearchPageForm({
               />
             </div>
             <input
+              ref={stateInputRef}
               name="state"
               defaultValue={state}
               placeholder="State (e.g. FL or Florida)"

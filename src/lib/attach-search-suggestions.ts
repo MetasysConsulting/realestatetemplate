@@ -22,7 +22,10 @@ function getSuggestionTypeIcon(type: SearchSuggestionType): string {
 }
 
 type AttachOptions = {
-  onSelect?: (suggestion: SearchSuggestion) => void;
+  /** Called after the input is filled. Return false to skip default navigation. */
+  onSelect?: (suggestion: SearchSuggestion) => void | false;
+  /** When true, fill the input and keep focus instead of navigating. */
+  fillOnly?: boolean;
 };
 
 type SuggestResponse = {
@@ -109,6 +112,19 @@ function ensureInputId(input: HTMLInputElement): string {
   return id;
 }
 
+/** Prefer the primary search token from a suggestion label (e.g. "Miami, FL" → "Miami"). */
+export function suggestionInputValue(suggestion: SearchSuggestion): string {
+  if (suggestion.type === "zip") {
+    const zip = suggestion.label.match(/\b\d{5}\b/);
+    return zip?.[0] ?? suggestion.label;
+  }
+  if (suggestion.type === "state") {
+    return suggestion.label;
+  }
+  const beforeComma = suggestion.label.split(",")[0]?.trim();
+  return beforeComma || suggestion.label;
+}
+
 export function attachSearchSuggestions(input: HTMLInputElement, options: AttachOptions = {}): () => void {
   if (input.getAttribute("data-reovana-suggest-wired") === "1") {
     return () => undefined;
@@ -128,13 +144,15 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   let currentSuggestions: SearchSuggestion[] = [];
   let requestId = 0;
   let abortController: AbortController | null = null;
+  let ignoreNextInput = false;
 
   const updatePosition = () => {
     const rect = input.getBoundingClientRect();
     dropdown.style.position = "absolute";
     dropdown.style.left = `${rect.left + window.scrollX}px`;
     dropdown.style.top = `${rect.bottom + window.scrollY + 8}px`;
-    dropdown.style.width = `${rect.width}px`;
+    dropdown.style.width = `${Math.max(rect.width, 280)}px`;
+    dropdown.style.zIndex = "10000";
   };
 
   const handleResizeOrScroll = () => {
@@ -168,12 +186,24 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     input.setAttribute("aria-expanded", "false");
   };
 
+  const applySuggestionToInput = (suggestion: SearchSuggestion) => {
+    ignoreNextInput = true;
+    input.value = suggestionInputValue(suggestion);
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    // Keep native form state in sync for controlled-looking template inputs.
+    input.setAttribute("value", input.value);
+  };
+
   const selectSuggestion = (suggestion: SearchSuggestion) => {
+    applySuggestionToInput(suggestion);
     closeDropdown();
-    if (options.onSelect) {
-      options.onSelect(suggestion);
+    input.focus({ preventScroll: true });
+
+    const onSelectResult = options.onSelect?.(suggestion);
+    if (onSelectResult === false || options.fillOnly) {
       return;
     }
+
     window.location.assign(suggestion.href);
   };
 
@@ -242,10 +272,14 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
           button.appendChild(sublabel);
         }
 
-        button.addEventListener("mousedown", (event) => {
+        // Select on pointerdown so the choice lands before document outside-click handlers
+        // (dropdown is portaled to body, outside the input host).
+        button.addEventListener("pointerdown", (event) => {
+          if (event.button !== 0) return;
           event.preventDefault();
+          event.stopPropagation();
+          selectSuggestion(suggestion);
         });
-        button.addEventListener("click", () => selectSuggestion(suggestion));
         section.appendChild(button);
       }
 
@@ -277,6 +311,7 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     try {
       const response = await fetch(`/api/search/suggest?q=${encodeURIComponent(query)}`, {
         signal: abortController.signal,
+        headers: { Accept: "application/json" },
       });
       if (!response.ok) throw new Error("Suggest request failed");
       const payload = (await response.json()) as SuggestResponse;
@@ -290,6 +325,10 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   };
 
   const scheduleFetch = () => {
+    if (ignoreNextInput) {
+      ignoreNextInput = false;
+      return;
+    }
     window.clearTimeout(debounceTimer);
     const query = input.value.trim();
     if (query.length < MIN_QUERY_LENGTH) {
@@ -301,8 +340,11 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     }, DEBOUNCE_MS);
   };
 
-  const handleDocumentClick = (event: MouseEvent) => {
-    if (!host.contains(event.target as Node)) closeDropdown();
+  const handleDocumentPointerDown = (event: PointerEvent) => {
+    const target = event.target;
+    if (!(target instanceof Node)) return;
+    if (host.contains(target) || dropdown.contains(target)) return;
+    closeDropdown();
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -344,7 +386,7 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
   input.addEventListener("input", scheduleFetch);
   input.addEventListener("focus", scheduleFetch);
   input.addEventListener("keydown", handleKeyDown);
-  document.addEventListener("mousedown", handleDocumentClick);
+  document.addEventListener("pointerdown", handleDocumentPointerDown, true);
   window.addEventListener("resize", handleResizeOrScroll);
   window.addEventListener("scroll", handleResizeOrScroll, { passive: true });
 
@@ -356,8 +398,9 @@ export function attachSearchSuggestions(input: HTMLInputElement, options: Attach
     input.removeEventListener("input", scheduleFetch);
     input.removeEventListener("focus", scheduleFetch);
     input.removeEventListener("keydown", handleKeyDown);
-    document.removeEventListener("mousedown", handleDocumentClick);
+    document.removeEventListener("pointerdown", handleDocumentPointerDown, true);
     closeDropdown();
     dropdown.remove();
+    input.removeAttribute("data-reovana-suggest-wired");
   };
 }

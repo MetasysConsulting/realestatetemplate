@@ -112,6 +112,12 @@ export function wireTemplateSearch(): void {
 
   form.addEventListener("submit", submit);
   submitLink.addEventListener("click", submit);
-  attachSearchSuggestions(input);
+  attachSearchSuggestions(input, {
+    onSelect: (suggestion) => {
+      // Input already filled by attachSearchSuggestions; navigate to the suggestion URL.
+      window.location.assign(suggestion.href);
+      return false;
+    },
+  });
 }
 
