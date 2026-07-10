@@ -22,10 +22,15 @@ type ListingDetailProps = {
 };
 
 function Fact({ label, value }: { label: string; value: ReactNode }) {
+  const empty =
+    value == null ||
+    value === false ||
+    (typeof value === "string" && value.trim() === "");
+
   return (
     <div className="p-4 rounded-xl bg-white/5 border border-white/10">
       <p className="text-xs text-white/50 uppercase tracking-wider mb-1">{label}</p>
-      <div className="text-white text-sm break-words">{value || "—"}</div>
+      <div className="text-white text-sm break-words">{empty ? "—" : value}</div>
     </div>
   );
 }

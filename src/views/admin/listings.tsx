@@ -175,7 +175,7 @@ export default function Listings({ data }: ListingsProps) {
                 />
               </form>
 
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 items-center">
                 {(
                   [
                     { value: "1", label: "Active" },
@@ -193,6 +193,29 @@ export default function Listings({ data }: ListingsProps) {
                     {item.label}
                   </Button>
                 ))}
+                {(data.query.q ||
+                  data.query.sourceId !== "all" ||
+                  data.query.category !== "all" ||
+                  data.query.active !== "1") && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="text-white/60"
+                    onClick={() => {
+                      setQueryDraft("");
+                      navigate({
+                        q: "",
+                        sourceId: "all",
+                        category: "all",
+                        active: "1",
+                        page: 1,
+                      });
+                    }}
+                    disabled={isPending}
+                  >
+                    Clear filters
+                  </Button>
+                )}
               </div>
 
               <div className="flex flex-wrap gap-2">

@@ -38,6 +38,10 @@ function isAdminAuthPath(pathname: string): boolean {
   );
 }
 
+function isAdminApiPath(pathname: string): boolean {
+  return pathname === "/admin/api" || pathname.startsWith("/admin/api/");
+}
+
 export async function middleware(request: NextRequest) {
   if (shouldRedirectToWww(request)) {
     const url = request.nextUrl.clone();
@@ -87,6 +91,11 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(redirectUrl);
       }
     } else if (!isAdmin) {
+      // API routes should return JSON 401, not an HTML login redirect.
+      if (isAdminApiPath(pathname)) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+
       const redirectUrl = request.nextUrl.clone();
       redirectUrl.pathname = "/admin/login";
       redirectUrl.search = "";

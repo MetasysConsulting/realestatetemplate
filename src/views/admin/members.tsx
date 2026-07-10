@@ -20,11 +20,6 @@ type MembersProps = {
 
 export default function Members({ data, initialQuery = "" }: MembersProps) {
   const [query, setQuery] = useState(initialQuery);
-  const [selectedId, setSelectedId] = useState<string>(data.members[0]?.id ?? "");
-
-  useEffect(() => {
-    setQuery(initialQuery);
-  }, [initialQuery]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -36,6 +31,14 @@ export default function Members({ data, initialQuery = "" }: MembersProps) {
         (member.phone ?? "").toLowerCase().includes(q),
     );
   }, [data.members, query]);
+
+  const [selectedId, setSelectedId] = useState<string>(
+    () => filtered[0]?.id ?? data.members[0]?.id ?? "",
+  );
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   useEffect(() => {
     if (filtered.length === 0) return;

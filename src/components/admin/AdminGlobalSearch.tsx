@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, useTransition } from "react";
+import { useEffect, useId, useRef, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Building2, Loader2, Search, Users } from "lucide-react";
 import { Input } from "@/components/admin/ui/input";
@@ -36,8 +36,15 @@ export default function AdminGlobalSearch({
         setOpen(false);
       }
     };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
     document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, []);
 
   useEffect(() => {
@@ -57,25 +64,36 @@ export default function AdminGlobalSearch({
       try {
         const res = await fetch(
           `/admin/api/search/suggest?q=${encodeURIComponent(q)}`,
-          { signal: controller.signal, cache: "no-store" },
+          {
+            signal: controller.signal,
+            cache: "no-store",
+            credentials: "same-origin",
+          },
         );
         if (!res.ok) {
           setResults(EMPTY);
           return;
         }
         const data = (await res.json()) as AdminSearchSuggestResult;
-        setResults(data);
-        setOpen(true);
+        if (!controller.signal.aborted) {
+          setResults(data);
+          setOpen(true);
+        }
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
           setResults(EMPTY);
         }
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     }, 220);
 
-    return () => window.clearTimeout(timer);
+    return () => {
+      window.clearTimeout(timer);
+      abortRef.current?.abort();
+    };
   }, [query]);
 
   const go = (href: string) => {
@@ -85,7 +103,7 @@ export default function AdminGlobalSearch({
     });
   };
 
-  const onSubmit = (event: React.FormEvent) => {
+  const onSubmit = (event: FormEvent) => {
     event.preventDefault();
     const q = query.trim();
     if (!q) return;
@@ -108,9 +126,7 @@ export default function AdminGlobalSearch({
           onFocus={() => {
             if (query.trim().length >= 2) setOpen(true);
           }}
-          placeholder={
-            compact ? "Search…" : "Search listings, members…"
-          }
+          placeholder={compact ? "Search…" : "Search listings, members…"}
           className="pl-9 h-9 pr-9"
           role="combobox"
           aria-expanded={open}
@@ -129,7 +145,9 @@ export default function AdminGlobalSearch({
           role="listbox"
           className="absolute left-0 right-0 top-[calc(100%+0.4rem)] z-50 overflow-hidden rounded-xl border border-white/10 bg-[#1c2433] shadow-2xl shadow-black/40"
         >
-          {!hasResults && !loading ? (
+          {loading && !hasResults ? (
+            <div className="px-3 py-4 text-sm text-white/50 text-center">Searching…</div>
+          ) : !hasResults ? (
             <div className="px-3 py-4 text-sm text-white/50 text-center">
               No matches for “{query.trim()}”
             </div>
