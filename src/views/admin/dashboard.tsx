@@ -9,14 +9,9 @@ import {
   RefreshCw,
   Database,
   ImageIcon,
-  AlertCircle,
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
-import {
-  formatCount,
-  formatRelativeTime,
-  type ScrapeAnalytics,
-} from "@/lib/admin/listing-analytics";
+import { formatCount, type ScrapeAnalytics } from "@/lib/admin/listing-analytics";
 
 type DashboardProps = {
   analytics: ScrapeAnalytics;
@@ -75,23 +70,21 @@ export default function Dashboard({ analytics }: DashboardProps) {
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardContent className="pt-6">
                 <p className="text-xs text-white/50 uppercase tracking-wider">Active listings</p>
                 <p className="text-3xl font-bold text-white mt-1">
                   {formatCount(totals.activeListings)}
                 </p>
-                <p className="text-xs text-white/40 mt-1">Currently live in the database</p>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <p className="text-xs text-white/50 uppercase tracking-wider">Active feeds</p>
-                <p className="text-3xl font-bold text-green-400 mt-1">
-                  {formatCount(totals.sourcesWithListings)}
+                <p className="text-xs text-white/50 uppercase tracking-wider">Data sources</p>
+                <p className="text-3xl font-bold text-white mt-1">
+                  {formatCount(topSources.length)}
                 </p>
-                <p className="text-xs text-white/40 mt-1">Sources with at least one listing</p>
               </CardContent>
             </Card>
             <Card>
@@ -104,26 +97,14 @@ export default function Dashboard({ analytics }: DashboardProps) {
                 </p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-xs text-white/50 uppercase tracking-wider">Needs attention</p>
-                <p className="text-3xl font-bold text-amber-400 mt-1">
-                  {formatCount(totals.staleSources)}
-                </p>
-                <p className="text-xs text-white/40 mt-1 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  Empty or sync overdue
-                </p>
-              </CardContent>
-            </Card>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="text-white text-base sm:text-lg">Top scrape feeds</CardTitle>
+                <CardTitle className="text-white text-base sm:text-lg">Inventory by source</CardTitle>
                 <p className="text-xs sm:text-sm text-white/50 mt-1">
-                  Highest active listing volume by source
+                  Where active listings come from
                 </p>
               </CardHeader>
               <CardContent>
@@ -131,7 +112,7 @@ export default function Dashboard({ analytics }: DashboardProps) {
                   <AdminEmptyState
                     compact
                     title="No listings yet"
-                    description="Run scrapers and seed the database to populate feed counts."
+                    description="Listing counts will appear here once inventory is in the database."
                   />
                 ) : (
                   <div className="space-y-3">
@@ -146,12 +127,7 @@ export default function Dashboard({ analytics }: DashboardProps) {
                           className="p-3 rounded-lg bg-white/5 border border-white/10"
                         >
                           <div className="flex items-center justify-between gap-3 mb-2">
-                            <div>
-                              <p className="text-sm font-medium text-white">{source.name}</p>
-                              <p className="text-xs text-white/40">
-                                Last sync {formatRelativeTime(source.lastScrapedAt)}
-                              </p>
-                            </div>
+                            <p className="text-sm font-medium text-white">{source.name}</p>
                             <p className="text-sm font-semibold text-white">
                               {formatCount(source.activeListings)}
                             </p>

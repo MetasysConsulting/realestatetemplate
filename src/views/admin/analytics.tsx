@@ -6,7 +6,6 @@ import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
 import {
   formatCategoryLabel,
   formatCount,
-  formatRelativeTime,
   type ScrapeAnalytics,
 } from "@/lib/admin/listing-analytics";
 
@@ -16,6 +15,7 @@ type AnalyticsProps = {
 
 export default function Analytics({ analytics }: AnalyticsProps) {
   const { available, sources, categories, totals } = analytics;
+  const feedsWithData = sources.filter((s) => s.activeListings > 0);
   const imageCoverage =
     totals.activeListings > 0
       ? Math.round((totals.withImage / totals.activeListings) * 100)
@@ -27,7 +27,7 @@ export default function Analytics({ analytics }: AnalyticsProps) {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white">REOVANA Analytics</h1>
           <p className="text-sm sm:text-base text-white/50 mt-1">
-            Scrape inventory analytics from the live listings database
+            Listing inventory by scrape source
           </p>
         </div>
         <div className="flex gap-2">
@@ -58,10 +58,10 @@ export default function Analytics({ analytics }: AnalyticsProps) {
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Card>
               <CardContent className="pt-6">
-                <p className="text-xs text-white/50 uppercase tracking-wider">Active inventory</p>
+                <p className="text-xs text-white/50 uppercase tracking-wider">Active listings</p>
                 <p className="text-3xl font-bold text-white mt-1">
                   {formatCount(totals.activeListings)}
                 </p>
@@ -69,9 +69,9 @@ export default function Analytics({ analytics }: AnalyticsProps) {
             </Card>
             <Card>
               <CardContent className="pt-6">
-                <p className="text-xs text-white/50 uppercase tracking-wider">Inactive rows</p>
+                <p className="text-xs text-white/50 uppercase tracking-wider">Data sources</p>
                 <p className="text-3xl font-bold text-white mt-1">
-                  {formatCount(totals.inactiveListings)}
+                  {formatCount(feedsWithData.length)}
                 </p>
               </CardContent>
             </Card>
@@ -81,50 +81,31 @@ export default function Analytics({ analytics }: AnalyticsProps) {
                 <p className="text-3xl font-bold text-white mt-1">{imageCoverage}%</p>
               </CardContent>
             </Card>
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-xs text-white/50 uppercase tracking-wider">Feeds tracked</p>
-                <p className="text-3xl font-bold text-white mt-1">{formatCount(sources.length)}</p>
-              </CardContent>
-            </Card>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-white">Inventory by scrape source</CardTitle>
-              <p className="text-sm text-white/50 mt-1">
-                Active vs inactive listings and last successful sync timestamp
-              </p>
+              <CardTitle className="text-white">Inventory by source</CardTitle>
+              <p className="text-sm text-white/50 mt-1">Active listings currently in the database</p>
             </CardHeader>
             <CardContent className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-white/50 border-b border-white/10">
                     <th className="pb-3 pr-4 font-medium">Source</th>
-                    <th className="pb-3 pr-4 font-medium text-right">Active</th>
-                    <th className="pb-3 pr-4 font-medium text-right">Inactive</th>
-                    <th className="pb-3 pr-4 font-medium text-right">With image</th>
-                    <th className="pb-3 font-medium">Last sync</th>
+                    <th className="pb-3 pr-4 font-medium text-right">Listings</th>
+                    <th className="pb-3 font-medium text-right">With photos</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {sources.map((source) => (
+                  {feedsWithData.map((source) => (
                     <tr key={source.id} className="border-b border-white/5">
-                      <td className="py-3 pr-4">
-                        <p className="text-white font-medium">{source.name}</p>
-                        <p className="text-xs text-white/40 font-mono">{source.id}</p>
-                      </td>
+                      <td className="py-3 pr-4 text-white font-medium">{source.name}</td>
                       <td className="py-3 pr-4 text-right text-white font-semibold">
                         {formatCount(source.activeListings)}
                       </td>
-                      <td className="py-3 pr-4 text-right text-white/60">
-                        {formatCount(source.inactiveListings)}
-                      </td>
-                      <td className="py-3 pr-4 text-right text-white/80">
+                      <td className="py-3 text-right text-white/80">
                         {formatCount(source.withImage)}
-                      </td>
-                      <td className="py-3 text-white/60">
-                        {formatRelativeTime(source.lastScrapedAt)}
                       </td>
                     </tr>
                   ))}
@@ -152,14 +133,14 @@ export default function Analytics({ analytics }: AnalyticsProps) {
                       totals.activeListings > 0
                         ? Math.round((row.count / totals.activeListings) * 100)
                         : 0;
+                    const sourceName =
+                      sources.find((s) => s.id === row.sourceId)?.name ?? row.sourceId;
                     return (
                       <div key={`${row.sourceId}-${row.category}`} className="space-y-1.5">
                         <div className="flex items-center justify-between gap-3 text-sm">
                           <p className="text-white">
                             {formatCategoryLabel(row.category)}
-                            <span className="text-white/40 font-mono text-xs ml-2">
-                              {row.sourceId}
-                            </span>
+                            <span className="text-white/40 text-xs ml-2">{sourceName}</span>
                           </p>
                           <p className="text-white/80 font-medium">
                             {formatCount(row.count)}
@@ -177,19 +158,6 @@ export default function Analytics({ analytics }: AnalyticsProps) {
                   })}
                 </div>
               )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-white">Revenue & traffic</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <AdminEmptyState
-                compact
-                title="No billing or traffic data yet"
-                description="Unlock revenue and site traffic will appear here once those reporting sources are connected."
-              />
             </CardContent>
           </Card>
         </>
