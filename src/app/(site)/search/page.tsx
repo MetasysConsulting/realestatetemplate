@@ -5,8 +5,8 @@ import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import { searchListings } from "@/lib/listings-repository";
 import { PropertyCategoryExplorer } from "@/components/properties/PropertyCategoryExplorer";
 import { SearchPageForm } from "@/components/search/SearchPageForm";
+import { SearchPager } from "@/components/search/SearchPager";
 import { normalizeStateQuery } from "@/lib/us-states";
-import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -93,85 +93,35 @@ export default async function SearchPage({ searchParams }: PageProps) {
       tailHtml={chrome.tailHtml}
       bodyClass="theme-color-4 auctions-route"
     >
-      <div className="tf-container" style={{ paddingTop: 24 }}>
-        <SearchPageForm
-          q={q}
-          state={state}
-          propertyType={propertyType}
-          beds={beds}
-          baths={baths}
-          minPrice={minPrice}
-          maxPrice={maxPrice}
-          pageSize={pageSize}
+      <div className="reovana-search-page">
+        <div className="reovana-search-page__chrome">
+          <SearchPageForm
+            q={q}
+            state={state}
+            propertyType={propertyType}
+            beds={beds}
+            baths={baths}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            pageSize={pageSize}
+          />
+          {showPager ? <SearchPager page={page} totalPages={totalPages} buildHref={buildHref} /> : null}
+        </div>
+
+        <PropertyCategoryExplorer
+          title={title}
+          description={description}
+          listings={listings}
+          totalCount={total}
+          emptyMessage="No properties match your search yet. Try a different city, state, or filter."
         />
 
         {showPager ? (
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <div>
-              Page <strong>{page}</strong> of <strong>{totalPages}</strong>
-            </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              {page > 1 ? (
-                <Link className="tf-btn style-border pd-3" href={buildHref(page - 1)}>
-                  Prev
-                </Link>
-              ) : (
-                <span className="tf-btn style-border pd-3" aria-disabled="true" style={{ opacity: 0.5 }}>
-                  Prev
-                </span>
-              )}
-              {page < totalPages ? (
-                <Link className="tf-btn bg-color-primary pd-3" href={buildHref(page + 1)}>
-                  Next
-                </Link>
-              ) : (
-                <span className="tf-btn bg-color-primary pd-3" aria-disabled="true" style={{ opacity: 0.5 }}>
-                  Next
-                </span>
-              )}
-            </div>
+          <div className="reovana-search-page__chrome reovana-search-page__chrome--footer">
+            <SearchPager page={page} totalPages={totalPages} buildHref={buildHref} />
           </div>
         ) : null}
       </div>
-
-      <PropertyCategoryExplorer
-        title={title}
-        description={description}
-        listings={listings}
-        totalCount={total}
-        emptyMessage="No properties match your search yet. Try a different city, state, or filter."
-      />
-
-      {showPager ? (
-        <div className="tf-container" style={{ paddingBottom: 28 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16 }}>
-            <div>
-              Page <strong>{page}</strong> of <strong>{totalPages}</strong>
-            </div>
-            <div style={{ display: "flex", gap: 10 }}>
-              {page > 1 ? (
-                <Link className="tf-btn style-border pd-3" href={buildHref(page - 1)}>
-                  Prev
-                </Link>
-              ) : (
-                <span className="tf-btn style-border pd-3" aria-disabled="true" style={{ opacity: 0.5 }}>
-                  Prev
-                </span>
-              )}
-              {page < totalPages ? (
-                <Link className="tf-btn bg-color-primary pd-3" href={buildHref(page + 1)}>
-                  Next
-                </Link>
-              ) : (
-                <span className="tf-btn bg-color-primary pd-3" aria-disabled="true" style={{ opacity: 0.5 }}>
-                  Next
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : null}
     </TemplateChrome>
   );
 }
-

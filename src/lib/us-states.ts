@@ -52,6 +52,16 @@ const STATE_NAME_TO_ABBR: Record<string, string> = {
   "district of columbia": "DC",
 };
 
+export const US_STATE_OPTIONS = Object.entries(STATE_NAME_TO_ABBR)
+  .map(([name, abbr]) => ({
+    abbr,
+    name: name
+      .split(" ")
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join(" "),
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
 export function matchStateSuggestions(
   query: string,
   limit = 3,

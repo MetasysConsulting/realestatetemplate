@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useEffectEvent, useRef, useTransition } from "react";
+import Link from "next/link";
+import { useEffect, useEffectEvent, useRef, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   attachSearchSuggestions,
   suggestionInputValue,
 } from "@/lib/attach-search-suggestions";
 import type { SearchSuggestion } from "@/lib/search-suggestion-types";
+import { US_STATE_OPTIONS } from "@/lib/us-states";
 
 type SearchPageFormProps = {
   q: string;
@@ -19,6 +21,18 @@ type SearchPageFormProps = {
   pageSize: number;
 };
 
+const BED_OPTIONS = [1, 2, 3, 4, 5];
+const BATH_OPTIONS = [1, 2, 3, 4];
+
+function SearchIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function SearchPageForm({
   q,
   state,
@@ -30,22 +44,37 @@ export function SearchPageForm({
   pageSize,
 }: SearchPageFormProps) {
   const router = useRouter();
-  const [, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
   const qInputRef = useRef<HTMLInputElement>(null);
-  const stateInputRef = useRef<HTMLInputElement>(null);
+  const stateSelectRef = useRef<HTMLSelectElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const hasActiveFilters = Boolean(
+    q || state || propertyType || beds || baths || minPrice || maxPrice,
+  );
 
   const handleSuggestionSelect = useEffectEvent((suggestion: SearchSuggestion) => {
     const qInput = qInputRef.current;
-    const stateInput = stateInputRef.current;
+    const stateSelect = stateSelectRef.current;
     if (!qInput) return false;
 
     qInput.value = suggestionInputValue(suggestion);
 
-    if (suggestion.type === "state" && stateInput) {
-      stateInput.value = suggestion.label;
-    } else if (suggestion.href.includes("state=") && stateInput) {
-      const stateParam = new URL(suggestion.href, window.location.origin).searchParams.get("state");
-      if (stateParam) stateInput.value = stateParam;
+    if (stateSelect) {
+      if (suggestion.type === "state") {
+        stateSelect.value = suggestion.label.length === 2 ? suggestion.label : stateSelect.value;
+        const match = US_STATE_OPTIONS.find(
+          (s) =>
+            s.abbr === suggestion.label.toUpperCase() ||
+            s.name.toLowerCase() === suggestion.label.toLowerCase(),
+        );
+        if (match) stateSelect.value = match.abbr;
+      } else if (suggestion.href.includes("state=")) {
+        const stateParam = new URL(suggestion.href, window.location.origin).searchParams.get(
+          "state",
+        );
+        if (stateParam) stateSelect.value = stateParam.toUpperCase();
+      }
     }
 
     startTransition(() => {
@@ -62,64 +91,136 @@ export function SearchPageForm({
     });
   }, []);
 
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    const params = new URLSearchParams();
+    for (const [key, value] of data.entries()) {
+      const text = String(value).trim();
+      if (!text || (key === "pageSize" && text === "40")) continue;
+      params.set(key, text);
+    }
+    const href = params.toString() ? `/search?${params}` : "/search";
+    startTransition(() => {
+      router.push(href);
+    });
+  };
+
   return (
-    <div className="wg-filter reovana-search-page-form" style={{ marginBottom: 18 }}>
-      <div className="form-title">
-        <form action="/search" method="get">
-          <div className="reovana-search-page-form__row">
-            <div className="reovana-search-page-form__q-wrap">
+    <section className="reovana-search-bar" aria-label="Search filters">
+      <form ref={formRef} className="reovana-search-bar__form" action="/search" method="get" onSubmit={onSubmit}>
+        <div className="reovana-search-bar__primary form-title">
+          <label className="reovana-search-field reovana-search-field--query">
+            <span>Location</span>
+            <div className="reovana-search-field__control reovana-search-page-form__q-wrap">
+              <span className="reovana-search-field__icon">
+                <SearchIcon />
+              </span>
               <input
                 ref={qInputRef}
                 name="q"
                 defaultValue={q}
-                placeholder="City, address, ZIP, or property type…"
+                placeholder="City, address, ZIP…"
                 className="reovana-search-page-form__q"
+                autoComplete="off"
               />
             </div>
-            <input
-              ref={stateInputRef}
+          </label>
+
+          <label className="reovana-search-field">
+            <span>State</span>
+            <select
+              ref={stateSelectRef}
               name="state"
               defaultValue={state}
-              placeholder="State (e.g. FL or Florida)"
-              className="reovana-search-page-form__state"
-            />
+              className="reovana-search-field__select"
+            >
+              <option value="">All states</option>
+              {US_STATE_OPTIONS.map((s) => (
+                <option key={s.abbr} value={s.abbr}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="reovana-search-field reovana-search-field--type">
+            <span>Property type</span>
             <input
               name="propertyType"
               defaultValue={propertyType}
-              placeholder="Property type (e.g. Condo)"
-              className="reovana-search-page-form__type"
+              placeholder="Condo, SFR…"
+              className="reovana-search-field__input"
             />
-            <input
-              name="beds"
-              defaultValue={beds ? String(beds) : ""}
-              placeholder="Beds +"
-              className="reovana-search-page-form__compact"
-            />
-            <input
-              name="baths"
-              defaultValue={baths ? String(baths) : ""}
-              placeholder="Baths +"
-              className="reovana-search-page-form__compact"
-            />
+          </label>
+        </div>
+
+        <div className="reovana-search-bar__secondary">
+          <label className="reovana-search-field">
+            <span>Beds</span>
+            <select name="beds" defaultValue={beds ? String(beds) : ""} className="reovana-search-field__select">
+              <option value="">Any</option>
+              {BED_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}+
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="reovana-search-field">
+            <span>Baths</span>
+            <select name="baths" defaultValue={baths ? String(baths) : ""} className="reovana-search-field__select">
+              <option value="">Any</option>
+              {BATH_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}+
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="reovana-search-field">
+            <span>Min price</span>
             <input
               name="minPrice"
+              type="number"
+              min={0}
+              step={1000}
               defaultValue={minPrice ? String(minPrice) : ""}
-              placeholder="Min $"
-              className="reovana-search-page-form__price"
+              placeholder="Any"
+              className="reovana-search-field__input"
             />
+          </label>
+
+          <label className="reovana-search-field">
+            <span>Max price</span>
             <input
               name="maxPrice"
+              type="number"
+              min={0}
+              step={1000}
               defaultValue={maxPrice ? String(maxPrice) : ""}
-              placeholder="Max $"
-              className="reovana-search-page-form__price"
+              placeholder="Any"
+              className="reovana-search-field__input"
             />
-            <input type="hidden" name="pageSize" value={String(pageSize)} />
-            <button type="submit" className="tf-btn bg-color-primary pd-3">
-              Search
+          </label>
+
+          <input type="hidden" name="pageSize" value={String(pageSize)} />
+
+          <div className="reovana-search-bar__actions">
+            {hasActiveFilters ? (
+              <Link href="/search" className="reovana-search-bar__clear">
+                Clear
+              </Link>
+            ) : null}
+            <button type="submit" className="reovana-search-bar__submit" disabled={isPending}>
+              {isPending ? "Searching…" : "Search"}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      </form>
+    </section>
   );
 }
