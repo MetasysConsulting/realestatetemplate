@@ -63,6 +63,10 @@ export function fixReovanaHeader(root: ParentNode) {
   }
 
   scope.querySelectorAll(".box-user").forEach((box) => {
+    // Logged-in account control also uses .box-user — never reset it to Login.
+    if (box.classList.contains("reovana-account-menu")) return;
+    if (box.closest(".reovana-header-auth")) return;
+
     const wrap = document.createElement("div");
     wrap.innerHTML = REOVANA_LOGIN_HTML.trim();
     const auth = wrap.firstElementChild;

@@ -16,28 +16,37 @@ function applyAuthHeader(user: User | null) {
     document.getElementById("template-chrome-root"),
   ].filter(Boolean) as HTMLElement[];
 
-  if (!scopes.length) {
-    document.querySelectorAll(".reovana-header-auth").forEach((node) => {
+  const html = (user ? REOVANA_ACCOUNT_HTML : REOVANA_LOGIN_HTML).trim();
+
+  const replaceAuthNodes = (nodes: NodeListOf<Element> | Element[]) => {
+    nodes.forEach((node) => {
+      const wantsAccount = Boolean(user);
+      const hasAccount = Boolean(node.querySelector(".reovana-account-menu"));
+      const hasLogin = Boolean(node.querySelector(".reovana-login-btn"));
+      if (wantsAccount && hasAccount) return;
+      if (!wantsAccount && hasLogin) return;
+
       const wrap = document.createElement("div");
-      wrap.innerHTML = (user ? REOVANA_ACCOUNT_HTML : REOVANA_LOGIN_HTML).trim();
+      wrap.innerHTML = html;
       const next = wrap.firstElementChild;
       if (next) node.replaceWith(next);
     });
+  };
+
+  if (!scopes.length) {
+    replaceAuthNodes(document.querySelectorAll(".reovana-header-auth"));
     if (user) wireAccountMenus();
+    wireLogoutLinks();
     return;
   }
 
   scopes.forEach((scope) => {
     fixReovanaHeader(scope);
-    scope.querySelectorAll(".reovana-header-auth").forEach((node) => {
-      const wrap = document.createElement("div");
-      wrap.innerHTML = (user ? REOVANA_ACCOUNT_HTML : REOVANA_LOGIN_HTML).trim();
-      const next = wrap.firstElementChild;
-      if (next) node.replaceWith(next);
-    });
+    replaceAuthNodes(scope.querySelectorAll(".reovana-header-auth"));
   });
 
   if (user) wireAccountMenus();
+  wireLogoutLinks();
 }
 
 function showAuthMessage(modal: HTMLElement, message: string, isError = true) {
@@ -394,15 +403,30 @@ export function wireTemplateAuth() {
   wireLogoutLinks();
   handleLoginQueryParam();
 
+  let currentUser: User | null = null;
+
+  const syncHeader = (user: User | null) => {
+    currentUser = user;
+    applyAuthHeader(user);
+  };
+
   void supabase.auth.getUser().then(({ data }) => {
-    applyAuthHeader(data.user ?? null);
+    syncHeader(data.user ?? null);
   });
 
   const {
     data: { subscription },
   } = supabase.auth.onAuthStateChange((_event, session) => {
-    applyAuthHeader(session?.user ?? null);
+    syncHeader(session?.user ?? null);
   });
 
-  return () => subscription.unsubscribe();
+  const onHeaderFixed = () => {
+    applyAuthHeader(currentUser);
+  };
+  window.addEventListener("reovana:header-fixed", onHeaderFixed);
+
+  return () => {
+    subscription.unsubscribe();
+    window.removeEventListener("reovana:header-fixed", onHeaderFixed);
+  };
 }

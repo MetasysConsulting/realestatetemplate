@@ -58,6 +58,7 @@ export function TemplatePage({
     const applyHeaderFix = () => {
       const root = document.getElementById("template-root");
       if (root) fixReovanaHeader(root);
+      window.dispatchEvent(new CustomEvent("reovana:header-fixed"));
     };
 
     applyHeaderFix();

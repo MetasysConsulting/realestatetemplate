@@ -42,6 +42,8 @@ export function TemplateChrome({
     const applyHeaderFix = () => {
       const root = document.getElementById("template-chrome-root");
       if (root) fixReovanaHeader(root);
+      // Let auth wiring re-apply Login vs Account after chrome DOM settles.
+      window.dispatchEvent(new CustomEvent("reovana:header-fixed"));
     };
 
     applyHeaderFix();
@@ -49,9 +51,6 @@ export function TemplateChrome({
     const t1 = window.setTimeout(applyHeaderFix, 50);
     const t2 = window.setTimeout(applyHeaderFix, 300);
     const t3 = window.setTimeout(applyHeaderFix, 800);
-
-    const onScroll = () => applyHeaderFix();
-    window.addEventListener("scroll", onScroll, { passive: true });
 
     const loading = document.getElementById("loading");
     if (loading) loading.style.display = "none";
@@ -62,7 +61,6 @@ export function TemplateChrome({
       window.clearTimeout(t1);
       window.clearTimeout(t2);
       window.clearTimeout(t3);
-      window.removeEventListener("scroll", onScroll);
     };
   }, [bodyClass, chromeHeaderHtml, safeFooterHtml, safeTailHtml]);
 
