@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createSupabaseAuthServerClient } from "@/lib/supabase/auth-server";
 import {
   isAdminEmail,
@@ -97,6 +98,83 @@ export async function adminChangePasswordAction(
   } catch {
     return { error: "Could not update password. Try again." };
   }
+}
+
+export async function adminForgotPasswordAction(
+  _prev: AdminAuthState,
+  formData: FormData,
+): Promise<AdminAuthState> {
+  const email = normalizeAdminEmail(String(formData.get("email") ?? ""));
+  if (!email) {
+    return { error: "Enter your admin email address." };
+  }
+
+  // Do not reveal whether the email is allowlisted.
+  const genericSuccess =
+    "If that email is authorized for admin access, a reset link has been sent.";
+
+  if (!isAdminEmail(email)) {
+    return { success: genericSuccess };
+  }
+
+  try {
+    const headerStore = await headers();
+    const host =
+      headerStore.get("x-forwarded-host") ||
+      headerStore.get("host") ||
+      "localhost:3000";
+    const proto = headerStore.get("x-forwarded-proto") || "https";
+    const origin =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      `${proto}://${host}`;
+
+    const supabase = await createSupabaseAuthServerClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${origin}/auth/callback?next=${encodeURIComponent("/admin/update-password")}`,
+    });
+    if (error) {
+      return { error: "Could not send reset email. Try again shortly." };
+    }
+    return { success: genericSuccess };
+  } catch {
+    return { error: "Could not send reset email. Check auth configuration." };
+  }
+}
+
+export async function adminSetRecoveryPasswordAction(
+  _prev: AdminAuthState,
+  formData: FormData,
+): Promise<AdminAuthState> {
+  const admin = await getAdminUserOrNull();
+  if (!admin?.email) {
+    return { error: "Your reset link is invalid or expired. Request a new one." };
+  }
+
+  const newPassword = String(formData.get("newPassword") ?? "");
+  const confirmPassword = String(formData.get("confirmPassword") ?? "");
+
+  if (!newPassword || !confirmPassword) {
+    return { error: "Enter and confirm your new password." };
+  }
+  if (newPassword.length < 8) {
+    return { error: "New password must be at least 8 characters." };
+  }
+  if (newPassword !== confirmPassword) {
+    return { error: "Passwords do not match." };
+  }
+
+  try {
+    const supabase = await createSupabaseAuthServerClient();
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      return { error: error.message || "Could not update password." };
+    }
+  } catch {
+    return { error: "Could not update password. Try again." };
+  }
+
+  redirect("/admin/home");
 }
 
 export async function adminUpdateProfileAction(

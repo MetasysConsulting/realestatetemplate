@@ -1,63 +1,73 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/ui/card";
 import { Input } from "@/components/admin/ui/input";
+import { Button } from "@/components/admin/ui/button";
 import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
 import {
+  buildAdminMembersHref,
   formatMemberCount,
   formatMemberDate,
   formatMemberRelative,
   type AdminMember,
   type AdminMembersData,
 } from "@/lib/admin/admin-members-types";
-import { Eye, Mail, Phone, Search, Unlock, User, Users } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Mail,
+  Phone,
+  Search,
+  Unlock,
+  User,
+  Users,
+} from "lucide-react";
 
 type MembersProps = {
   data: AdminMembersData;
-  initialQuery?: string;
 };
 
-export default function Members({ data, initialQuery = "" }: MembersProps) {
-  const [query, setQuery] = useState(initialQuery);
+export default function Members({ data }: MembersProps) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [queryDraft, setQueryDraft] = useState(data.query.q);
+  const [selectedId, setSelectedId] = useState(data.members[0]?.id ?? "");
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return data.members;
-    return data.members.filter(
-      (member) =>
-        member.fullName.toLowerCase().includes(q) ||
-        member.email.toLowerCase().includes(q) ||
-        (member.phone ?? "").toLowerCase().includes(q),
-    );
-  }, [data.members, query]);
+  useEffect(() => {
+    setQueryDraft(data.query.q);
+  }, [data.query.q]);
 
-  const [selectedId, setSelectedId] = useState<string>(
-    () => filtered[0]?.id ?? data.members[0]?.id ?? "",
+  useEffect(() => {
+    if (data.members.length === 0) {
+      setSelectedId("");
+      return;
+    }
+    if (!data.members.some((m) => m.id === selectedId)) {
+      setSelectedId(data.members[0].id);
+    }
+  }, [data.members, selectedId]);
+
+  const selected: AdminMember | undefined = useMemo(
+    () => data.members.find((m) => m.id === selectedId) ?? data.members[0],
+    [data.members, selectedId],
   );
 
-  useEffect(() => {
-    setQuery(initialQuery);
-  }, [initialQuery]);
+  const navigate = (overrides: Parameters<typeof buildAdminMembersHref>[0]) => {
+    const href = buildAdminMembersHref(overrides, data.query);
+    startTransition(() => router.push(href));
+  };
 
-  useEffect(() => {
-    if (filtered.length === 0) return;
-    if (!filtered.some((member) => member.id === selectedId)) {
-      setSelectedId(filtered[0].id);
-    }
-  }, [filtered, selectedId]);
+  const onSearchSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    navigate({ q: queryDraft.trim(), page: 1 });
+  };
 
-  const selected: AdminMember | undefined =
-    filtered.find((m) => m.id === selectedId) ?? filtered[0];
-
-  const confirmedCount = data.members.filter((m) => m.emailConfirmed).length;
-  const signedInRecently = data.members.filter((m) => {
-    if (!m.lastSignInAt) return false;
-    const ts = Date.parse(m.lastSignInAt);
-    if (Number.isNaN(ts)) return false;
-    return Date.now() - ts < 30 * 24 * 60 * 60 * 1000;
-  }).length;
-  const totalUnlocks = data.members.reduce((sum, m) => sum + m.unlockIntents, 0);
+  const rangeStart =
+    data.filteredTotal === 0 ? 0 : (data.page - 1) * data.pageSize + 1;
+  const rangeEnd = Math.min(data.page * data.pageSize, data.filteredTotal);
 
   return (
     <div className="space-y-6">
@@ -77,7 +87,7 @@ export default function Members({ data, initialQuery = "" }: MembersProps) {
             />
           </CardContent>
         </Card>
-      ) : data.members.length === 0 ? (
+      ) : data.total === 0 ? (
         <Card>
           <CardContent className="pt-6">
             <AdminEmptyState
@@ -107,7 +117,7 @@ export default function Members({ data, initialQuery = "" }: MembersProps) {
                   <p className="text-xs uppercase tracking-wider">Email confirmed</p>
                 </div>
                 <p className="text-3xl font-bold text-white">
-                  {formatMemberCount(confirmedCount)}
+                  {formatMemberCount(data.confirmedTotal)}
                 </p>
               </CardContent>
             </Card>
@@ -118,7 +128,7 @@ export default function Members({ data, initialQuery = "" }: MembersProps) {
                   <p className="text-xs uppercase tracking-wider">Signed in (30d)</p>
                 </div>
                 <p className="text-3xl font-bold text-white">
-                  {formatMemberCount(signedInRecently)}
+                  {formatMemberCount(data.signedIn30dTotal)}
                 </p>
               </CardContent>
             </Card>
@@ -129,34 +139,39 @@ export default function Members({ data, initialQuery = "" }: MembersProps) {
                   <p className="text-xs uppercase tracking-wider">Unlock intents</p>
                 </div>
                 <p className="text-3xl font-bold text-white">
-                  {formatMemberCount(totalUnlocks)}
+                  {formatMemberCount(data.unlockIntentsTotal)}
                 </p>
               </CardContent>
             </Card>
           </div>
 
-          <div className="relative max-w-md">
+          <form onSubmit={onSearchSubmit} className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by name, email, or phone..."
               className="pl-9"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              value={queryDraft}
+              onChange={(e) => setQueryDraft(e.target.value)}
             />
-          </div>
+          </form>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 ${isPending ? "opacity-70" : ""}`}>
             <Card className="lg:col-span-1">
               <CardHeader>
                 <CardTitle className="text-white text-base">
-                  Members ({formatMemberCount(filtered.length)})
+                  Members ({formatMemberCount(data.filteredTotal)})
                 </CardTitle>
+                <p className="text-xs text-white/40">
+                  {data.filteredTotal === 0
+                    ? "No matches"
+                    : `Showing ${formatMemberCount(rangeStart)}–${formatMemberCount(rangeEnd)}`}
+                </p>
               </CardHeader>
               <CardContent className="space-y-2 max-h-[560px] overflow-y-auto pr-1">
-                {filtered.length === 0 ? (
+                {data.members.length === 0 ? (
                   <p className="text-sm text-white/45 py-4 text-center">No matches.</p>
                 ) : (
-                  filtered.map((member) => (
+                  data.members.map((member) => (
                     <button
                       key={member.id}
                       type="button"
@@ -186,6 +201,29 @@ export default function Members({ data, initialQuery = "" }: MembersProps) {
                   ))
                 )}
               </CardContent>
+              {data.totalPages > 1 ? (
+                <div className="flex items-center justify-between gap-2 px-6 pb-6">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={data.page <= 1 || isPending}
+                    onClick={() => navigate({ page: data.page - 1 })}
+                  >
+                    <ChevronLeft className="h-4 w-4" /> Prev
+                  </Button>
+                  <p className="text-xs text-white/45">
+                    Page {data.page} / {data.totalPages}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={data.page >= data.totalPages || isPending}
+                    onClick={() => navigate({ page: data.page + 1 })}
+                  >
+                    Next <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : null}
             </Card>
 
             {selected ? (

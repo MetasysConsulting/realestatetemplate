@@ -1,7 +1,7 @@
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { getDatabaseUrl } from "@/lib/supabase/listings-query";
-import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
+import { getSupabaseUrl } from "@/lib/supabase/env";
 
 const { Client } = pg;
 
@@ -393,7 +393,7 @@ async function fetchViaSupabase(): Promise<SiteActivitySummary | null> {
 
 async function fetchViaSummaryRpc(): Promise<SiteActivitySummary | null> {
   const url = getSupabaseUrl();
-  const key = getServiceKey() || getSupabaseAnonKey();
+  const key = getServiceKey();
   if (!url || !key) return null;
 
   const client = createClient(url, key, {

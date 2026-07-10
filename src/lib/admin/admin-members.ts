@@ -1,15 +1,40 @@
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { getDatabaseUrl } from "@/lib/supabase/listings-query";
-import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
-import type { AdminMember, AdminMembersData } from "@/lib/admin/admin-members-types";
+import { getSupabaseUrl } from "@/lib/supabase/env";
+import {
+  ADMIN_MEMBERS_DEFAULT_PAGE_SIZE,
+  escapeMemberIlike,
+  parseAdminMembersQuery,
+  type AdminMember,
+  type AdminMembersData,
+  type AdminMembersQuery,
+} from "@/lib/admin/admin-members-types";
 
-export type { AdminMember, AdminMembersData } from "@/lib/admin/admin-members-types";
+export type { AdminMember, AdminMembersData, AdminMembersQuery } from "@/lib/admin/admin-members-types";
+export {
+  formatMemberCount,
+  buildAdminMembersHref,
+  parseAdminMembersQuery,
+} from "@/lib/admin/admin-members-types";
 
 const { Client } = pg;
 
-function emptyData(): AdminMembersData {
-  return { available: false, total: 0, members: [] };
+function emptyData(query?: AdminMembersQuery): AdminMembersData {
+  const q = query ?? parseAdminMembersQuery({});
+  return {
+    available: false,
+    total: 0,
+    confirmedTotal: 0,
+    signedIn30dTotal: 0,
+    unlockIntentsTotal: 0,
+    filteredTotal: 0,
+    page: q.page,
+    pageSize: q.pageSize,
+    totalPages: 0,
+    query: q,
+    members: [],
+  };
 }
 
 function toIso(value: unknown): string | null {
@@ -43,6 +68,28 @@ function mapMember(row: Record<string, unknown>): AdminMember {
   };
 }
 
+function normalizeQuery(
+  input?: Partial<AdminMembersQuery> | AdminMembersQuery,
+): AdminMembersQuery {
+  if (!input) return parseAdminMembersQuery({});
+  return {
+    q: (input.q ?? "").trim(),
+    page: Math.max(1, Math.floor(Number(input.page) || 1)),
+    pageSize: Math.min(
+      100,
+      Math.max(10, Math.floor(Number(input.pageSize) || ADMIN_MEMBERS_DEFAULT_PAGE_SIZE)),
+    ),
+  };
+}
+
+function getServiceKey(): string | undefined {
+  return (
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    undefined
+  );
+}
+
 async function withPgClient<T>(fn: (client: pg.Client) => Promise<T>): Promise<T | null> {
   const databaseUrl = getDatabaseUrl();
   if (!databaseUrl) return null;
@@ -64,10 +111,10 @@ async function withPgClient<T>(fn: (client: pg.Client) => Promise<T>): Promise<T
   }
 }
 
-async function fetchViaPostgres(): Promise<AdminMembersData | null> {
+async function fetchViaPostgres(query: AdminMembersQuery): Promise<AdminMembersData | null> {
   return withPgClient(async (client) => {
     const authExists = await client.query(`SELECT to_regclass('auth.users') AS t`);
-    if (!authExists.rows[0]?.t) return emptyData();
+    if (!authExists.rows[0]?.t) return emptyData(query);
 
     const flags = await client.query(`
       SELECT
@@ -77,22 +124,33 @@ async function fetchViaPostgres(): Promise<AdminMembersData | null> {
     const hasProfiles = Boolean(flags.rows[0]?.has_profiles);
     const hasAnalytics = Boolean(flags.rows[0]?.has_analytics);
 
-    let sql: string;
-    if (hasProfiles && hasAnalytics) {
-      sql = `
-        SELECT
-          u.id,
-          coalesce(p.email, u.email, '') AS email,
-          p.full_name,
-          p.phone,
-          coalesce(p.created_at, u.created_at) AS created_at,
-          coalesce(p.updated_at, u.updated_at) AS updated_at,
-          u.last_sign_in_at,
-          (u.email_confirmed_at IS NOT NULL) AS email_confirmed,
-          coalesce(a.unlock_intents, 0) AS unlock_intents,
-          coalesce(a.page_views, 0) AS page_views
-        FROM auth.users u
-        LEFT JOIN profiles p ON p.id = u.id
+    const params: unknown[] = [];
+    const whereParts: string[] = ["TRUE"];
+
+    if (query.q) {
+      const pattern = `%${escapeMemberIlike(query.q)}%`;
+      params.push(pattern);
+      const idx = params.length;
+      if (hasProfiles) {
+        whereParts.push(`(
+          coalesce(p.email, u.email, '') ILIKE $${idx} ESCAPE '\\'
+          OR coalesce(p.full_name, '') ILIKE $${idx} ESCAPE '\\'
+          OR coalesce(p.phone, '') ILIKE $${idx} ESCAPE '\\'
+        )`);
+      } else {
+        whereParts.push(`coalesce(u.email, '') ILIKE $${idx} ESCAPE '\\'`);
+      }
+    }
+
+    const whereSql = whereParts.join(" AND ");
+    const offset = (query.page - 1) * query.pageSize;
+
+    const fromJoin = hasProfiles
+      ? `FROM auth.users u LEFT JOIN profiles p ON p.id = u.id`
+      : `FROM auth.users u`;
+
+    const analyticsJoin = hasAnalytics
+      ? `
         LEFT JOIN (
           SELECT
             e.user_id,
@@ -102,63 +160,112 @@ async function fetchViaPostgres(): Promise<AdminMembersData | null> {
           WHERE e.user_id IS NOT NULL
           GROUP BY e.user_id
         ) a ON a.user_id = u.id
-        ORDER BY coalesce(p.created_at, u.created_at) DESC
+      `
+      : "";
+
+    const selectCols = hasProfiles
+      ? `
+        u.id,
+        coalesce(p.email, u.email, '') AS email,
+        p.full_name,
+        p.phone,
+        coalesce(p.created_at, u.created_at) AS created_at,
+        coalesce(p.updated_at, u.updated_at) AS updated_at,
+        u.last_sign_in_at,
+        (u.email_confirmed_at IS NOT NULL) AS email_confirmed,
+        ${hasAnalytics ? "coalesce(a.unlock_intents, 0)" : "0"} AS unlock_intents,
+        ${hasAnalytics ? "coalesce(a.page_views, 0)" : "0"} AS page_views
+      `
+      : `
+        u.id,
+        coalesce(u.email, '') AS email,
+        coalesce(
+          nullif(btrim(coalesce(u.raw_user_meta_data->>'full_name', u.raw_user_meta_data->>'name', '')), ''),
+          split_part(coalesce(u.email, ''), '@', 1),
+          'Member'
+        ) AS full_name,
+        NULL::text AS phone,
+        u.created_at,
+        u.updated_at,
+        u.last_sign_in_at,
+        (u.email_confirmed_at IS NOT NULL) AS email_confirmed,
+        0 AS unlock_intents,
+        0 AS page_views
       `;
-    } else if (hasProfiles) {
-      sql = `
+
+    const orderBy = hasProfiles
+      ? "ORDER BY coalesce(p.created_at, u.created_at) DESC"
+      : "ORDER BY u.created_at DESC";
+
+    const listParams = [...params, query.pageSize, offset];
+    const limitIdx = params.length + 1;
+    const offsetIdx = params.length + 2;
+
+    const [totals, filtered, rows] = await Promise.all([
+      client.query(`
         SELECT
-          u.id,
-          coalesce(p.email, u.email, '') AS email,
-          p.full_name,
-          p.phone,
-          coalesce(p.created_at, u.created_at) AS created_at,
-          coalesce(p.updated_at, u.updated_at) AS updated_at,
-          u.last_sign_in_at,
-          (u.email_confirmed_at IS NOT NULL) AS email_confirmed,
-          0 AS unlock_intents,
-          0 AS page_views
+          COUNT(*)::int AS total,
+          COUNT(*) FILTER (WHERE u.email_confirmed_at IS NOT NULL)::int AS confirmed,
+          COUNT(*) FILTER (
+            WHERE u.last_sign_in_at IS NOT NULL
+              AND u.last_sign_in_at >= NOW() - INTERVAL '30 days'
+          )::int AS signed_in_30d
         FROM auth.users u
-        LEFT JOIN profiles p ON p.id = u.id
-        ORDER BY coalesce(p.created_at, u.created_at) DESC
-      `;
-    } else {
-      sql = `
-        SELECT
-          u.id,
-          coalesce(u.email, '') AS email,
-          coalesce(
-            nullif(btrim(coalesce(u.raw_user_meta_data->>'full_name', u.raw_user_meta_data->>'name', '')), ''),
-            split_part(coalesce(u.email, ''), '@', 1),
-            'Member'
-          ) AS full_name,
-          NULL::text AS phone,
-          u.created_at,
-          u.updated_at,
-          u.last_sign_in_at,
-          (u.email_confirmed_at IS NOT NULL) AS email_confirmed,
-          0 AS unlock_intents,
-          0 AS page_views
-        FROM auth.users u
-        ORDER BY u.created_at DESC
-      `;
+      `),
+      client.query(
+        `
+        SELECT COUNT(*)::int AS total
+        ${fromJoin}
+        WHERE ${whereSql}
+      `,
+        params,
+      ),
+      client.query(
+        `
+        SELECT ${selectCols}
+        ${fromJoin}
+        ${analyticsJoin}
+        WHERE ${whereSql}
+        ${orderBy}
+        LIMIT $${limitIdx} OFFSET $${offsetIdx}
+      `,
+        listParams,
+      ),
+    ]);
+
+    let unlockIntentsTotal = 0;
+    if (hasAnalytics) {
+      const unlocks = await client.query(`
+        SELECT COUNT(*)::int AS n
+        FROM site_analytics_events
+        WHERE event_name = 'unlock_intent' AND user_id IS NOT NULL
+      `);
+      unlockIntentsTotal = Number(unlocks.rows[0]?.n) || 0;
     }
 
-    const result = await client.query(sql);
-    const members = result.rows.map((row) => mapMember(row as Record<string, unknown>));
+    const filteredTotal = Number(filtered.rows[0]?.total) || 0;
+    const totalPages = filteredTotal > 0 ? Math.ceil(filteredTotal / query.pageSize) : 0;
+    const page = totalPages > 0 ? Math.min(query.page, totalPages) : 1;
+
     return {
       available: true,
-      total: members.length,
-      members,
+      total: Number(totals.rows[0]?.total) || 0,
+      confirmedTotal: Number(totals.rows[0]?.confirmed) || 0,
+      signedIn30dTotal: Number(totals.rows[0]?.signed_in_30d) || 0,
+      unlockIntentsTotal,
+      filteredTotal,
+      page,
+      pageSize: query.pageSize,
+      totalPages,
+      query: { ...query, page },
+      members: rows.rows.map((row) => mapMember(row as Record<string, unknown>)),
     };
   });
 }
 
-async function fetchViaRpc(): Promise<AdminMembersData | null> {
+async function fetchViaRpc(query: AdminMembersQuery): Promise<AdminMembersData | null> {
   const url = getSupabaseUrl();
-  const key =
-    process.env.SUPABASE_SECRET_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    getSupabaseAnonKey();
+  const key = getServiceKey();
   if (!url || !key) return null;
 
   const client = createClient(url, key, {
@@ -173,28 +280,63 @@ async function fetchViaRpc(): Promise<AdminMembersData | null> {
   if (!data || typeof data !== "object") return null;
 
   const raw = data as Record<string, unknown>;
-  if (raw.available === false) return emptyData();
+  if (raw.available === false) return emptyData(query);
 
-  const members = Array.isArray(raw.members)
+  let members = Array.isArray(raw.members)
+    ? raw.members.map((row) => mapMember(row as Record<string, unknown>))
+    : [];
+
+  const q = query.q.toLowerCase();
+  if (q) {
+    members = members.filter(
+      (m) =>
+        m.fullName.toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q) ||
+        (m.phone ?? "").toLowerCase().includes(q),
+    );
+  }
+
+  const filteredTotal = members.length;
+  const totalPages = filteredTotal > 0 ? Math.ceil(filteredTotal / query.pageSize) : 0;
+  const page = totalPages > 0 ? Math.min(query.page, totalPages) : 1;
+  const start = (page - 1) * query.pageSize;
+  const pageMembers = members.slice(start, start + query.pageSize);
+
+  const allMembers = Array.isArray(raw.members)
     ? raw.members.map((row) => mapMember(row as Record<string, unknown>))
     : [];
 
   return {
     available: true,
-    total: Number(raw.total) || members.length,
-    members,
+    total: Number(raw.total) || allMembers.length,
+    confirmedTotal: allMembers.filter((m) => m.emailConfirmed).length,
+    signedIn30dTotal: allMembers.filter((m) => {
+      if (!m.lastSignInAt) return false;
+      const ts = Date.parse(m.lastSignInAt);
+      return !Number.isNaN(ts) && Date.now() - ts < 30 * 24 * 60 * 60 * 1000;
+    }).length,
+    unlockIntentsTotal: allMembers.reduce((sum, m) => sum + m.unlockIntents, 0),
+    filteredTotal,
+    page,
+    pageSize: query.pageSize,
+    totalPages,
+    query: { ...query, page },
+    members: pageMembers,
   };
 }
 
-export async function fetchAdminMembersData(): Promise<AdminMembersData> {
+export async function fetchAdminMembersData(
+  input?: Partial<AdminMembersQuery> | AdminMembersQuery,
+): Promise<AdminMembersData> {
+  const query = normalizeQuery(input);
   try {
-    const fromPg = await fetchViaPostgres();
+    const fromPg = await fetchViaPostgres(query);
     if (fromPg?.available) return fromPg;
 
-    const fromRpc = await fetchViaRpc();
+    const fromRpc = await fetchViaRpc(query);
     if (fromRpc?.available) return fromRpc;
   } catch (error) {
     console.error("[admin-members] Unexpected failure:", error);
   }
-  return emptyData();
+  return emptyData(query);
 }
