@@ -105,7 +105,6 @@ export default async function SearchPage({ searchParams }: PageProps) {
             maxPrice={maxPrice}
             pageSize={pageSize}
           />
-          {showPager ? <SearchPager page={page} totalPages={totalPages} buildHref={buildHref} /> : null}
         </div>
 
         <PropertyCategoryExplorer
