@@ -217,7 +217,7 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
         center={US_CENTER}
         zoom={5}
         className="auctions-leaflet-map"
-        scrollWheelZoom={false}
+        scrollWheelZoom
         zoomControl
       >
         <BoundsLock />

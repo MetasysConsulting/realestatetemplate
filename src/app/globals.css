@@ -1293,8 +1293,8 @@ body.auctions-route .reovana-site .header {
 
 /* ── All Auctions / buy category explorer pages ──────────────────────────── */
 /*
- * Page can scroll to the footer. The listings column keeps its own scroll.
- * Wheel over the map scrolls the page (map zoom uses +/- controls).
+ * Page scrolls to the footer. Listings pane scrolls on its own.
+ * Wheel over the map zooms the map; wheel elsewhere scrolls the page.
  */
 html:has(body.auctions-route) {
   height: auto;
@@ -1309,6 +1309,7 @@ body.auctions-route {
   max-height: none !important;
   min-height: 100dvh;
   display: block;
+  background: #eef1f6;
 }
 
 body.auctions-route #loading {
@@ -1322,6 +1323,7 @@ body.auctions-route #template-chrome-root.reovana-site {
   height: auto !important;
   max-height: none;
   overflow: visible !important;
+  background: #eef1f6;
 }
 
 body.auctions-route .template-chrome-header {
@@ -1337,16 +1339,22 @@ body.auctions-route .template-chrome-header {
 body.auctions-route .template-chrome-footer {
   display: block;
   flex-shrink: 0;
+  margin-top: 20px;
 }
 
 .auctions-page {
   --auctions-chrome-offset: 88px;
-  background: #f6f7fb;
+  --auctions-gap: 16px;
+  --auctions-radius: 16px;
+  background: transparent;
   flex: none;
   min-height: calc(100dvh - var(--auctions-chrome-offset));
   height: calc(100dvh - var(--auctions-chrome-offset));
   display: flex;
   flex-direction: column;
+  gap: var(--auctions-gap);
+  padding: var(--auctions-gap) clamp(16px, 2vw, 24px) 8px;
+  box-sizing: border-box;
   overflow: hidden;
 }
 
@@ -1356,9 +1364,11 @@ body.auctions-route .template-chrome-footer {
   align-items: center;
   justify-content: space-between;
   gap: 12px 20px;
-  padding: 14px 20px;
+  padding: 14px 18px;
   background: #fff;
-  border-bottom: 1px solid var(--Line, #ececec);
+  border: 1px solid rgba(22, 30, 45, 0.08);
+  border-radius: var(--auctions-radius);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   flex-shrink: 0;
   z-index: 2;
 }
@@ -1430,7 +1440,8 @@ body.auctions-route .template-chrome-footer {
 
 .auctions-layout {
   display: grid;
-  grid-template-columns: minmax(380px, 42%) 1fr;
+  grid-template-columns: minmax(360px, 1.15fr) minmax(280px, 0.85fr);
+  gap: var(--auctions-gap, 16px);
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
@@ -1438,7 +1449,9 @@ body.auctions-route .template-chrome-footer {
 
 .auctions-list-panel {
   background: #fff;
-  border-right: 1px solid var(--Line, #ececec);
+  border: 1px solid rgba(22, 30, 45, 0.08);
+  border-radius: var(--auctions-radius, 16px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -1721,7 +1734,11 @@ body.auctions-route .template-chrome-footer {
   position: relative;
   min-height: 0;
   height: 100%;
-  background: #dfe6f5;
+  max-height: 100%;
+  background: #fff;
+  border: 1px solid rgba(22, 30, 45, 0.08);
+  border-radius: var(--auctions-radius, 16px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
   overflow: hidden;
 }
 
@@ -1774,6 +1791,7 @@ body.auctions-route .template-chrome-footer {
   width: 100% !important;
   height: 100% !important;
   z-index: 1;
+  border-radius: 0;
 }
 
 /* Map Options panel (Realtor-style layers) */
@@ -2780,14 +2798,17 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
   body.auctions-route .auctions-page {
     flex: none;
+    height: auto;
     min-height: auto;
     overflow: visible;
+    padding-bottom: 8px;
   }
 
   body.auctions-route .auctions-layout {
     flex: none;
     min-height: auto;
     overflow: visible;
+    gap: 16px;
   }
 
   .auctions-layout {
@@ -2795,8 +2816,8 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
   }
 
   .auctions-map-panel {
-    min-height: 420px;
-    height: 420px;
+    min-height: 320px;
+    height: 320px;
     order: -1;
   }
 
@@ -2804,7 +2825,6 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
     min-height: auto;
     height: auto;
     border-right: none;
-    border-top: 1px solid var(--Line, #ececec);
     overflow: visible;
   }
 
