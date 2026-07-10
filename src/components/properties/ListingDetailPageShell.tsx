@@ -1,8 +1,14 @@
 import { ListingDetailContent } from "@/components/properties/ListingDetailContent";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
+import { isAdminEmail } from "@/lib/admin/admin-allowlist";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
+import {
+  propertyListingToProtyDetail,
+  redactProtyListingDetail,
+} from "@/lib/proty-listing-detail";
+import { getAuthUser } from "@/lib/supabase/auth-server";
 
 type ListingDetailPageShellProps = {
   listing: PropertyListing;
@@ -13,7 +19,7 @@ type ListingDetailPageShellProps = {
   bodyClass?: string;
 };
 
-export function ListingDetailPageShell({
+export async function ListingDetailPageShell({
   listing,
   categoryLabel,
   backHref,
@@ -26,6 +32,17 @@ export function ListingDetailPageShell({
     ? extractTemplateChrome(home.html)
     : { headerHtml: "", footerHtml: "", tailHtml: "" };
 
+  const user = await getAuthUser();
+  const paywallBypass = isAdminEmail(user?.email);
+  const fullModel = propertyListingToProtyDetail(
+    listing,
+    categoryLabel,
+    backHref,
+    scrapedAt,
+    sourceAgency,
+  );
+  const model = paywallBypass ? fullModel : redactProtyListingDetail(fullModel);
+
   return (
     <TemplateChrome
       headerHtml={chrome.headerHtml}
@@ -33,13 +50,7 @@ export function ListingDetailPageShell({
       tailHtml={chrome.tailHtml}
       bodyClass={bodyClass}
     >
-      <ListingDetailContent
-        listing={listing}
-        categoryLabel={categoryLabel}
-        backHref={backHref}
-        scrapedAt={scrapedAt}
-        sourceAgency={sourceAgency}
-      />
+      <ListingDetailContent model={model} paywallBypass={paywallBypass} />
     </TemplateChrome>
   );
 }

@@ -1,19 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useEffectEvent, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
 import { ListingGallery } from "@/components/properties/ListingGallery";
 import { ListingUnlockPaywall } from "@/components/properties/ListingUnlockPaywall";
 import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
 import {
-  readListingUnlocked,
   syncBlurTargets,
-  writeListingUnlocked,
+  trackUnlockIntent,
 } from "@/lib/property-gate";
 
 type ProtyPropertyDetailProps = {
   model: ProtyListingDetailModel;
+  /** Allowlisted admin members skip the listing paywall. */
+  paywallBypass?: boolean;
 };
 
 const OVERVIEW_ACTION_ICONS = [
@@ -217,8 +218,9 @@ function SidebarAds() {
   );
 }
 
-export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
-  const [unlocked, setUnlocked] = useState(false);
+export function ProtyPropertyDetail({ model, paywallBypass = false }: ProtyPropertyDetailProps) {
+  // Only allowlisted admins unlock. SessionStorage free unlocks are disabled.
+  const unlocked = paywallBypass;
 
   const applyBlurState = useEffectEvent((isUnlocked: boolean) => {
     const root = document.getElementById("listing-detail-root");
@@ -227,21 +229,13 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
   });
 
   useEffect(() => {
-    if (readListingUnlocked(model.id)) {
-      setUnlocked(true);
-    }
-  }, [model.id]);
-
-  useEffect(() => {
     applyBlurState(unlocked);
     const timer = window.setTimeout(() => applyBlurState(unlocked), 100);
     return () => window.clearTimeout(timer);
   }, [unlocked]);
 
-  const handleUnlock = () => {
-    setUnlocked(true);
-    writeListingUnlocked(model.id);
-    applyBlurState(true);
+  const handleCheckoutSoon = () => {
+    trackUnlockIntent(model.id, "checkout_soon");
   };
 
   const mapUrl = useMemo(
@@ -395,7 +389,12 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
 
             <div className="col-xl-4 col-lg-5">
               <div className="tf-sidebar sticky-sidebar">
-                <ListingUnlockPaywall unlocked={unlocked} onUnlock={handleUnlock} />
+                <ListingUnlockPaywall
+                  unlocked={unlocked}
+                  allowUnlock={false}
+                  onUnlock={() => {}}
+                  onCheckoutSoon={handleCheckoutSoon}
+                />
 
                 <form className="form-contact-seller mb-30 reovana-blur-target" onSubmit={(e) => e.preventDefault()}>
                   <h4 className="heading-title mb-30">Contact Sellers</h4>

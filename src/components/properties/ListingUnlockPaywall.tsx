@@ -1,10 +1,13 @@
 "use client";
 
-import { useOptimistic, useTransition } from "react";
+import { useState, useTransition } from "react";
 
 type ListingUnlockPaywallProps = {
   unlocked: boolean;
+  /** When true (e.g. after Stripe), buttons unlock. Until then, show checkout-soon notice. */
+  allowUnlock?: boolean;
   onUnlock: () => void;
+  onCheckoutSoon?: () => void;
 };
 
 const INCLUDED = [
@@ -43,19 +46,31 @@ function CheckIcon() {
   );
 }
 
-export function ListingUnlockPaywall({ unlocked, onUnlock }: ListingUnlockPaywallProps) {
+export function ListingUnlockPaywall({
+  unlocked,
+  allowUnlock = false,
+  onUnlock,
+  onCheckoutSoon,
+}: ListingUnlockPaywallProps) {
   const [isPending, startTransition] = useTransition();
-  const [optimisticUnlocked, setOptimisticUnlocked] = useOptimistic(unlocked);
+  const [notice, setNotice] = useState<string | null>(null);
 
-  if (optimisticUnlocked) {
+  if (unlocked) {
     return null;
   }
 
-  const unlock = () => {
-    startTransition(() => {
-      setOptimisticUnlocked(true);
-      onUnlock();
-    });
+  const handlePrimary = () => {
+    if (allowUnlock) {
+      startTransition(() => {
+        onUnlock();
+      });
+      return;
+    }
+
+    onCheckoutSoon?.();
+    setNotice(
+      "Paid unlocks are almost ready. Checkout isn’t live yet — we’ll enable one-tap unlock here soon.",
+    );
   };
 
   return (
@@ -87,7 +102,7 @@ export function ListingUnlockPaywall({ unlocked, onUnlock }: ListingUnlockPaywal
           <button
             type="button"
             className="reovana-unlock-card__primary"
-            onClick={unlock}
+            onClick={handlePrimary}
             disabled={isPending}
           >
             <span className="reovana-unlock-card__price-row">
@@ -98,7 +113,7 @@ export function ListingUnlockPaywall({ unlocked, onUnlock }: ListingUnlockPaywal
           <button
             type="button"
             className="reovana-unlock-card__secondary"
-            onClick={unlock}
+            onClick={handlePrimary}
             disabled={isPending}
           >
             <span className="reovana-unlock-card__price-row">
@@ -107,6 +122,12 @@ export function ListingUnlockPaywall({ unlocked, onUnlock }: ListingUnlockPaywal
             </span>
           </button>
         </div>
+
+        {notice ? (
+          <p className="reovana-unlock-card__notice" role="status">
+            {notice}
+          </p>
+        ) : null}
       </div>
     </aside>
   );

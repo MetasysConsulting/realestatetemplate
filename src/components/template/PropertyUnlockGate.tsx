@@ -5,8 +5,8 @@ import {
   applyLockedBlur,
   clearGalleryBlur,
   clearLockedBlur,
-  readListingUnlocked,
-  writeListingUnlocked,
+  fetchPaywallBypass,
+  trackUnlockIntent,
 } from "@/lib/property-gate";
 import { recordRecentlyViewed } from "@/lib/recently-viewed";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
@@ -39,7 +39,20 @@ const BLUR_SELECTORS = [
   ".section-similar-properties .box-house .content",
 ];
 
+const CHECKOUT_SOON_MESSAGE =
+  "Paid unlocks are almost ready. Checkout isn’t live yet — we’ll enable one-tap unlock here soon.";
+
+const LOCKED_PLACEHOLDER = "Unlock to view";
+
 function unlockAll(root: HTMLElement) {
+  root.querySelectorAll<HTMLElement>("[data-proty-original-html]").forEach((el) => {
+    const original = el.getAttribute("data-proty-original-html");
+    if (original != null) {
+      el.innerHTML = original;
+      el.removeAttribute("data-proty-original-html");
+    }
+  });
+
   root.querySelectorAll(".proty-blurred").forEach((el) => {
     clearLockedBlur(el as HTMLElement);
   });
@@ -47,6 +60,12 @@ function unlockAll(root: HTMLElement) {
   root.querySelectorAll(".proty-unlock-gate, .reovana-unlock-card").forEach((gate) => {
     (gate as HTMLElement).style.display = "none";
   });
+}
+
+function redactElement(el: HTMLElement) {
+  if (el.getAttribute("data-proty-original-html") != null) return;
+  el.setAttribute("data-proty-original-html", el.innerHTML);
+  el.innerHTML = `<span class="proty-locked-placeholder">${LOCKED_PLACEHOLDER}</span>`;
 }
 
 function buildPaywallHtml(): string {
@@ -75,18 +94,24 @@ function buildPaywallHtml(): string {
             <span class="reovana-unlock-card__price-row"><span>Unlimited access</span><strong>$49/mo</strong></span>
           </button>
         </div>
-        <div class="proty-unlocked-note">Unlocked — full listing details now visible</div>
+        <p class="reovana-unlock-card__notice" data-proty-unlock-notice hidden role="status"></p>
       </div>
     </aside>
   `;
 }
 
-function attachUnlockHandlers(root: HTMLElement, gate: HTMLElement, scope: string) {
+function attachUnlockHandlers(gate: HTMLElement, scope: string) {
   gate.querySelectorAll("[data-proty-unlock]").forEach((btn) => {
+    if (btn.getAttribute("data-proty-unlock-wired") === "1") return;
+    btn.setAttribute("data-proty-unlock-wired", "1");
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      writeListingUnlocked(scope);
-      unlockAll(root);
+      trackUnlockIntent(scope, "checkout_soon");
+      const notice = gate.querySelector<HTMLElement>("[data-proty-unlock-notice]");
+      if (notice) {
+        notice.hidden = false;
+        notice.textContent = CHECKOUT_SOON_MESSAGE;
+      }
     });
   });
 }
@@ -98,31 +123,32 @@ function insertSidebarPaywall(root: HTMLElement, sidebar: HTMLElement, scope: st
   wrapper.innerHTML = buildPaywallHtml();
   const gate = wrapper.firstElementChild as HTMLElement;
   sidebar.insertBefore(gate, sidebar.firstElementChild);
-  attachUnlockHandlers(root, gate, scope);
+  attachUnlockHandlers(gate, scope);
 }
 
-function initGate(root: HTMLElement, scope: string) {
-  const alreadyUnlocked = readListingUnlocked(scope);
-
+function initGate(root: HTMLElement, scope: string, unlocked: boolean) {
   clearGalleryBlur(root);
 
   BLUR_SELECTORS.forEach((selector) => {
-    root.querySelectorAll(selector).forEach((el) => {
-      if (alreadyUnlocked) {
-        clearLockedBlur(el as HTMLElement);
+    root.querySelectorAll(selector).forEach((node) => {
+      const el = node as HTMLElement;
+      if (unlocked) {
+        clearLockedBlur(el);
       } else {
-        applyLockedBlur(el as HTMLElement);
+        redactElement(el);
+        applyLockedBlur(el);
       }
     });
   });
 
+  if (unlocked) {
+    unlockAll(root);
+    return;
+  }
+
   const sidebar = root.querySelector(".section-property-detail .tf-sidebar") as HTMLElement | null;
   if (sidebar) {
     insertSidebarPaywall(root, sidebar, scope);
-  }
-
-  if (alreadyUnlocked) {
-    unlockAll(root);
   }
 }
 
@@ -130,16 +156,23 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
   useEffect(() => {
     if (!enabled) return;
 
-    const run = () => {
+    let cancelled = false;
+
+    const run = async () => {
       const root = document.getElementById("template-root");
-      if (!root) return;
-      initGate(root, window.location.pathname);
+      if (!root || cancelled) return;
+
+      const scope = window.location.pathname;
+      const bypass = await fetchPaywallBypass();
+      if (cancelled) return;
+
+      initGate(root, scope, bypass);
     };
 
-    run();
-    const t = window.setTimeout(run, 100);
-    const t2 = window.setTimeout(run, 800);
-    const t3 = window.setTimeout(run, 2000);
+    void run();
+    const t = window.setTimeout(() => void run(), 100);
+    const t2 = window.setTimeout(() => void run(), 800);
+    const t3 = window.setTimeout(() => void run(), 2000);
     const recordTimer = window.setTimeout(() => {
       const root = document.getElementById("template-root");
       if (!root) return;
@@ -175,6 +208,7 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
     }, 900);
 
     return () => {
+      cancelled = true;
       window.clearTimeout(t);
       window.clearTimeout(t2);
       window.clearTimeout(t3);

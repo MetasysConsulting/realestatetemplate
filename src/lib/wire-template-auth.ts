@@ -244,16 +244,36 @@ function wireRegisterForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
   submitLink.addEventListener("click", handleRegister);
 }
 
+function socialButtonLabel(link: HTMLElement): string {
+  // Prefer visible text nodes so SVG path data cannot confuse provider detection.
+  const fromTextNodes = Array.from(link.childNodes)
+    .filter((node) => node.nodeType === Node.TEXT_NODE)
+    .map((node) => node.textContent ?? "")
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+  if (fromTextNodes) return fromTextNodes;
+  return (link.textContent ?? "").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserClient>) {
   if (!supabase) return;
 
-  const startOAuth = async (modal: HTMLElement, provider: "google" | "facebook") => {
+  const startGoogleOAuth = async (modal: HTMLElement) => {
     clearAuthMessage(modal);
 
     const redirectTo = `${window.location.origin}/auth/callback?next=/`;
     const { data, error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo },
+      provider: "google",
+      options: {
+        redirectTo,
+        queryParams: {
+          access_type: "offline",
+          prompt: "select_account",
+        },
+      },
     });
 
     if (error) {
@@ -263,29 +283,48 @@ function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
 
     if (data?.url) {
       window.location.assign(data.url);
+      return;
     }
+
+    showAuthMessage(modal, "Could not start Google sign-in. Try again.");
   };
 
   const wireModal = (modalId: string) => {
     const modal = document.getElementById(modalId);
     if (!modal) return;
 
-    modal.querySelectorAll<HTMLAnchorElement>(".group-btn .btn-social, .group-btn a.btn-social").forEach((link) => {
-      if (link.getAttribute("data-reovana-auth-wired") === "oauth") return;
+    const links = Array.from(
+      new Set(
+        Array.from(
+          modal.querySelectorAll<HTMLAnchorElement>(".group-btn a.btn-social, .group-btn .btn-social"),
+        ),
+      ),
+    );
 
-      const label = link.textContent?.trim().toLowerCase() ?? "";
-      const provider = label.includes("google")
-        ? "google"
-        : label.includes("facebook")
-          ? "facebook"
-          : null;
-      if (!provider) return;
+    links.forEach((link, index) => {
+      const label = socialButtonLabel(link);
+      const labeledFacebook = /\bfacebook\b/.test(label);
+      const labeledGoogle = /\bgoogle\b/.test(label);
 
-      link.setAttribute("data-reovana-auth-wired", "oauth");
+      // Hide Facebook (by label, or second social button when unlabeled).
+      if (labeledFacebook || (!labeledGoogle && index === 1)) {
+        link.style.display = "none";
+        link.setAttribute("aria-hidden", "true");
+        link.tabIndex = -1;
+        return;
+      }
+
+      // Wire Google (by label, or first social button).
+      if (!labeledGoogle && index !== 0) return;
+      if (link.getAttribute("data-reovana-auth-wired") === "oauth-google") return;
+
+      link.setAttribute("data-reovana-auth-wired", "oauth-google");
       link.setAttribute("href", "#");
+      link.setAttribute("role", "button");
       link.addEventListener("click", (event) => {
         event.preventDefault();
-        void startOAuth(modal, provider);
+        event.stopPropagation();
+        void startGoogleOAuth(modal);
       });
     });
   };

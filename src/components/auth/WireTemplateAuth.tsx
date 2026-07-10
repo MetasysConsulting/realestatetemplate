@@ -7,15 +7,17 @@ export function WireTemplateAuth() {
   useEffect(() => {
     let unsubscribe = wireTemplateAuth();
 
-    const retryTimers = [600, 1500, 3000].map((delay) =>
-      window.setTimeout(() => {
-        unsubscribe?.();
-        unsubscribe = wireTemplateAuth();
-      }, delay),
-    );
+    const rewire = () => {
+      unsubscribe?.();
+      unsubscribe = wireTemplateAuth();
+    };
+
+    const retryTimers = [600, 1500, 3000].map((delay) => window.setTimeout(rewire, delay));
+    window.addEventListener("reovana:header-fixed", rewire);
 
     return () => {
       retryTimers.forEach((timer) => window.clearTimeout(timer));
+      window.removeEventListener("reovana:header-fixed", rewire);
       unsubscribe?.();
     };
   }, []);

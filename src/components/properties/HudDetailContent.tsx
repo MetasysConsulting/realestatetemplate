@@ -1,15 +1,13 @@
 "use client";
 
 import { ProtyPropertyDetail } from "@/components/properties/ProtyPropertyDetail";
-import { hudListingToProtyDetail } from "@/lib/proty-listing-detail";
-import type { HudListing } from "@/lib/hud-listings";
+import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
 
 type HudDetailContentProps = {
-  listing: HudListing;
-  scrapedAt: string;
+  model: ProtyListingDetailModel;
+  paywallBypass?: boolean;
 };
 
-export function HudDetailContent({ listing, scrapedAt }: HudDetailContentProps) {
-  const model = hudListingToProtyDetail(listing, scrapedAt);
-  return <ProtyPropertyDetail model={model} />;
+export function HudDetailContent({ model, paywallBypass = false }: HudDetailContentProps) {
+  return <ProtyPropertyDetail model={model} paywallBypass={paywallBypass} />;
 }

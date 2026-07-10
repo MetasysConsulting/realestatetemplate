@@ -1,4 +1,7 @@
-/** Server-side admin allowlist. Security checks must use this — never trust the client. */
+/**
+ * Admin allowlist. Prefer server checks (`getAuthUser` + `isAdminEmail`).
+ * `NEXT_PUBLIC_ADMIN_EMAILS` mirrors the list for client UX only — never trust alone for secrets.
+ */
 
 export const DEFAULT_ADMIN_EMAILS = [
   "creditteck1@gmail.com",
@@ -6,7 +9,7 @@ export const DEFAULT_ADMIN_EMAILS = [
 ] as const;
 
 export function getAdminAllowlist(): string[] {
-  const fromEnv = process.env.ADMIN_EMAILS?.trim();
+  const fromEnv = (process.env.ADMIN_EMAILS || process.env.NEXT_PUBLIC_ADMIN_EMAILS)?.trim();
   if (fromEnv) {
     return fromEnv
       .split(",")

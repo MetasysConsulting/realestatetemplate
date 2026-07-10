@@ -181,6 +181,20 @@ body {
   letter-spacing: -0.01em;
 }
 
+.reovana-unlock-card__notice {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(26, 34, 51, 0.06);
+  color: #3a4252;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.reovana-unlock-card__notice[hidden] {
+  display: none;
+}
+
 /* Legacy template gate (PropertyUnlockGate) */
 .proty-unlock-head {
   background: linear-gradient(155deg, #1a2233 0%, #243049 55%, #2a3a58 100%);
@@ -3127,12 +3141,19 @@ body.auctions-route .auctions-page--search {
 }
 
 .reovana-listing-detail--locked .reovana-blur-target {
-  filter: blur(14px) !important;
-  -webkit-filter: blur(14px) !important;
-  opacity: 0.55;
+  filter: blur(18px) !important;
+  -webkit-filter: blur(18px) !important;
+  opacity: 0.5;
   pointer-events: none;
   user-select: none;
   transition: filter 0.25s ease, opacity 0.25s ease;
+}
+
+.proty-locked-placeholder {
+  display: inline-block;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #5c5e61;
 }
 
 .reovana-listing-detail--locked .section-property-image,

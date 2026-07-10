@@ -7,27 +7,55 @@ export function isPropertyDetailRoute(route: string): boolean {
 /** Legacy global key — no longer written; kept so old sessions can be ignored per listing */
 export const UNLOCK_STORAGE_KEY = "proty-property-unlocked";
 
+/** Valid unlock markers. Legacy `"1"` (fake free unlock) is ignored. */
+export type ListingUnlockReason = "paid" | "admin";
+
 export function listingUnlockStorageKey(scope: string): string {
   return `${UNLOCK_STORAGE_KEY}:${scope}`;
 }
 
-export function readListingUnlocked(scope: string): boolean {
-  if (typeof window === "undefined") return false;
-  return sessionStorage.getItem(listingUnlockStorageKey(scope)) === "1";
+function isValidUnlockMarker(value: string | null): value is ListingUnlockReason {
+  return value === "paid" || value === "admin";
 }
 
-export function writeListingUnlocked(scope: string): void {
-  sessionStorage.setItem(listingUnlockStorageKey(scope), "1");
+export function readListingUnlocked(scope: string): boolean {
+  if (typeof window === "undefined") return false;
+  return isValidUnlockMarker(sessionStorage.getItem(listingUnlockStorageKey(scope)));
+}
+
+export function writeListingUnlocked(scope: string, reason: ListingUnlockReason): void {
+  sessionStorage.setItem(listingUnlockStorageKey(scope), reason);
+  trackUnlockIntent(scope, reason);
+}
+
+export function trackUnlockIntent(
+  scope: string,
+  reason: ListingUnlockReason | "checkout_soon" = "checkout_soon",
+): void {
   try {
-    // Dynamic import keeps this module usable in non-browser contexts if needed.
     void import("@/lib/analytics/client-track").then(({ trackClientEvent }) => {
       trackClientEvent("unlock_intent", {
         path: typeof window !== "undefined" ? window.location.pathname : undefined,
-        metadata: { listingScope: scope },
+        metadata: { listingScope: scope, reason },
       });
     });
   } catch {
     // Never block unlock UX on analytics
+  }
+}
+
+export async function fetchPaywallBypass(): Promise<boolean> {
+  try {
+    const res = await fetch("/api/paywall/bypass", {
+      method: "GET",
+      credentials: "same-origin",
+      cache: "no-store",
+    });
+    if (!res.ok) return false;
+    const data = (await res.json()) as { bypass?: boolean };
+    return Boolean(data.bypass);
+  } catch {
+    return false;
   }
 }
 

@@ -159,6 +159,48 @@ export function propertyListingToProtyDetail(
   };
 }
 
+/** Strip sensitive listing fields for non-admin / unpaid viewers. */
+export function redactProtyListingDetail(model: ProtyListingDetailModel): ProtyListingDetailModel {
+  const cityState = [model.mapCity, model.mapState].filter(Boolean).join(", ");
+  const areaLabel = cityState ? `${cityState} area` : "Listing area";
+
+  return {
+    ...model,
+    title: "Address locked",
+    priceDisplay: "••••••",
+    priceSuffix: undefined,
+    locationLine: `${areaLabel} — unlock for full address`,
+    bedrooms: 0,
+    bathrooms: 0,
+    squareFootage: 0,
+    yearBuilt: null,
+    lotSize: null,
+    listingId: "••••",
+    description:
+      "Full pricing, address, specs, and seller contact are locked. Unlock this listing to view complete details.",
+    detailFacts: model.detailFacts.map((fact) => ({
+      label: fact.label,
+      value: "—",
+    })),
+    amenities: [],
+    mapAddress: areaLabel,
+    mapZip: "",
+    mapCounty: undefined,
+    hasRealCoordinates: false,
+    lat: 0,
+    lng: 0,
+    disclaimer: model.disclaimer
+      ? "Unlock this listing to view source and update details."
+      : undefined,
+    recentlyViewed: {
+      ...model.recentlyViewed,
+      address: "Address locked",
+      zip: "",
+      price: 0,
+    },
+  };
+}
+
 export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string): ProtyListingDetailModel {
   const priceDisplay = formatHudPrice(listing.listPrice);
 

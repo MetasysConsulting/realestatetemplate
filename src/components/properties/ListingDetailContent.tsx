@@ -1,31 +1,16 @@
 "use client";
 
 import { ProtyPropertyDetail } from "@/components/properties/ProtyPropertyDetail";
-import { propertyListingToProtyDetail } from "@/lib/proty-listing-detail";
-import type { PropertyListing } from "@/lib/load-category-listings";
+import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
 
 type ListingDetailContentProps = {
-  listing: PropertyListing;
-  categoryLabel: string;
-  backHref: string;
-  scrapedAt?: string;
-  sourceAgency?: string;
+  model: ProtyListingDetailModel;
+  paywallBypass?: boolean;
 };
 
 export function ListingDetailContent({
-  listing,
-  categoryLabel,
-  backHref,
-  scrapedAt,
-  sourceAgency,
+  model,
+  paywallBypass = false,
 }: ListingDetailContentProps) {
-  const model = propertyListingToProtyDetail(
-    listing,
-    categoryLabel,
-    backHref,
-    scrapedAt,
-    sourceAgency,
-  );
-
-  return <ProtyPropertyDetail model={model} />;
+  return <ProtyPropertyDetail model={model} paywallBypass={paywallBypass} />;
 }
