@@ -9,6 +9,7 @@ import { fixReovanaHeader } from "@/lib/fix-reovana-header";
 import { normalizeTemplateHtml } from "@/lib/normalize-template-html";
 import { wireTemplateSearch } from "@/lib/wire-template-search";
 import type { PropertyListing } from "@/lib/load-category-listings";
+import type { HomeNeighborhood } from "@/lib/home-neighborhoods";
 
 type TemplatePageProps = {
   html: string;
@@ -18,6 +19,7 @@ type TemplatePageProps = {
   showLoanSteps?: boolean;
   showNeighborhoodsCarousel?: boolean;
   homeCategoryRows?: Record<string, PropertyListing[]>;
+  homeNeighborhoods?: HomeNeighborhood[];
 };
 
 function normalizeBodyClass(bodyClass: string): string {
@@ -41,6 +43,7 @@ export function TemplatePage({
   showLoanSteps = false,
   showNeighborhoodsCarousel = false,
   homeCategoryRows = {},
+  homeNeighborhoods = [],
 }: TemplatePageProps) {
   const safeHtml = normalizeTemplateHtml(html);
 
@@ -85,7 +88,9 @@ export function TemplatePage({
       <PropertyUnlockGate enabled={propertyGate} />
       {showHomeCategoryRows ? <HomeCategoryRowsMount rowListings={homeCategoryRows} /> : null}
       {showLoanSteps ? <LoanStepsSectionMount /> : null}
-      {showNeighborhoodsCarousel ? <NeighborhoodsCarouselMount /> : null}
+      {showNeighborhoodsCarousel ? (
+        <NeighborhoodsCarouselMount neighborhoods={homeNeighborhoods} />
+      ) : null}
       <div
         id="template-root"
         className="reovana-site"

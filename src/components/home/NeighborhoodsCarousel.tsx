@@ -3,16 +3,16 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  HOME_NEIGHBORHOOD_ROWS,
+  chunkNeighborhoodRows,
   type HomeNeighborhood,
 } from "@/lib/home-neighborhoods";
 
 function NeighborhoodCard({ neighborhood }: { neighborhood: HomeNeighborhood }) {
   return (
     <Link
-      href="/auctions"
+      href={neighborhood.href}
       className="reovana-neighborhood-card"
-      aria-label={`Browse ${neighborhood.count} properties in ${neighborhood.city}`}
+      aria-label={`Browse ${neighborhood.countLabel} properties in ${neighborhood.city}`}
     >
       <div className="reovana-neighborhood-card__media">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -21,7 +21,7 @@ function NeighborhoodCard({ neighborhood }: { neighborhood: HomeNeighborhood }) 
       <div className="reovana-neighborhood-card__content">
         <h6>{neighborhood.city}</h6>
         <span className="reovana-neighborhood-card__cta">
-          {neighborhood.count} Properties <span aria-hidden="true">›</span>
+          {neighborhood.countLabel} Properties <span aria-hidden="true">›</span>
         </span>
       </div>
     </Link>
@@ -79,44 +79,38 @@ function NeighborhoodRow({
     });
   };
 
-  const showArrows = neighborhoods.length > 3;
-
   return (
     <div className="reovana-neighborhoods-row">
-      <div
-        className={`reovana-neighborhoods-row__carousel${showArrows ? "" : " reovana-neighborhoods-row__carousel--plain"}`}
-      >
-        {showArrows ? (
+      <div className="reovana-neighborhoods-row__controls">
+        {canScrollBack ? (
           <button
             type="button"
-            className="reovana-neighborhoods-row__arrow reovana-neighborhoods-row__arrow--prev"
-            aria-label={`Show previous cities in row ${rowIndex + 1}`}
-            disabled={!canScrollBack}
+            className="reovana-neighborhoods-row__nav"
+            aria-label={`Scroll neighborhood row ${rowIndex + 1} back`}
             onClick={() => scrollByPage("back")}
           >
-            <span aria-hidden="true">‹</span>
+            ‹
           </button>
         ) : null}
-
-        <div
-          ref={trackRef}
-          className="reovana-neighborhoods-row__track"
-          onScroll={updateScrollState}
-        >
-          {neighborhoods.map((neighborhood) => (
-            <NeighborhoodCard key={neighborhood.id} neighborhood={neighborhood} />
-          ))}
-        </div>
-
-        {showArrows ? (
+      </div>
+      <div
+        ref={trackRef}
+        className="reovana-neighborhoods-row__track"
+        onScroll={updateScrollState}
+      >
+        {neighborhoods.map((neighborhood) => (
+          <NeighborhoodCard key={neighborhood.id} neighborhood={neighborhood} />
+        ))}
+      </div>
+      <div className="reovana-neighborhoods-row__controls">
+        {canScrollForward ? (
           <button
             type="button"
-            className="reovana-neighborhoods-row__arrow reovana-neighborhoods-row__arrow--next"
-            aria-label={`Show next cities in row ${rowIndex + 1}`}
-            disabled={!canScrollForward}
+            className="reovana-neighborhoods-row__nav"
+            aria-label={`Scroll neighborhood row ${rowIndex + 1} forward`}
             onClick={() => scrollByPage("forward")}
           >
-            <span aria-hidden="true">›</span>
+            ›
           </button>
         ) : null}
       </div>
@@ -124,14 +118,28 @@ function NeighborhoodRow({
   );
 }
 
-export function NeighborhoodsCarousel() {
+type NeighborhoodsCarouselProps = {
+  neighborhoods: HomeNeighborhood[];
+};
+
+export function NeighborhoodsCarousel({ neighborhoods }: NeighborhoodsCarouselProps) {
+  const rows = chunkNeighborhoodRows(neighborhoods, 4);
+
+  if (!rows.length) {
+    return (
+      <div className="reovana-neighborhoods-carousel">
+        <p className="reovana-neighborhoods__empty">No city inventory to show yet.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="reovana-neighborhoods-carousel">
-      {HOME_NEIGHBORHOOD_ROWS.map((row, index) => (
+      {rows.map((row, index) => (
         <NeighborhoodRow key={index} rowIndex={index} neighborhoods={row} />
       ))}
       <div className="reovana-neighborhoods__more">
-        <Link href="/auctions" className="tf-btn bg-color-primary pd-23 reovana-neighborhoods__more-btn">
+        <Link href="/search" className="tf-btn bg-color-primary pd-23 reovana-neighborhoods__more-btn">
           More
         </Link>
       </div>

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { TemplatePage } from "@/components/template/TemplatePage";
 import { isPropertyDetailRoute } from "@/lib/property-gate";
 import { fetchHomeCategoryRows } from "@/lib/listings-repository";
+import { fetchHomeNeighborhoods } from "@/lib/fetch-home-neighborhoods";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import {
   TEMPLATE_PAGES,
@@ -55,6 +56,7 @@ export default async function TemplateRoutePage({ params }: PageProps) {
   }
 
   const homeCategoryRows = route === "/" ? await fetchHomeCategoryRows() : {};
+  const homeNeighborhoods = route === "/" ? await fetchHomeNeighborhoods() : [];
 
   return (
     <TemplatePage
@@ -65,6 +67,7 @@ export default async function TemplateRoutePage({ params }: PageProps) {
       showLoanSteps={route === "/"}
       showNeighborhoodsCarousel={route === "/"}
       homeCategoryRows={homeCategoryRows}
+      homeNeighborhoods={homeNeighborhoods}
     />
   );
 }
