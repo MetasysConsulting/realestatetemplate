@@ -259,9 +259,12 @@ function socialButtonLabel(link: HTMLElement): string {
 }
 
 function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserClient>) {
-  if (!supabase) return;
-
   const startGoogleOAuth = async (modal: HTMLElement) => {
+    if (!supabase) {
+      showAuthMessage(modal, "Sign-in isn’t configured right now. Try again later.");
+      return;
+    }
+
     clearAuthMessage(modal);
 
     const redirectTo = `${window.location.origin}/auth/callback?next=/`;
@@ -314,14 +317,26 @@ function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
 
       // Wire Google (by label, or first social button).
       if (!labeledGoogle && index !== 0) return;
+
+      const group = link.closest(".group-btn") as HTMLElement | null;
+      group?.classList.add("reovana-oauth-google-only");
+      link.classList.add("reovana-btn-google");
+      link.style.width = "100%";
+      link.style.maxWidth = "100%";
+      link.style.flex = "1 1 100%";
+      link.style.boxSizing = "border-box";
+      if (group) {
+        group.style.display = "flex";
+        group.style.justifyContent = "center";
+        group.style.width = "100%";
+        group.style.gap = "0";
+      }
+
       if (link.getAttribute("data-reovana-auth-wired") === "oauth-google") return;
 
       link.setAttribute("data-reovana-auth-wired", "oauth-google");
       link.setAttribute("href", "#");
       link.setAttribute("role", "button");
-      link.classList.add("reovana-btn-google");
-      const group = link.closest(".group-btn");
-      group?.classList.add("reovana-oauth-google-only");
       link.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
@@ -329,12 +344,24 @@ function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
       });
     });
 
-    // If Facebook was already gone from a prior pass, still mark the group.
-    const group = modal.querySelector(".group-btn");
-    if (group && group.querySelectorAll(".btn-social").length === 1) {
+    // Normalize any remaining single Google button after Facebook removal.
+    modal.querySelectorAll(".group-btn").forEach((node) => {
+      const group = node as HTMLElement;
+      const socials = Array.from(group.querySelectorAll<HTMLAnchorElement>(".btn-social"));
+      socials.forEach((link, index) => {
+        if (index > 0 || /\bfacebook\b/.test(socialButtonLabel(link))) {
+          link.remove();
+        }
+      });
+      const google = group.querySelector<HTMLAnchorElement>(".btn-social");
+      if (!google) return;
       group.classList.add("reovana-oauth-google-only");
-      group.querySelector(".btn-social")?.classList.add("reovana-btn-google");
-    }
+      google.classList.add("reovana-btn-google");
+      google.style.width = "100%";
+      google.style.maxWidth = "100%";
+      group.style.width = "100%";
+      group.style.display = "flex";
+    });
   };
 
   wireModal("modalLogin");
