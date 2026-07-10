@@ -1,0 +1,144 @@
+import pg from "pg";
+import { createClient } from "@supabase/supabase-js";
+import { getDatabaseUrl } from "@/lib/supabase/listings-query";
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
+import type { AdminMember, AdminMembersData } from "@/lib/admin/admin-members-types";
+
+export type { AdminMember, AdminMembersData } from "@/lib/admin/admin-members-types";
+
+const { Client } = pg;
+
+function emptyData(): AdminMembersData {
+  return { available: false, total: 0, members: [] };
+}
+
+function mapMember(row: Record<string, unknown>): AdminMember {
+  const email = String(row.email ?? "");
+  const fullNameRaw = String(row.full_name ?? row.fullName ?? "").trim();
+  return {
+    id: String(row.id),
+    email,
+    fullName: fullNameRaw || email.split("@")[0] || "Member",
+    phone: row.phone ? String(row.phone) : null,
+    createdAt: row.created_at
+      ? new Date(row.created_at as string).toISOString()
+      : String(row.createdAt ?? new Date().toISOString()),
+    updatedAt: row.updated_at
+      ? new Date(row.updated_at as string).toISOString()
+      : String(row.updatedAt ?? new Date().toISOString()),
+    lastSignInAt: row.last_sign_in_at
+      ? new Date(row.last_sign_in_at as string).toISOString()
+      : row.lastSignInAt
+        ? String(row.lastSignInAt)
+        : null,
+    emailConfirmed: Boolean(row.email_confirmed ?? row.emailConfirmed),
+    unlockIntents: Number(row.unlock_intents ?? row.unlockIntents) || 0,
+    pageViews: Number(row.page_views ?? row.pageViews) || 0,
+  };
+}
+
+async function withPgClient<T>(fn: (client: pg.Client) => Promise<T>): Promise<T | null> {
+  const databaseUrl = getDatabaseUrl();
+  if (!databaseUrl) return null;
+
+  const client = new Client({
+    connectionString: databaseUrl,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 8_000,
+  });
+
+  try {
+    await client.connect();
+    return await fn(client);
+  } catch (error) {
+    console.error("[admin-members] Postgres query failed:", error);
+    return null;
+  } finally {
+    await client.end().catch(() => undefined);
+  }
+}
+
+async function fetchViaPostgres(): Promise<AdminMembersData | null> {
+  return withPgClient(async (client) => {
+    const exists = await client.query(`SELECT to_regclass('public.profiles') AS t`);
+    if (!exists.rows[0]?.t) return emptyData();
+
+    const result = await client.query(`
+      SELECT
+        p.id,
+        coalesce(p.email, u.email, '') AS email,
+        p.full_name,
+        p.phone,
+        p.created_at,
+        p.updated_at,
+        u.last_sign_in_at,
+        (u.email_confirmed_at IS NOT NULL) AS email_confirmed,
+        coalesce((
+          SELECT COUNT(*)::int
+          FROM site_analytics_events e
+          WHERE e.user_id = p.id AND e.event_name = 'unlock_intent'
+        ), 0) AS unlock_intents,
+        coalesce((
+          SELECT COUNT(*)::int
+          FROM site_analytics_events e
+          WHERE e.user_id = p.id AND e.event_name = 'page_view'
+        ), 0) AS page_views
+      FROM profiles p
+      LEFT JOIN auth.users u ON u.id = p.id
+      ORDER BY p.created_at DESC
+    `);
+
+    const members = result.rows.map((row) => mapMember(row as Record<string, unknown>));
+    return {
+      available: true,
+      total: members.length,
+      members,
+    };
+  });
+}
+
+async function fetchViaRpc(): Promise<AdminMembersData | null> {
+  const url = getSupabaseUrl();
+  const key =
+    process.env.SUPABASE_SECRET_KEY ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY ||
+    getSupabaseAnonKey();
+  if (!url || !key) return null;
+
+  const client = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+
+  const { data, error } = await client.rpc("get_admin_members");
+  if (error) {
+    console.error("[admin-members] RPC failed:", error.message);
+    return null;
+  }
+  if (!data || typeof data !== "object") return null;
+
+  const raw = data as Record<string, unknown>;
+  if (raw.available === false) return emptyData();
+
+  const members = Array.isArray(raw.members)
+    ? raw.members.map((row) => mapMember(row as Record<string, unknown>))
+    : [];
+
+  return {
+    available: true,
+    total: Number(raw.total) || members.length,
+    members,
+  };
+}
+
+export async function fetchAdminMembersData(): Promise<AdminMembersData> {
+  try {
+    const fromPg = await fetchViaPostgres();
+    if (fromPg?.available) return fromPg;
+
+    const fromRpc = await fetchViaRpc();
+    if (fromRpc?.available) return fromRpc;
+  } catch (error) {
+    console.error("[admin-members] Unexpected failure:", error);
+  }
+  return emptyData();
+}
