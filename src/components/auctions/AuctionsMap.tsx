@@ -101,11 +101,12 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
       ? "&copy; Esri"
       : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
-  /** Cap markers so large category pages (thousands of pins) stay usable. */
+  /** Exact-coordinate pins only; cap so large category pages stay usable. */
   const mapProperties = useMemo(() => {
     const MAX_MAP_MARKERS = 750;
-    if (properties.length <= MAX_MAP_MARKERS) return properties;
-    return [...properties]
+    const exact = properties.filter((p) => p.hasRealCoordinates);
+    if (exact.length <= MAX_MAP_MARKERS) return exact;
+    return [...exact]
       .sort((a, b) => b.openingBid - a.openingBid)
       .slice(0, MAX_MAP_MARKERS);
   }, [properties]);

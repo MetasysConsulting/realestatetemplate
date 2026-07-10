@@ -64,29 +64,32 @@ function VrmPropertyCard({ listing }: { listing: VrmListing }) {
 }
 
 function toMapProperties(listings: VrmListing[]): AuctionProperty[] {
-  return listings.map((l) => ({
-    id: l.id,
-    isNew: l.isNew,
-    openingBid: l.listPrice,
-    tags: ["VA REO"],
-    category: "VA REO",
-    buyType: "bank-owned",
-    address: l.address,
-    city: l.city,
-    state: l.state,
-    zip: l.zip,
-    beds: l.bedrooms,
-    baths: l.bathrooms,
-    sqft: l.squareFootage,
-    auctionDate: "",
-    auctionTime: "",
-    status: l.status,
-    lat: l.lat,
-    lng: l.lng,
-    imageUrl: l.imageUrl,
-    hasImage: l.hasImage,
-    detailUrl: bankOwnedDetailPath(l.id),
-  }));
+  return listings
+    .filter((l) => l.hasRealCoordinates)
+    .map((l) => ({
+      id: l.id,
+      isNew: l.isNew,
+      openingBid: l.listPrice,
+      tags: ["VA REO"],
+      category: "VA REO",
+      buyType: "bank-owned",
+      address: l.address,
+      city: l.city,
+      state: l.state,
+      zip: l.zip,
+      beds: l.bedrooms,
+      baths: l.bathrooms,
+      sqft: l.squareFootage,
+      auctionDate: "",
+      auctionTime: "",
+      status: l.status,
+      lat: l.lat,
+      lng: l.lng,
+      hasRealCoordinates: true,
+      imageUrl: l.imageUrl,
+      hasImage: l.hasImage,
+      detailUrl: bankOwnedDetailPath(l.id),
+    }));
 }
 
 type VrmPropertiesExplorerProps = {

@@ -56,7 +56,7 @@ function HomeStepsCard({ listing }: { listing: HomeStepsListing }) {
 
 function toMapProperties(listings: HomeStepsListing[]): AuctionProperty[] {
   return listings
-    .filter((l) => l.lat && l.lng)
+    .filter((l) => l.hasRealCoordinates)
     .map((l) => ({
       id: l.id,
       isNew: false,
@@ -76,6 +76,7 @@ function toMapProperties(listings: HomeStepsListing[]): AuctionProperty[] {
       status: "Available",
       lat: l.lat,
       lng: l.lng,
+      hasRealCoordinates: true,
       imageUrl: l.imageUrl,
       hasImage: l.hasImage,
       detailUrl: bankOwnedDetailPath(l.id),

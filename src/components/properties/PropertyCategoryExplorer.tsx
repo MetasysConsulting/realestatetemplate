@@ -72,7 +72,7 @@ function PropertyCard({ listing }: { listing: PropertyListing }) {
 
 function toMapProperties(listings: PropertyListing[]): AuctionProperty[] {
   return listings
-    .filter((l) => l.lat && l.lng)
+    .filter((l) => l.hasRealCoordinates)
     .map((l) => ({
       id: l.id,
       isNew: l.isNew,
@@ -92,6 +92,7 @@ function toMapProperties(listings: PropertyListing[]): AuctionProperty[] {
       status: l.status,
       lat: l.lat,
       lng: l.lng,
+      hasRealCoordinates: true,
       imageUrl: l.imageUrl,
       hasImage: l.hasImage,
       detailUrl: l.detailPath,

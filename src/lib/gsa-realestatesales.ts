@@ -18,6 +18,7 @@ export type GsaRealEstateSale = {
   sourceAgency: string;
   lat: number;
   lng: number;
+  hasRealCoordinates: boolean;
 };
 
 export type GsaRealEstateSalesDataset = {

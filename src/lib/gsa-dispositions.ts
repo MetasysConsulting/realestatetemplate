@@ -17,6 +17,7 @@ export type GsaDispositionListing = {
   imageNote?: string;
   lat: number;
   lng: number;
+  hasRealCoordinates: boolean;
   hasImage: boolean;
   displayImageUrl: string | null;
 };

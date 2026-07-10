@@ -73,7 +73,7 @@ function HudPropertyCard({ listing }: { listing: HudListing }) {
 
 function toMapProperties(listings: HudListing[]): AuctionProperty[] {
   return listings
-    .filter((l) => l.lat && l.lng)
+    .filter((l) => l.hasRealCoordinates)
     .map((l) => ({
       id: l.id,
       isNew: false,
@@ -93,6 +93,7 @@ function toMapProperties(listings: HudListing[]): AuctionProperty[] {
       status: l.propertyStatus,
       lat: l.lat,
       lng: l.lng,
+      hasRealCoordinates: true,
       imageUrl: l.imageUrl,
       hasImage: l.hasImage,
       detailUrl: hudDetailPath(l.caseNumber),

@@ -22,6 +22,7 @@ export type VrmListing = {
   sourceAgency: string;
   lat: number;
   lng: number;
+  hasRealCoordinates: boolean;
 };
 
 export type VrmListingsDataset = {

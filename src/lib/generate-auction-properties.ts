@@ -20,6 +20,8 @@ export type AuctionProperty = {
   status: string;
   lat: number;
   lng: number;
+  /** Only true when lat/lng come from exact DB coordinates — never approximate. */
+  hasRealCoordinates?: boolean;
   imageUrl: string | null;
   hasImage: boolean;
   previousPrice?: number;
@@ -177,6 +179,7 @@ export function generateAuctionProperties(
       status: isLive ? "Auction Event: Live Event" : "Auction Event: Upcoming",
       lat,
       lng,
+      hasRealCoordinates: false,
       imageUrl: getAuctionPropertyImageUrl(id, buyType, i),
       hasImage: true,
       previousPrice,

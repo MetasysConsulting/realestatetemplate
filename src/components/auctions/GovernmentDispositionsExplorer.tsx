@@ -68,29 +68,32 @@ function GsaPropertyCard({ listing }: { listing: GsaDispositionListing }) {
 }
 
 function toMapProperties(listings: GsaDispositionListing[]): AuctionProperty[] {
-  return listings.map((l) => ({
-    id: l.id,
-    isNew: false,
-    openingBid: 0,
-    tags: ["Government"],
-    category: "Government Disposition",
-    buyType: "commercial",
-    address: l.title,
-    city: l.city,
-    state: l.state,
-    zip: l.zip,
-    beds: 0,
-    baths: 0,
-    sqft: l.rentableSqFt,
-    auctionDate: l.dateListed,
-    auctionTime: "",
-    status: l.status,
-    lat: l.lat,
-    lng: l.lng,
-    imageUrl: l.imageUrl,
-    hasImage: l.hasImage,
-    detailUrl: auctionPropertyDetailPath(l.id),
-  }));
+  return listings
+    .filter((l) => l.hasRealCoordinates)
+    .map((l) => ({
+      id: l.id,
+      isNew: false,
+      openingBid: 0,
+      tags: ["Government"],
+      category: "Government Disposition",
+      buyType: "commercial",
+      address: l.title,
+      city: l.city,
+      state: l.state,
+      zip: l.zip,
+      beds: 0,
+      baths: 0,
+      sqft: l.rentableSqFt,
+      auctionDate: l.dateListed,
+      auctionTime: "",
+      status: l.status,
+      lat: l.lat,
+      lng: l.lng,
+      hasRealCoordinates: true,
+      imageUrl: l.imageUrl,
+      hasImage: l.hasImage,
+      detailUrl: auctionPropertyDetailPath(l.id),
+    }));
 }
 
 type GovernmentDispositionsExplorerProps = {

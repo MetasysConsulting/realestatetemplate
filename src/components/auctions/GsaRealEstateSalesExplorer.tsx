@@ -56,29 +56,32 @@ function GsaSaleCard({ listing }: { listing: GsaRealEstateSale }) {
 }
 
 function toMapProperties(listings: GsaRealEstateSale[]): AuctionProperty[] {
-  return listings.map((l) => ({
-    id: l.id,
-    isNew: false,
-    openingBid: l.startingBid,
-    tags: ["GSA Auction"],
-    category: "Federal Property Auction",
-    buyType: "commercial",
-    address: l.title,
-    city: l.city,
-    state: l.state,
-    zip: l.zip,
-    beds: 0,
-    baths: 0,
-    sqft: 0,
-    auctionDate: "",
-    auctionTime: "",
-    status: l.status,
-    lat: l.lat,
-    lng: l.lng,
-    imageUrl: l.imageUrl,
-    hasImage: l.hasImage,
-    detailUrl: auctionPropertyDetailPath(l.id),
-  }));
+  return listings
+    .filter((l) => l.hasRealCoordinates)
+    .map((l) => ({
+      id: l.id,
+      isNew: false,
+      openingBid: l.startingBid,
+      tags: ["GSA Auction"],
+      category: "Federal Property Auction",
+      buyType: "commercial",
+      address: l.title,
+      city: l.city,
+      state: l.state,
+      zip: l.zip,
+      beds: 0,
+      baths: 0,
+      sqft: 0,
+      auctionDate: "",
+      auctionTime: "",
+      status: l.status,
+      lat: l.lat,
+      lng: l.lng,
+      hasRealCoordinates: true,
+      imageUrl: l.imageUrl,
+      hasImage: l.hasImage,
+      detailUrl: auctionPropertyDetailPath(l.id),
+    }));
 }
 
 type GsaRealEstateSalesExplorerProps = {
