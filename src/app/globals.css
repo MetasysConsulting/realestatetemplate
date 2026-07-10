@@ -1291,10 +1291,18 @@ body.auctions-route .reovana-site .header {
   pointer-events: none !important;
 }
 
-/* ── All Auctions page (/auctions) ───────────────────────────────────────── */
-body.auctions-route {
+/* ── All Auctions / buy category explorer pages ──────────────────────────── */
+html:has(body.auctions-route) {
+  height: 100%;
   overflow: hidden;
-  height: 100vh;
+}
+
+body.auctions-route {
+  overflow: hidden !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  display: flex;
+  flex-direction: column;
 }
 
 body.auctions-route #loading {
@@ -1304,8 +1312,18 @@ body.auctions-route #loading {
 body.auctions-route #template-chrome-root.reovana-site {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100% !important;
+  max-height: 100dvh;
+  overflow: hidden !important;
+}
+
+body.auctions-route .template-chrome-header {
+  flex-shrink: 0;
+  /* Keep nav bar height stable so the list/map pane gets a real remaining height */
+  max-height: 88px;
+  overflow: visible;
 }
 
 body.auctions-route .template-chrome-footer {
@@ -1314,7 +1332,7 @@ body.auctions-route .template-chrome-footer {
 
 .auctions-page {
   background: #f6f7fb;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -1402,7 +1420,7 @@ body.auctions-route .template-chrome-footer {
 .auctions-layout {
   display: grid;
   grid-template-columns: minmax(380px, 42%) 1fr;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
 }
@@ -1413,6 +1431,7 @@ body.auctions-route .template-chrome-footer {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -1727,12 +1746,22 @@ body.auctions-route .template-chrome-footer {
 .auctions-map-wrap {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 .auctions-map-root {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.auctions-leaflet-map.leaflet-container,
+.auctions-leaflet-map {
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1;
 }
 
 /* Map Options panel (Realtor-style layers) */
@@ -2713,16 +2742,28 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 }
 
 @media (max-width: 1100px) {
-  body.auctions-route {
-    overflow: auto;
+  html:has(body.auctions-route) {
     height: auto;
-    min-height: 100vh;
+    overflow: auto;
+  }
+
+  body.auctions-route {
+    overflow: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 100dvh;
+    display: block;
   }
 
   body.auctions-route #template-chrome-root.reovana-site {
-    height: auto;
-    min-height: 100vh;
-    overflow: visible;
+    height: auto !important;
+    max-height: none;
+    min-height: 100dvh;
+    overflow: visible !important;
+  }
+
+  body.auctions-route .template-chrome-header {
+    max-height: none;
   }
 
   body.auctions-route .auctions-page {
@@ -2749,6 +2790,7 @@ body.reovana-listing-detail-route #template-chrome-root.reovana-site {
 
   .auctions-list-panel {
     min-height: auto;
+    height: auto;
     border-right: none;
     border-top: 1px solid var(--Line, #ececec);
     overflow: visible;

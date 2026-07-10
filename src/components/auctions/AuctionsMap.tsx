@@ -101,26 +101,35 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
       ? "&copy; Esri"
       : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
+  /** Cap markers so large category pages (thousands of pins) stay usable. */
+  const mapProperties = useMemo(() => {
+    const MAX_MAP_MARKERS = 750;
+    if (properties.length <= MAX_MAP_MARKERS) return properties;
+    return [...properties]
+      .sort((a, b) => b.openingBid - a.openingBid)
+      .slice(0, MAX_MAP_MARKERS);
+  }, [properties]);
+
   const layerValues = useMemo(
-    () => (selectedLayer ? getLayerValues(properties, selectedLayer) : []),
-    [properties, selectedLayer],
+    () => (selectedLayer ? getLayerValues(mapProperties, selectedLayer) : []),
+    [mapProperties, selectedLayer],
   );
 
   const gridCells = useMemo(
-    () => (selectedLayer ? buildLayerGrid(properties, selectedLayer) : []),
-    [properties, selectedLayer],
+    () => (selectedLayer ? buildLayerGrid(mapProperties, selectedLayer) : []),
+    [mapProperties, selectedLayer],
   );
 
   const propertyStyles = useMemo(() => {
     const styles = new Map<string, { color: string; value: number }>();
     if (!selectedLayer) return styles;
 
-    properties.forEach((p) => {
+    mapProperties.forEach((p) => {
       const value = getMockLayerValue(p, selectedLayer);
       styles.set(p.id, { color: layerValueToColor(value), value });
     });
     return styles;
-  }, [properties, selectedLayer]);
+  }, [mapProperties, selectedLayer]);
 
   const defaultIcons = useMemo(() => {
     if (!leaflet) return null;
@@ -147,13 +156,44 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
     return null;
   }
 
+  function MapResizeFix() {
+    const map = useMap();
+    useEffect(() => {
+      const invalidate = () => map.invalidateSize({ animate: false });
+      invalidate();
+      const t1 = window.setTimeout(invalidate, 50);
+      const t2 = window.setTimeout(invalidate, 250);
+      const t3 = window.setTimeout(invalidate, 600);
+      window.addEventListener("resize", invalidate);
+      return () => {
+        window.clearTimeout(t1);
+        window.clearTimeout(t2);
+        window.clearTimeout(t3);
+        window.removeEventListener("resize", invalidate);
+      };
+    }, [map]);
+    return null;
+  }
+
   function FitLayerBounds() {
     const map = useMap();
     useEffect(() => {
-      if (!selectedLayer || properties.length === 0) return;
-      const bounds = latLngBounds(getPropertyBounds(properties));
+      if (!selectedLayer || mapProperties.length === 0) return;
+      const bounds = latLngBounds(getPropertyBounds(mapProperties));
       map.fitBounds(bounds, { padding: [48, 48], maxZoom: 8, animate: true });
-    }, [map, selectedLayer, properties]);
+    }, [map, selectedLayer, mapProperties]);
+    return null;
+  }
+
+  function FitInitialBounds() {
+    const map = useMap();
+    useEffect(() => {
+      if (selectedLayer || mapProperties.length === 0) return;
+      const bounds = latLngBounds(getPropertyBounds(mapProperties));
+      if (!bounds.isValid()) return;
+      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 6, animate: false });
+      map.invalidateSize({ animate: false });
+    }, [map, selectedLayer, mapProperties]);
     return null;
   }
 
@@ -181,6 +221,8 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
         zoomControl
       >
         <BoundsLock />
+        <MapResizeFix />
+        <FitInitialBounds />
         <FitLayerBounds />
         <TileLayer attribution={tileAttribution} url={tileUrl} />
 
@@ -205,7 +247,7 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
           : null}
 
         {selectedLayer
-          ? properties.map((p) => {
+          ? mapProperties.map((p) => {
               const style = propertyStyles.get(p.id);
               if (!style) return null;
               return (
@@ -226,7 +268,7 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
             })
           : null}
 
-        {properties.map((p) => {
+        {mapProperties.map((p) => {
           const layered = Boolean(selectedLayer);
           const layerColor = propertyStyles.get(p.id)?.color ?? markerColor;
           const icon = layered
