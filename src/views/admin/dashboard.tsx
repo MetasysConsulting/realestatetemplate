@@ -2,7 +2,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/ui/
 import { Button } from "@/components/admin/ui/button";
 import Link from "next/link";
 import {
-  MessageSquare,
   FileText,
   Building2,
   TrendingUp,
@@ -242,9 +241,9 @@ export default function Dashboard({ analytics, activity }: DashboardProps) {
               className="h-auto flex-col gap-1.5 sm:gap-2 py-3 sm:py-4 bg-primary/5 border-primary/30 text-slate-200 hover:bg-primary/10 hover:border-primary hover:text-white transition-all"
               asChild
             >
-              <Link href="/admin/chatbot">
-                <MessageSquare className="h-4! w-4! sm:h-5! sm:w-5! text-primary" />
-                <span className="text-xs sm:text-sm">Ask Admin AI</span>
+              <Link href="/admin/members">
+                <Users className="h-4! w-4! sm:h-5! sm:w-5! text-primary" />
+                <span className="text-xs sm:text-sm">Manage Members</span>
               </Link>
             </Button>
             <Button

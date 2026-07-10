@@ -1,24 +1,40 @@
 "use client";
 
-import "@fancyapps/ui/dist/fancybox/fancybox.css";
-import { useChatbot } from "@/hooks/admin/useChatbot";
-import { useFancyboxChatGallery } from "@/hooks/admin/useFancyboxChatGallery";
-import { ChatbotHeader } from "@/components/admin/chatbot/chatbot-header";
-import { ChatMessagesPanel } from "@/components/admin/chatbot/chat-messages-panel";
-import { ChatbotInputSection } from "@/components/admin/chatbot/chatbot-input-section";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/ui/card";
+import { Button } from "@/components/admin/ui/button";
+import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
+import { Bot } from "lucide-react";
 
 const Chatbot = () => {
-  const chatbot = useChatbot()
-  useFancyboxChatGallery(chatbot.messages)
-
   return (
-    <div className={`flex flex-col ${chatbot.isFullscreen ? "fixed inset-0 z-50 bg-slate-950 min-h-screen overflow-hidden" : ""}`}>
-      <ChatbotHeader chatbot={chatbot} />
-      <ChatMessagesPanel chatbot={chatbot} />
-      <ChatbotInputSection chatbot={chatbot} />
-      <div className="fixed bottom-0 left-0 right-0 h-30 z-1 bg-slate-900/5 backdrop-blur-3xl" />
-    </div>
-  )
-}
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">Admin AI</h1>
+          <p className="text-sm sm:text-base text-white/50 mt-1">
+            Ask questions about inventory, feeds, and site activity
+          </p>
+        </div>
+        <Button className="bg-primary text-white" disabled>
+          <Bot className="h-4 w-4" /> Start chat
+        </Button>
+      </div>
 
-export default Chatbot
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Bot className="h-5 w-5 text-primary" /> Assistant
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AdminEmptyState
+            title="Admin AI not available yet"
+            description="The assistant will connect to live inventory and activity data once an LLM backend is configured. Demo replies with fabricated metrics have been removed."
+          />
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default Chatbot;

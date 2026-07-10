@@ -4,7 +4,6 @@ import { SidebarProvider, SidebarInset } from "@/components/admin/ui/sidebar";
 import LeftSidebar from "./leftsidebar";
 import Footer from "./footer";
 import Header from "./header";
-import { usePathname } from "next/navigation";
 import useScrollToTop from "@/hooks/admin/useScrollToTop";
 import type { AdminShellUser } from "@/components/admin/app-shell";
 
@@ -16,9 +15,6 @@ const Layout = ({
   adminUser: AdminShellUser;
 }) => {
   useScrollToTop();
-  const pathname = usePathname();
-  const isChatbotPage =
-    pathname === "/admin/chatbot" || pathname.startsWith("/admin/chatbot/");
 
   return (
     <SidebarProvider
@@ -33,7 +29,7 @@ const Layout = ({
         <Header adminUser={adminUser} />
         <main className="flex-1 flex flex-col max-w-7xl mx-auto w-full">
           <div className="p-5 reovana-admin-shell">{children}</div>
-          {!isChatbotPage && <Footer />}
+          <Footer />
         </main>
       </SidebarInset>
     </SidebarProvider>

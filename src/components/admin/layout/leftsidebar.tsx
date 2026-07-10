@@ -1,19 +1,46 @@
 "use client";
 
-
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/admin/ui/sidebar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/admin/ui/dropdown-menu";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/admin/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/admin/ui/dropdown-menu";
 import { Card } from "@/components/admin/ui/card";
-import { LayoutDashboard, Wand2, Bot, CreditCard, Settings2, Activity, Gem, Home, Database, Building2, Users, Mail } from "lucide-react";
+import {
+  LayoutDashboard,
+  Wand2,
+  Bot,
+  CreditCard,
+  Settings2,
+  Activity,
+  Gem,
+  Home,
+  Database,
+  Building2,
+  Users,
+  Mail,
+} from "lucide-react";
 import { ReovanaLogo } from "@/components/admin/reovana-logo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/admin/ui/button";
-import UpdateImg from "@/assets/admin/update1.svg";
-import { assetSrc } from "@/lib/admin/utils";
 import type { AdminShellUser } from "@/components/admin/app-shell";
 
-const SIDEBAR_WIDTH_ICON = "7rem"
+const SIDEBAR_WIDTH_ICON = "7rem";
 
 const menuItems = [
   { title: "Activity", path: "/admin/home", icon: Home },
@@ -30,22 +57,25 @@ const menuItems = [
 ];
 
 const LeftSidebar = ({ adminUser }: { adminUser: AdminShellUser }) => {
-  const pathname = usePathname()
-  const { setOpenMobile, isMobile } = useSidebar()
+  const pathname = usePathname();
+  const { setOpenMobile, isMobile } = useSidebar();
 
   const handleMenuClick = () => {
     if (isMobile) {
-      setOpenMobile(false)
+      setOpenMobile(false);
     }
-  }
+  };
 
   return (
-    <Sidebar collapsible="icon" style={
-      {
-        "--sidebar-width": SIDEBAR_WIDTH_ICON,
-        "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-      } as React.CSSProperties
-    }>
+    <Sidebar
+      collapsible="icon"
+      style={
+        {
+          "--sidebar-width": SIDEBAR_WIDTH_ICON,
+          "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+        } as React.CSSProperties
+      }
+    >
       <SidebarHeader className="overflow-visible">
         <div className="hidden xl:flex flex-col items-center px-1 py-4 overflow-visible">
           <ReovanaLogo size="lg" />
@@ -63,7 +93,11 @@ const LeftSidebar = ({ adminUser }: { adminUser: AdminShellUser }) => {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild tooltip={item.title} isActive={pathname === item.path || pathname.startsWith(`${item.path}/`)}>
+                  <SidebarMenuButton
+                    asChild
+                    tooltip={item.title}
+                    isActive={pathname === item.path || pathname.startsWith(`${item.path}/`)}
+                  >
                     <Link href={item.path} onClick={handleMenuClick}>
                       <item.icon />
                       <span className="xl:hidden">{item.title}</span>
@@ -77,7 +111,6 @@ const LeftSidebar = ({ adminUser }: { adminUser: AdminShellUser }) => {
       </SidebarContent>
 
       <SidebarFooter>
-        {/* Desktop: Dropdown with user button */}
         <div className="hidden xl:block px-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -95,38 +128,31 @@ const LeftSidebar = ({ adminUser }: { adminUser: AdminShellUser }) => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-
-              {/* Upgrade Pro Card */}
-              <div className="p-3">
-                <div className="bg-linear-to-br from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-lg p-4 text-center">
-                  <img src={assetSrc(UpdateImg)} alt="Update" className="h-24 mx-auto mb-3 animate-float block" />
-                  <h5 className="font-semibold text-sm mb-1">Pro Subscriber Tools</h5>
-                  <p className="text-xs text-muted-foreground mb-3">Manage unlock pricing and member plans.</p>
-                  <Button className="w-full bg-linear-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0" size="sm" asChild>
-                    <Link href="/admin/subscription">Upgrade Now</Link>
-                  </Button>
-                </div>
+              <div className="p-2">
+                <Button variant="outline" className="w-full" size="sm" asChild>
+                  <Link href="/admin/settings">Account settings</Link>
+                </Button>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
 
-        {/* Mobile: Direct upgrade card */}
         <div className="xl:hidden px-3 pb-3">
-          <Card className="p-4 text-center">
-            <img src={assetSrc(UpdateImg)} alt="Update" className="h-20 mx-auto mb-3 animate-float block"/>
+          <Card className="p-4 space-y-3">
             <div>
-              <h5 className="font-semibold text-sm mb-1">Pro Subscriber Tools</h5>
-              <p className="text-xs text-muted-foreground mb-3">Manage unlock pricing and member plans.</p>
+              <p className="text-sm font-medium text-white">{adminUser.fullName}</p>
+              <p className="text-xs text-muted-foreground break-all">{adminUser.email}</p>
             </div>
-            <Button className="w-full bg-linear-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white border-0" size="sm" asChild>
-              <Link href="/admin/subscription" onClick={handleMenuClick}>Upgrade Now</Link>
+            <Button variant="outline" className="w-full" size="sm" asChild>
+              <Link href="/admin/settings" onClick={handleMenuClick}>
+                Account settings
+              </Link>
             </Button>
           </Card>
         </div>
       </SidebarFooter>
     </Sidebar>
-  )
-}
+  );
+};
 
 export default LeftSidebar;
