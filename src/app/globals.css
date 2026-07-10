@@ -33,18 +33,167 @@ body {
   min-height: 100vh;
 }
 
-/* Property detail unlock gate (ForeclosureIQ-style) */
-.proty-unlock-gate {
+/* Property detail unlock gate */
+.proty-unlock-gate,
+.reovana-unlock-card {
   background: #fff;
-  border: 1px solid var(--Line, #ececec);
-  border-radius: 16px;
+  border: 1px solid rgba(22, 30, 45, 0.08);
+  border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(118, 149, 255, 0.12);
+  box-shadow: 0 12px 36px rgba(22, 30, 45, 0.08);
   margin-bottom: 30px;
 }
 
+.reovana-unlock-card {
+  position: relative;
+}
+
+.reovana-unlock-card__head {
+  background: linear-gradient(155deg, #1a2233 0%, #243049 55%, #2a3a58 100%);
+  color: #fff;
+  padding: 22px 22px 20px;
+}
+
+.reovana-unlock-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.reovana-unlock-card__title {
+  margin: 14px 0 6px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #fff;
+  line-height: 1.25;
+}
+
+.reovana-unlock-card__subtitle {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.68);
+  font-weight: 400;
+}
+
+.reovana-unlock-card__body {
+  padding: 18px 20px 20px;
+}
+
+.reovana-unlock-card__perks {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.reovana-unlock-card__perks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  color: #2c2e33;
+  line-height: 1.35;
+}
+
+.reovana-unlock-card__check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--Sub-primary-1, #f2f5ff);
+  color: var(--Primary, #7695ff);
+}
+
+.reovana-unlock-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reovana-unlock-card__primary,
+.reovana-unlock-card__secondary {
+  width: 100%;
+  border-radius: 12px;
+  min-height: 50px;
+  padding: 12px 16px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.reovana-unlock-card__primary:disabled,
+.reovana-unlock-card__secondary:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.reovana-unlock-card__primary {
+  border: 0;
+  background: var(--Primary, #7695ff);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(118, 149, 255, 0.28);
+}
+
+.reovana-unlock-card__primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(118, 149, 255, 0.36);
+}
+
+.reovana-unlock-card__secondary {
+  border: 1px solid rgba(22, 30, 45, 0.12);
+  background: #fff;
+  color: #161e2d;
+}
+
+.reovana-unlock-card__secondary:hover:not(:disabled) {
+  border-color: rgba(118, 149, 255, 0.45);
+  background: var(--Sub-primary-1, #f2f5ff);
+}
+
+.reovana-unlock-card__price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.reovana-unlock-card__price-row strong {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.reovana-unlock-card__secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 14px 0 0;
+  font-size: 0.75rem;
+  color: var(--Note, #a8abae);
+}
+
+/* Legacy template gate (PropertyUnlockGate) */
 .proty-unlock-head {
-  background: linear-gradient(135deg, #2c2e33, #161e2d);
+  background: linear-gradient(155deg, #1a2233 0%, #243049 55%, #2a3a58 100%);
   color: #fff;
   padding: 18px 20px;
 }
@@ -57,7 +206,7 @@ body {
 
 .proty-unlock-head p {
   font-size: 12.5px;
-  color: #a8abae;
+  color: rgba(255, 255, 255, 0.68);
   margin-top: 4px;
   font-weight: 400;
 }
@@ -110,7 +259,7 @@ body {
 }
 
 .proty-unlock-inline {
-  margin: 28px 0;
+  display: none !important;
 }
 
 /* Hardcoded orange in compiled styles.css */

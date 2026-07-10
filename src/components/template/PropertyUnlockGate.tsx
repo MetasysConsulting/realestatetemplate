@@ -44,40 +44,41 @@ function unlockAll(root: HTMLElement) {
     clearLockedBlur(el as HTMLElement);
   });
 
-  root.querySelectorAll(".proty-unlock-gate").forEach((gate) => {
-    const btns = gate.querySelector(".proty-unlock-btns");
-    const note = gate.querySelector(".proty-unlocked-note");
-    if (btns) (btns as HTMLElement).style.display = "none";
-    if (note) (note as HTMLElement).style.display = "flex";
+  root.querySelectorAll(".proty-unlock-gate, .reovana-unlock-card").forEach((gate) => {
+    (gate as HTMLElement).style.display = "none";
   });
 }
 
-function buildPaywallHtml(variant: "inline" | "sidebar"): string {
-  const subtitle =
-    variant === "inline"
-      ? "Exact price, full address, specs, amenities &amp; seller contact"
-      : "Unlock seller phone, email &amp; full listing data";
-
+function buildPaywallHtml(): string {
   return `
-    <div class="proty-unlock-gate proty-unlock-${variant}">
-      <div class="proty-unlock-head">
-        <div class="proty-unlock-icon">🔐</div>
-        <h4>Unlock full property details</h4>
-        <p>${subtitle}</p>
+    <aside class="reovana-unlock-card proty-unlock-gate proty-unlock-sidebar mb-30" aria-label="Unlock property details">
+      <div class="reovana-unlock-card__head">
+        <span class="reovana-unlock-card__badge">Members only</span>
+        <h4 class="reovana-unlock-card__title">Unlock this listing</h4>
+        <p class="reovana-unlock-card__subtitle">
+          Reveal the full address, pricing, specs, and seller contact in one step.
+        </p>
       </div>
-      <div class="proty-unlock-body">
-        <div class="proty-unlock-btns">
-          <button type="button" class="proty-btn-unlock tf-btn bg-color-primary w-full" data-proty-unlock>
-            Unlock this property — $4.99
+      <div class="reovana-unlock-card__body">
+        <ul class="reovana-unlock-card__perks">
+          <li><span class="reovana-unlock-card__check">✓</span>Exact list price</li>
+          <li><span class="reovana-unlock-card__check">✓</span>Full street address</li>
+          <li><span class="reovana-unlock-card__check">✓</span>Beds, baths &amp; square footage</li>
+          <li><span class="reovana-unlock-card__check">✓</span>Amenities and property facts</li>
+          <li><span class="reovana-unlock-card__check">✓</span>Seller phone &amp; email</li>
+        </ul>
+        <div class="reovana-unlock-card__actions proty-unlock-btns">
+          <button type="button" class="reovana-unlock-card__primary" data-proty-unlock>
+            <span class="reovana-unlock-card__price-row"><span>Unlock this property</span><strong>$4.99</strong></span>
           </button>
-          <button type="button" class="proty-btn-sub tf-btn style-border w-full" data-proty-unlock>
-            Subscribe — $49/mo · unlimited
+          <button type="button" class="reovana-unlock-card__secondary" data-proty-unlock>
+            <span class="reovana-unlock-card__price-row"><span>Unlimited access</span><strong>$49/mo</strong></span>
           </button>
         </div>
-        <div class="proty-unlocked-note">✓ Unlocked — full listing details now visible</div>
-        <p class="proty-unlock-secure">🔒 Secure checkout · powered by Stripe</p>
+        <div class="proty-unlocked-note">Unlocked — full listing details now visible</div>
+        <p class="reovana-unlock-card__secure proty-unlock-secure">Secure checkout · Stripe</p>
       </div>
-    </div>
+    </aside>
   `;
 }
 
@@ -91,25 +92,13 @@ function attachUnlockHandlers(root: HTMLElement, gate: HTMLElement, scope: strin
   });
 }
 
-function insertPaywall(
-  root: HTMLElement,
-  parent: HTMLElement,
-  variant: "inline" | "sidebar",
-  scope: string,
-  before?: Element | null,
-) {
-  if (parent.querySelector(`.proty-unlock-${variant}`)) return;
+function insertSidebarPaywall(root: HTMLElement, sidebar: HTMLElement, scope: string) {
+  if (sidebar.querySelector(".proty-unlock-sidebar, .reovana-unlock-card")) return;
 
   const wrapper = document.createElement("div");
-  wrapper.innerHTML = buildPaywallHtml(variant);
+  wrapper.innerHTML = buildPaywallHtml();
   const gate = wrapper.firstElementChild as HTMLElement;
-
-  if (before) {
-    parent.insertBefore(gate, before);
-  } else {
-    parent.appendChild(gate);
-  }
-
+  sidebar.insertBefore(gate, sidebar.firstElementChild);
   attachUnlockHandlers(root, gate, scope);
 }
 
@@ -128,32 +117,9 @@ function initGate(root: HTMLElement, scope: string) {
     });
   });
 
-  const propertyDetailSection = root.querySelector(".section-property-detail");
-  const mainContent = root.querySelector(".main-content") ?? root;
-
-  if (propertyDetailSection && mainContent) {
-    insertPaywall(
-      root,
-      mainContent as HTMLElement,
-      "inline",
-      scope,
-      propertyDetailSection,
-    );
-  } else {
-    const overview = root.querySelector(".wg-property.box-overview") as HTMLElement | null;
-    if (overview) {
-      const insertBefore =
-        overview.nextElementSibling?.classList.contains("proty-unlock-inline")
-          ? overview.nextElementSibling.nextElementSibling
-          : overview.nextElementSibling;
-      insertPaywall(root, overview.parentElement ?? overview, "inline", scope, insertBefore);
-    }
-  }
-
   const sidebar = root.querySelector(".section-property-detail .tf-sidebar") as HTMLElement | null;
-
   if (sidebar) {
-    insertPaywall(root, sidebar, "sidebar", scope, sidebar.firstElementChild);
+    insertSidebarPaywall(root, sidebar, scope);
   }
 
   if (alreadyUnlocked) {

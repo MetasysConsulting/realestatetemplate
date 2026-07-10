@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
 import { ListingGallery } from "@/components/properties/ListingGallery";
 import { ListingUnlockPaywall } from "@/components/properties/ListingUnlockPaywall";
@@ -220,6 +220,12 @@ function SidebarAds() {
 export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
   const [unlocked, setUnlocked] = useState(false);
 
+  const applyBlurState = useEffectEvent((isUnlocked: boolean) => {
+    const root = document.getElementById("listing-detail-root");
+    if (!root) return;
+    syncBlurTargets(root, !isUnlocked);
+  });
+
   useEffect(() => {
     if (readListingUnlocked(model.id)) {
       setUnlocked(true);
@@ -227,21 +233,17 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
   }, [model.id]);
 
   useEffect(() => {
-    const root = document.getElementById("listing-detail-root");
-    if (!root) return;
-
-    syncBlurTargets(root, !unlocked);
-
-    const timer = window.setTimeout(() => syncBlurTargets(root, !unlocked), 100);
+    applyBlurState(unlocked);
+    const timer = window.setTimeout(() => applyBlurState(unlocked), 100);
     return () => window.clearTimeout(timer);
   }, [unlocked]);
 
   const handleUnlock = () => {
     setUnlocked(true);
     writeListingUnlocked(model.id);
-    const root = document.getElementById("listing-detail-root");
-    if (root) syncBlurTargets(root, false);
+    applyBlurState(true);
   };
+
   const mapUrl = useMemo(
     () => (model.hasRealCoordinates ? buildMapEmbedUrl(model) : ""),
     [model],
@@ -286,14 +288,6 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
           </div>
         </div>
       </section>
-
-      <div className="tf-container">
-        <div className="row">
-          <div className="col-xl-8 col-lg-7">
-            <ListingUnlockPaywall unlocked={unlocked} onUnlock={handleUnlock} />
-          </div>
-        </div>
-      </div>
 
       <section className="section-property-detail">
         <div className="tf-container">
@@ -401,11 +395,7 @@ export function ProtyPropertyDetail({ model }: ProtyPropertyDetailProps) {
 
             <div className="col-xl-4 col-lg-5">
               <div className="tf-sidebar sticky-sidebar">
-                <ListingUnlockPaywall
-                  unlocked={unlocked}
-                  variant="sidebar"
-                  onUnlock={handleUnlock}
-                />
+                <ListingUnlockPaywall unlocked={unlocked} onUnlock={handleUnlock} />
 
                 <form className="form-contact-seller mb-30 reovana-blur-target" onSubmit={(e) => e.preventDefault()}>
                   <h4 className="heading-title mb-30">Contact Sellers</h4>
