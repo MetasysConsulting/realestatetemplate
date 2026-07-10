@@ -7,6 +7,7 @@ import {
   fixReovanaHeader,
 } from "@/lib/fix-reovana-header";
 import { tryCreateSupabaseBrowserClient } from "@/lib/supabase/client";
+import { trackClientEvent } from "@/lib/analytics/client-track";
 
 const AUTH_MESSAGE_CLASS = "reovana-auth-message";
 
@@ -131,6 +132,7 @@ function wireLoginForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserClien
       return;
     }
 
+    trackClientEvent("login_success", { metadata: { method: "password" } });
     closeModal("modalLogin");
     window.location.href = "/";
   };
@@ -220,6 +222,10 @@ function wireRegisterForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
       showAuthMessage(modal, error.message);
       return;
     }
+
+    trackClientEvent("signup_success", {
+      metadata: { method: "password", hasSession: Boolean(data.session) },
+    });
 
     if (data.session) {
       closeModal("modalRegister");
@@ -360,6 +366,15 @@ function wireAccountMenus() {
   }
 }
 
+function submitSignOut() {
+  trackClientEvent("logout");
+  const form = document.createElement("form");
+  form.method = "post";
+  form.action = "/auth/signout";
+  document.body.appendChild(form);
+  form.submit();
+}
+
 function wireLogoutLinks() {
   document.querySelectorAll('a[href*="logout"], a[href*="Logout"]').forEach((node) => {
     if (!(node instanceof HTMLAnchorElement)) return;
@@ -367,11 +382,7 @@ function wireLogoutLinks() {
     node.setAttribute("data-reovana-auth-wired", "logout");
     node.addEventListener("click", (event) => {
       event.preventDefault();
-      const form = document.createElement("form");
-      form.method = "post";
-      form.action = "/auth/signout";
-      document.body.appendChild(form);
-      form.submit();
+      submitSignOut();
     });
   });
 
@@ -383,11 +394,7 @@ function wireLogoutLinks() {
     node.setAttribute("data-reovana-auth-wired", "logout");
     node.addEventListener("click", (event) => {
       event.preventDefault();
-      const form = document.createElement("form");
-      form.method = "post";
-      form.action = "/auth/signout";
-      document.body.appendChild(form);
-      form.submit();
+      submitSignOut();
     });
   });
 }

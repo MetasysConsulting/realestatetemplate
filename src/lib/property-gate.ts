@@ -18,6 +18,17 @@ export function readListingUnlocked(scope: string): boolean {
 
 export function writeListingUnlocked(scope: string): void {
   sessionStorage.setItem(listingUnlockStorageKey(scope), "1");
+  try {
+    // Dynamic import keeps this module usable in non-browser contexts if needed.
+    void import("@/lib/analytics/client-track").then(({ trackClientEvent }) => {
+      trackClientEvent("unlock_intent", {
+        path: typeof window !== "undefined" ? window.location.pathname : undefined,
+        metadata: { listingScope: scope },
+      });
+    });
+  } catch {
+    // Never block unlock UX on analytics
+  }
 }
 
 export const LOCKED_BLUR_FILTER = "blur(14px)";

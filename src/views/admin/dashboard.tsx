@@ -9,15 +9,19 @@ import {
   RefreshCw,
   Database,
   ImageIcon,
+  Eye,
+  Users,
 } from "lucide-react";
 import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
 import { formatCount, type ScrapeAnalytics } from "@/lib/admin/listing-analytics";
+import type { SiteActivitySummary } from "@/lib/admin/site-activity-analytics";
 
 type DashboardProps = {
   analytics: ScrapeAnalytics;
+  activity: SiteActivitySummary;
 };
 
-export default function Dashboard({ analytics }: DashboardProps) {
+export default function Dashboard({ analytics, activity }: DashboardProps) {
   const { available, sources, totals } = analytics;
   const imageCoverage =
     totals.activeListings > 0
@@ -58,6 +62,48 @@ export default function Dashboard({ analytics }: DashboardProps) {
           </Button>
         </div>
       </div>
+
+      {activity.available ? (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-white/50 mb-2">
+                <Users className="h-4 w-4" />
+                <p className="text-xs uppercase tracking-wider">Visitors today</p>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                {formatCount(activity.visitorsToday)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-2 text-white/50 mb-2">
+                <Eye className="h-4 w-4" />
+                <p className="text-xs uppercase tracking-wider">Page views today</p>
+              </div>
+              <p className="text-2xl font-bold text-white">
+                {formatCount(activity.pageViewsToday)}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6 flex items-end justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-white/50 mb-2">
+                  Site activity
+                </p>
+                <p className="text-sm text-white/70">
+                  {formatCount(activity.pageViews7d)} views · 7 days
+                </p>
+              </div>
+              <Button variant="outline" size="sm" className="border-primary/40" asChild>
+                <Link href="/admin/home">Open</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      ) : null}
 
       {!available ? (
         <Card>
