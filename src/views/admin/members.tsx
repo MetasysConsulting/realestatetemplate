@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/admin/ui/card";
 import { Input } from "@/components/admin/ui/input";
 import { AdminEmptyState } from "@/components/admin/AdminEmptyState";
@@ -32,14 +32,24 @@ export default function Members({ data }: MembersProps) {
     );
   }, [data.members, query]);
 
+  useEffect(() => {
+    if (filtered.length === 0) return;
+    if (!filtered.some((member) => member.id === selectedId)) {
+      setSelectedId(filtered[0].id);
+    }
+  }, [filtered, selectedId]);
+
   const selected: AdminMember | undefined =
     filtered.find((m) => m.id === selectedId) ?? filtered[0];
 
   const confirmedCount = data.members.filter((m) => m.emailConfirmed).length;
-  const activeRecently = data.members.filter((m) => {
+  const signedInRecently = data.members.filter((m) => {
     if (!m.lastSignInAt) return false;
-    return Date.now() - Date.parse(m.lastSignInAt) < 30 * 24 * 60 * 60 * 1000;
+    const ts = Date.parse(m.lastSignInAt);
+    if (Number.isNaN(ts)) return false;
+    return Date.now() - ts < 30 * 24 * 60 * 60 * 1000;
   }).length;
+  const totalUnlocks = data.members.reduce((sum, m) => sum + m.unlockIntents, 0);
 
   return (
     <div className="space-y-6">
@@ -70,7 +80,7 @@ export default function Members({ data }: MembersProps) {
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 text-white/50 mb-2">
@@ -100,7 +110,18 @@ export default function Members({ data }: MembersProps) {
                   <p className="text-xs uppercase tracking-wider">Signed in (30d)</p>
                 </div>
                 <p className="text-3xl font-bold text-white">
-                  {formatMemberCount(activeRecently)}
+                  {formatMemberCount(signedInRecently)}
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-2 text-white/50 mb-2">
+                  <Unlock className="h-4 w-4" />
+                  <p className="text-xs uppercase tracking-wider">Unlock intents</p>
+                </div>
+                <p className="text-3xl font-bold text-white">
+                  {formatMemberCount(totalUnlocks)}
                 </p>
               </CardContent>
             </Card>
@@ -109,7 +130,7 @@ export default function Members({ data }: MembersProps) {
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by name or email..."
+              placeholder="Search by name, email, or phone..."
               className="pl-9"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -138,10 +159,20 @@ export default function Members({ data }: MembersProps) {
                           : "border-white/10 bg-white/5 hover:border-white/20"
                       }`}
                     >
-                      <p className="font-medium text-white truncate">{member.fullName}</p>
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-medium text-white truncate">{member.fullName}</p>
+                        <span
+                          className={`shrink-0 text-[10px] uppercase tracking-wide ${
+                            member.emailConfirmed ? "text-green-400" : "text-amber-400"
+                          }`}
+                        >
+                          {member.emailConfirmed ? "Verified" : "Pending"}
+                        </span>
+                      </div>
                       <p className="text-xs text-white/50 truncate">{member.email}</p>
                       <p className="text-xs text-white/35 mt-1">
-                        Joined {formatMemberDate(member.createdAt)}
+                        Joined {formatMemberDate(member.createdAt)} · Last active{" "}
+                        {formatMemberRelative(member.lastSignInAt)}
                       </p>
                     </button>
                   ))
@@ -217,11 +248,21 @@ export default function Members({ data }: MembersProps) {
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                    <p className="text-xs text-white/50 uppercase tracking-wider mb-2">
-                      Member ID
-                    </p>
-                    <p className="text-xs text-white/60 font-mono break-all">{selected.id}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                      <p className="text-xs text-white/50 uppercase tracking-wider mb-2">
+                        Profile updated
+                      </p>
+                      <p className="text-sm text-white/70">
+                        {formatMemberDate(selected.updatedAt)}
+                      </p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+                      <p className="text-xs text-white/50 uppercase tracking-wider mb-2">
+                        Member ID
+                      </p>
+                      <p className="text-xs text-white/60 font-mono break-all">{selected.id}</p>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
