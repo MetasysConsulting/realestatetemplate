@@ -7,6 +7,7 @@ export type GsaDispositionListing = {
   city: string;
   state: string;
   zip: string;
+  browseLocked?: boolean;
   propertyType: string;
   rentableSqFt: number;
   dateListed: string;

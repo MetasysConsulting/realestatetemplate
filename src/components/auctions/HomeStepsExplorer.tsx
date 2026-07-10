@@ -6,6 +6,11 @@ import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingMedia } from "@/components/listings/ListingMedia";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import {
+  BROWSE_LOCKED_PRICE_DISPLAY,
+  BROWSE_LOCKED_PRICE_LABEL,
+  formatCardLocation,
+} from "@/lib/listing-browse-redact";
 import { bankOwnedDetailPath } from "@/lib/property-categories";
 import {
   formatHomeStepsPrice,
@@ -15,13 +20,18 @@ import {
 } from "@/lib/homesteps-listings";
 
 function HomeStepsCard({ listing }: { listing: HomeStepsListing }) {
+  const location = formatCardLocation(listing);
+  const price = listing.browseLocked
+    ? BROWSE_LOCKED_PRICE_DISPLAY
+    : formatHomeStepsPrice(listing.listPrice);
+
   return (
     <article className="auctions-card hud-card">
       <div className="auctions-card__media">
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={listing.imageUrl}
-            alt={`${listing.address}, ${listing.city}, ${listing.state}`}
+            alt={location}
             imageClassName="auctions-card__photo"
           />
         </div>
@@ -31,15 +41,15 @@ function HomeStepsCard({ listing }: { listing: HomeStepsListing }) {
         ) : null}
       </div>
       <div className="auctions-card__body">
-        <p className="auctions-card__bid-label">List Price</p>
-        <p className="auctions-card__price">{formatHomeStepsPrice(listing.listPrice)}</p>
+        <p className="auctions-card__bid-label">
+          {listing.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : "List Price"}
+        </p>
+        <p className="auctions-card__price">{price}</p>
         <div className="auctions-card__tags">
           <span className="auctions-card__tag">Bank Owned</span>
           <span className="auctions-card__tag">Freddie Mac</span>
         </div>
-        <h3 className="auctions-card__address">
-          {listing.address}, {listing.city}, {listing.state} {listing.zip}
-        </h3>
+        <h3 className="auctions-card__address">{location}</h3>
         <div className="auctions-card__footer">
           <span className="hud-status">REO</span>
           <Link
@@ -68,6 +78,7 @@ function toMapProperties(listings: HomeStepsListing[]): AuctionProperty[] {
       city: l.city,
       state: l.state,
       zip: l.zip,
+      browseLocked: l.browseLocked,
       beds: 0,
       baths: 0,
       sqft: 0,

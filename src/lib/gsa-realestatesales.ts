@@ -6,6 +6,7 @@ export type GsaRealEstateSale = {
   city: string;
   state: string;
   zip: string;
+  browseLocked?: boolean;
   startingBid: number;
   status: string;
   auctionType: string;

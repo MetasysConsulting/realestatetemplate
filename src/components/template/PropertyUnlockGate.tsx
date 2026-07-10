@@ -6,6 +6,7 @@ import {
   clearGalleryBlur,
   clearLockedBlur,
   fetchPaywallAccess,
+  listingIdFromPropertyDetailPath,
   trackUnlockIntent,
 } from "@/lib/property-gate";
 import { recordRecentlyViewed } from "@/lib/recently-viewed";
@@ -163,10 +164,11 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
       if (!root || cancelled) return;
 
       const scope = window.location.pathname;
-      const access = await fetchPaywallAccess();
+      const listingId = listingIdFromPropertyDetailPath(scope);
+      const access = await fetchPaywallAccess(listingId);
       if (cancelled) return;
 
-      initGate(root, scope, access.unlocked);
+      initGate(root, listingId || scope, access.unlocked);
     };
 
     void run();

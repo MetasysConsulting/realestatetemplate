@@ -6,6 +6,10 @@ import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import { formatCurrency } from "@/lib/generate-auction-properties";
 import { ListingMedia } from "@/components/listings/ListingMedia";
 import {
+  BROWSE_LOCKED_PRICE_DISPLAY,
+  formatCardLocation,
+} from "@/lib/listing-browse-redact";
+import {
   formatShortPrice,
   getMapLotAcres,
   getMapPreviousPrice,
@@ -18,9 +22,12 @@ type MapPropertyPopupProps = {
 export function MapPropertyPopup({ property }: MapPropertyPopupProps) {
   const [saved, setSaved] = useState(false);
 
-  const previousPrice = getMapPreviousPrice(property);
+  const previousPrice = property.browseLocked ? null : getMapPreviousPrice(property);
   const lotAcres = getMapLotAcres(property);
-  const shortLabel = `${formatShortPrice(property.openingBid)} listing`;
+  const location = formatCardLocation(property);
+  const shortLabel = property.browseLocked
+    ? "Unlock to view"
+    : `${formatShortPrice(property.openingBid)} listing`;
 
   const specs: string[] = [];
   if (property.beds > 0) specs.push(`${property.beds} bed`);
@@ -30,7 +37,7 @@ export function MapPropertyPopup({ property }: MapPropertyPopupProps) {
     <div className="map-property-popup">
       <ListingMedia
         imageUrl={property.imageUrl}
-        alt={`${property.address}, ${property.city}, ${property.state}`}
+        alt={location}
         className="map-property-popup__photo"
         imageClassName="map-property-popup__photo"
         showMissingLabel={false}
@@ -58,7 +65,9 @@ export function MapPropertyPopup({ property }: MapPropertyPopupProps) {
         {previousPrice && property.openingBid > 0 ? (
           <p className="map-property-popup__was">{formatCurrency(previousPrice)}</p>
         ) : null}
-        {property.openingBid > 0 ? (
+        {property.browseLocked ? (
+          <p className="map-property-popup__price">{BROWSE_LOCKED_PRICE_DISPLAY}</p>
+        ) : property.openingBid > 0 ? (
           <p className="map-property-popup__price">{formatCurrency(property.openingBid)}</p>
         ) : (
           <p className="map-property-popup__price">{property.category}</p>

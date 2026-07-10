@@ -13,6 +13,7 @@ import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingMedia } from "@/components/listings/ListingMedia";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import { formatCardLocation } from "@/lib/listing-browse-redact";
 import { auctionPropertyDetailPath } from "@/lib/property-categories";
 
 function statusClass(status: GsaDispositionStatus): string {
@@ -22,13 +23,15 @@ function statusClass(status: GsaDispositionStatus): string {
 }
 
 function GsaPropertyCard({ listing }: { listing: GsaDispositionListing }) {
+  const location = formatCardLocation(listing);
+
   return (
     <article className="auctions-card gsa-card">
       <div className="auctions-card__media">
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={listing.imageUrl}
-            alt={`${listing.title}, ${listing.city}, ${listing.state}`}
+            alt={location}
             imageClassName="auctions-card__photo"
           />
         </div>
@@ -46,9 +49,7 @@ function GsaPropertyCard({ listing }: { listing: GsaDispositionListing }) {
           <span className="auctions-card__tag">{listing.propertyType}</span>
           <span className="auctions-card__tag">Government</span>
         </div>
-        <p className="auctions-card__category">
-          {listing.address}, {listing.city}, {listing.state} {listing.zip}
-        </p>
+        <p className="auctions-card__category">{location}</p>
         <ul className="auctions-card__specs">
           <li>{formatGsaSqFt(listing.rentableSqFt)}</li>
         </ul>
@@ -81,6 +82,7 @@ function toMapProperties(listings: GsaDispositionListing[]): AuctionProperty[] {
       city: l.city,
       state: l.state,
       zip: l.zip,
+      browseLocked: l.browseLocked,
       beds: 0,
       baths: 0,
       sqft: l.rentableSqFt,

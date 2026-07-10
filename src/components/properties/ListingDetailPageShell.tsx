@@ -8,7 +8,7 @@ import {
   redactProtyListingDetail,
 } from "@/lib/proty-listing-detail";
 import { getAuthUser } from "@/lib/supabase/auth-server";
-import { resolveListingAccess } from "@/lib/unlocks/entitlements";
+import { resolveListingAccess, toListingUnlockId } from "@/lib/unlocks/entitlements";
 
 type ListingDetailPageShellProps = {
   listing: PropertyListing;
@@ -33,7 +33,7 @@ export async function ListingDetailPageShell({
     : { headerHtml: "", footerHtml: "", tailHtml: "" };
 
   const user = await getAuthUser();
-  const access = await resolveListingAccess(user, listing.id);
+  const access = await resolveListingAccess(user, toListingUnlockId(listing.id));
   const fullModel = propertyListingToProtyDetail(
     listing,
     categoryLabel,

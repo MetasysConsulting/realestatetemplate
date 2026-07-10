@@ -5,6 +5,7 @@ export type VrmListing = {
   city: string;
   state: string;
   zip: string;
+  browseLocked?: boolean;
   county: string;
   listPrice: number;
   bedrooms: number;

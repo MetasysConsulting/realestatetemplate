@@ -6,6 +6,8 @@ export type PropertyListing = {
   city: string;
   state: string;
   zip: string;
+  /** Soft-gated browse card — street/price hidden for non-admins. */
+  browseLocked?: boolean;
   price: number;
   priceLabel: string;
   bedrooms: number;

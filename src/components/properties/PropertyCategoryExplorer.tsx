@@ -1,30 +1,33 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 import { ListingMedia } from "@/components/listings/ListingMedia";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import {
+  BROWSE_LOCKED_PRICE_DISPLAY,
+  BROWSE_LOCKED_PRICE_LABEL,
+  formatCardLocation,
+  formatCardPrice,
+} from "@/lib/listing-browse-redact";
 import type { PropertyListing } from "@/lib/load-category-listings";
 
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(price);
-}
-
 function PropertyCard({ listing }: { listing: PropertyListing }) {
+  const location = formatCardLocation(listing);
+  const priceLabel = listing.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : listing.priceLabel;
+  const price = listing.browseLocked
+    ? BROWSE_LOCKED_PRICE_DISPLAY
+    : formatCardPrice(listing.price);
+
   return (
     <article className="auctions-card hud-card">
       <div className="auctions-card__media">
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={listing.imageUrl}
-            alt={`${listing.address}, ${listing.city}, ${listing.state}`}
+            alt={location}
             imageClassName="auctions-card__photo"
           />
         </div>
@@ -34,8 +37,8 @@ function PropertyCard({ listing }: { listing: PropertyListing }) {
         ) : null}
       </div>
       <div className="auctions-card__body">
-        <p className="auctions-card__bid-label">{listing.priceLabel}</p>
-        <p className="auctions-card__price">{formatPrice(listing.price)}</p>
+        <p className="auctions-card__bid-label">{priceLabel}</p>
+        <p className="auctions-card__price">{price}</p>
         <div className="auctions-card__tags">
           {listing.tags.slice(0, 3).map((tag) => (
             <span key={tag} className="auctions-card__tag">
@@ -46,9 +49,7 @@ function PropertyCard({ listing }: { listing: PropertyListing }) {
         {listing.subtitle ? (
           <p className="auctions-card__category">{listing.subtitle}</p>
         ) : null}
-        <h3 className="auctions-card__address">
-          {listing.address}, {listing.city}, {listing.state} {listing.zip}
-        </h3>
+        <h3 className="auctions-card__address">{location}</h3>
         <ul className="auctions-card__specs">
           {listing.bedrooms > 0 ? <li>{listing.bedrooms} bd</li> : null}
           {listing.bathrooms > 0 ? <li>{listing.bathrooms} ba</li> : null}
@@ -84,6 +85,7 @@ function toMapProperties(listings: PropertyListing[]): AuctionProperty[] {
       city: l.city,
       state: l.state,
       zip: l.zip,
+      browseLocked: l.browseLocked,
       beds: l.bedrooms,
       baths: l.bathrooms,
       sqft: l.squareFootage,

@@ -19,7 +19,8 @@ export async function HudDetailPageShell({ listing, scrapedAt }: HudDetailPageSh
     : { headerHtml: "", footerHtml: "", tailHtml: "" };
 
   const user = await getAuthUser();
-  const listingId = toListingUnlockId(`hud-${listing.caseNumber}`);
+  // Prefer DB primary key (`hud-{caseNumber}`); fall back if id is missing.
+  const listingId = toListingUnlockId(listing.id || listing.caseNumber);
   const access = await resolveListingAccess(user, listingId);
   const fullModel = hudListingToProtyDetail(listing, scrapedAt);
   const model = access.unlocked ? fullModel : redactProtyListingDetail(fullModel);

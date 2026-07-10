@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListingMedia } from "@/components/listings/ListingMedia";
 import {
@@ -9,33 +8,35 @@ import {
 } from "@/lib/home-category-rows";
 import { HudHomesPromoSection } from "@/components/home/HudHomesPromoSection";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
+import {
+  BROWSE_LOCKED_PRICE_DISPLAY,
+  BROWSE_LOCKED_PRICE_LABEL,
+  formatCardLocation,
+  formatCardPrice,
+} from "@/lib/listing-browse-redact";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import { getHomeRecentlyViewedListings } from "@/lib/recently-viewed";
 
-function formatPrice(value: number) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
 function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
+  const location = formatCardLocation(listing);
+  const priceLabel = listing.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : listing.priceLabel;
+  const price = listing.browseLocked
+    ? BROWSE_LOCKED_PRICE_DISPLAY
+    : formatCardPrice(listing.price);
+
   return (
     <ListingDetailLink
       href={listing.detailPath}
       className="reovana-home-category-card"
-      ariaLabel={`View ${listing.address}, ${listing.city}, ${listing.state}`}
+      ariaLabel={`View ${location}`}
     >
       <div className="reovana-home-category-card__media">
         <ListingMedia imageUrl={listing.imageUrl} alt="" showMissingLabel={false} />
       </div>
       <div className="reovana-home-category-card__body">
-        <p className="reovana-home-category-card__label">{listing.priceLabel}</p>
-        <p className="reovana-home-category-card__price">{formatPrice(listing.price)}</p>
-        <h4 className="reovana-home-category-card__address">
-          {listing.address}, {listing.city}, {listing.state}
-        </h4>
+        <p className="reovana-home-category-card__label">{priceLabel}</p>
+        <p className="reovana-home-category-card__price">{price}</p>
+        <h4 className="reovana-home-category-card__address">{location}</h4>
       </div>
     </ListingDetailLink>
   );

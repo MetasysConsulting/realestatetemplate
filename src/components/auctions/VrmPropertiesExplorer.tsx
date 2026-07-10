@@ -6,6 +6,11 @@ import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingMedia } from "@/components/listings/ListingMedia";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import {
+  BROWSE_LOCKED_PRICE_DISPLAY,
+  BROWSE_LOCKED_PRICE_LABEL,
+  formatCardLocation,
+} from "@/lib/listing-browse-redact";
 import { bankOwnedDetailPath } from "@/lib/property-categories";
 import {
   formatVrmPrice,
@@ -15,13 +20,18 @@ import {
 } from "@/lib/vrm-listings";
 
 function VrmPropertyCard({ listing }: { listing: VrmListing }) {
+  const location = formatCardLocation(listing);
+  const price = listing.browseLocked
+    ? BROWSE_LOCKED_PRICE_DISPLAY
+    : formatVrmPrice(listing.listPrice);
+
   return (
     <article className="auctions-card hud-card">
       <div className="auctions-card__media">
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={listing.imageUrl}
-            alt={`${listing.address}, ${listing.city}, ${listing.state}`}
+            alt={location}
             imageClassName="auctions-card__photo"
           />
         </div>
@@ -31,17 +41,17 @@ function VrmPropertyCard({ listing }: { listing: VrmListing }) {
         ) : null}
       </div>
       <div className="auctions-card__body">
-        <p className="auctions-card__bid-label">List Price</p>
-        <p className="auctions-card__price">{formatVrmPrice(listing.listPrice)}</p>
+        <p className="auctions-card__bid-label">
+          {listing.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : "List Price"}
+        </p>
+        <p className="auctions-card__price">{price}</p>
         <div className="auctions-card__tags">
           <span className="auctions-card__tag">VA REO</span>
           {listing.isVendeeFinancing ? (
             <span className="auctions-card__tag">Vendee Financing</span>
           ) : null}
         </div>
-        <h3 className="auctions-card__address">
-          {listing.address}, {listing.city}, {listing.state} {listing.zip}
-        </h3>
+        <h3 className="auctions-card__address">{location}</h3>
         <ul className="auctions-card__specs">
           {listing.bedrooms > 0 ? <li>{listing.bedrooms} bd</li> : null}
           {listing.bathrooms > 0 ? <li>{listing.bathrooms} ba</li> : null}
@@ -77,6 +87,7 @@ function toMapProperties(listings: VrmListing[]): AuctionProperty[] {
       city: l.city,
       state: l.state,
       zip: l.zip,
+      browseLocked: l.browseLocked,
       beds: l.bedrooms,
       baths: l.bathrooms,
       sqft: l.squareFootage,

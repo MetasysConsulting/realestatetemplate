@@ -11,6 +11,11 @@ import {
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
+import {
+  BROWSE_LOCKED_PRICE_DISPLAY,
+  BROWSE_LOCKED_PRICE_LABEL,
+  formatCardLocation,
+} from "@/lib/listing-browse-redact";
 
 const FILTER_OPTIONS = {
   assetType: ["All", "Foreclosure", "Bank Owned", "Short Sale", "Commercial"],
@@ -20,7 +25,10 @@ const FILTER_OPTIONS = {
 };
 
 function PropertyCard({ property }: { property: AuctionProperty }) {
-  const alt = `${property.address}, ${property.city}, ${property.state}`;
+  const location = formatCardLocation(property);
+  const price = property.browseLocked
+    ? BROWSE_LOCKED_PRICE_DISPLAY
+    : formatCurrency(property.openingBid);
 
   return (
     <article className="auctions-card">
@@ -28,7 +36,7 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={property.imageUrl}
-            alt={alt}
+            alt={location}
             imageClassName="auctions-card__photo"
           />
         </div>
@@ -38,8 +46,10 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
         </button>
       </div>
       <div className="auctions-card__body">
-        <p className="auctions-card__bid-label">Est. Opening Bid</p>
-        <p className="auctions-card__price">{formatCurrency(property.openingBid)}</p>
+        <p className="auctions-card__bid-label">
+          {property.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : "Est. Opening Bid"}
+        </p>
+        <p className="auctions-card__price">{price}</p>
         <div className="auctions-card__tags">
           {property.tags.map((tag) => (
             <span key={tag} className="auctions-card__tag">
@@ -48,9 +58,7 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
           ))}
         </div>
         <p className="auctions-card__category">{property.category}</p>
-        <h3 className="auctions-card__address">
-          {property.address}, {property.city}, {property.state} {property.zip}
-        </h3>
+        <h3 className="auctions-card__address">{location}</h3>
         <ul className="auctions-card__specs">
           {property.beds > 0 ? <li>{property.beds} bd</li> : null}
           <li>{property.baths} ba</li>

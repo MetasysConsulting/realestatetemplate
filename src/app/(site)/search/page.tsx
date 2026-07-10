@@ -3,6 +3,10 @@ import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import { searchListings } from "@/lib/listings-repository";
+import {
+  maybeRedactPropertyListings,
+} from "@/lib/listing-browse-redact";
+import { shouldRevealBrowseDetails } from "@/lib/listing-browse-access";
 import { PropertyCategoryExplorer } from "@/components/properties/PropertyCategoryExplorer";
 import { SearchPageForm } from "@/components/search/SearchPageForm";
 import { SearchPager } from "@/components/search/SearchPager";
@@ -48,6 +52,9 @@ export default async function SearchPage({ searchParams }: PageProps) {
     page,
     pageSize,
   });
+
+  const reveal = await shouldRevealBrowseDetails();
+  const gatedListings = maybeRedactPropertyListings(listings, reveal);
 
   const home = loadTemplatePageBySlug("index");
   const chrome = home
@@ -110,7 +117,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
         <PropertyCategoryExplorer
           title={title}
           description={description}
-          listings={listings}
+          listings={gatedListings}
           totalCount={total}
           hideStateFilter
           emptyMessage="No properties match your search yet. Try a different city, state, or filter."

@@ -6,6 +6,11 @@ import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingMedia } from "@/components/listings/ListingMedia";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
+import {
+  BROWSE_LOCKED_PRICE_DISPLAY,
+  BROWSE_LOCKED_PRICE_LABEL,
+  formatCardLocation,
+} from "@/lib/listing-browse-redact";
 import { auctionPropertyDetailPath } from "@/lib/property-categories";
 import {
   formatGsaSalePrice,
@@ -15,13 +20,18 @@ import {
 } from "@/lib/gsa-realestatesales";
 
 function GsaSaleCard({ listing }: { listing: GsaRealEstateSale }) {
+  const location = formatCardLocation(listing);
+  const price = listing.browseLocked
+    ? BROWSE_LOCKED_PRICE_DISPLAY
+    : formatGsaSalePrice(listing.startingBid);
+
   return (
     <article className="auctions-card gsa-card">
       <div className="auctions-card__media">
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={listing.imageUrl}
-            alt={`${listing.title}, ${listing.city}, ${listing.state}`}
+            alt={location}
             imageClassName="auctions-card__photo"
           />
         </div>
@@ -31,16 +41,16 @@ function GsaSaleCard({ listing }: { listing: GsaRealEstateSale }) {
         ) : null}
       </div>
       <div className="auctions-card__body">
-        <p className="auctions-card__bid-label">Starting Bid</p>
-        <p className="auctions-card__price">{formatGsaSalePrice(listing.startingBid)}</p>
+        <p className="auctions-card__bid-label">
+          {listing.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : "Starting Bid"}
+        </p>
+        <p className="auctions-card__price">{price}</p>
         <div className="auctions-card__tags">
           <span className="auctions-card__tag">{listing.propertyType}</span>
           <span className="auctions-card__tag">{listing.auctionType}</span>
         </div>
         <h3 className="auctions-card__address gsa-card__title">{listing.title}</h3>
-        <p className="auctions-card__category">
-          {listing.address}, {listing.city}, {listing.state} {listing.zip}
-        </p>
+        <p className="auctions-card__category">{location}</p>
         <div className="auctions-card__footer">
           <span className="gsa-status gsa-status--available">{listing.status}</span>
           <Link
@@ -69,6 +79,7 @@ function toMapProperties(listings: GsaRealEstateSale[]): AuctionProperty[] {
       city: l.city,
       state: l.state,
       zip: l.zip,
+      browseLocked: l.browseLocked,
       beds: 0,
       baths: 0,
       sqft: 0,

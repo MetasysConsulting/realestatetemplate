@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { shouldRevealBrowseDetails } from "@/lib/listing-browse-access";
 import { fetchSearchSuggestions } from "@/lib/search-suggestions";
 
 export const runtime = "nodejs";
@@ -13,12 +14,17 @@ export async function GET(request: Request) {
   }
 
   try {
+    const reveal = await shouldRevealBrowseDetails();
     const suggestions = await fetchSearchSuggestions(q);
+    const gated = reveal
+      ? suggestions
+      : suggestions.filter((item) => item.type !== "address");
+
     return NextResponse.json(
-      { suggestions },
+      { suggestions: gated },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600",
+          "Cache-Control": "private, no-store",
         },
       },
     );

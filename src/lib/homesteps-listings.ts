@@ -4,6 +4,7 @@ export type HomeStepsListing = {
   city: string;
   state: string;
   zip: string;
+  browseLocked?: boolean;
   listPrice: number;
   lat: number;
   lng: number;

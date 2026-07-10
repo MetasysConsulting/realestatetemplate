@@ -6,6 +6,7 @@ import {
   fetchHudListingByCaseNumber,
   fetchHudListingsDataset,
 } from "@/lib/listings-repository";
+import { listingDetailMetadata } from "@/lib/listing-page-metadata";
 import { hudCaseFromSlug } from "@/lib/property-categories";
 
 export const dynamic = "force-dynamic";
@@ -24,10 +25,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "REOVANA" };
   }
 
-  return {
-    title: `${listing.address}, ${listing.city} ${listing.state} — REOVANA`,
-    description: `HUD home at ${listing.address}, ${listing.city}, ${listing.state}. List price ${formatHudPrice(listing.listPrice)}.`,
-  };
+  return listingDetailMetadata({
+    listingId: listing.id || `hud-${listing.caseNumber}`,
+    address: listing.address,
+    city: listing.city,
+    state: listing.state,
+    kindLabel: "HUD home",
+    unlockedDescription: `HUD home at ${listing.address}, ${listing.city}, ${listing.state}. List price ${formatHudPrice(listing.listPrice)}.`,
+  });
 }
 
 export default async function HudHomeDetailPage({ params }: PageProps) {

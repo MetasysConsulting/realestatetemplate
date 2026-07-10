@@ -1,11 +1,17 @@
 import { GsaRealEstateSalesExplorer } from "@/components/auctions/GsaRealEstateSalesExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
+import {
+  maybeRedactGsaSales,
+} from "@/lib/listing-browse-redact";
+import { shouldRevealBrowseDetails } from "@/lib/listing-browse-access";
 import { fetchGsaRealEstateSalesDataset } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 
 export async function GsaRealEstateSalesPageContent() {
   const dataset = await fetchGsaRealEstateSalesDataset();
+  const reveal = await shouldRevealBrowseDetails();
+  const listings = maybeRedactGsaSales(dataset.listings, reveal);
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)
@@ -19,7 +25,7 @@ export async function GsaRealEstateSalesPageContent() {
       bodyClass="theme-color-4 auctions-route"
     >
       <GsaRealEstateSalesExplorer
-        listings={dataset.listings}
+        listings={listings}
         scrapedAt={dataset.scrapedAt}
         sourceUrl={dataset.sourceUrl}
       />

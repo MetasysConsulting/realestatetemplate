@@ -4,6 +4,18 @@ export function isPropertyDetailRoute(route: string): boolean {
   return route.startsWith(PROPERTY_DETAIL_PREFIX);
 }
 
+/** Extract `listings.id` from `/property/detail/{id}` paths. */
+export function listingIdFromPropertyDetailPath(pathname: string): string | undefined {
+  if (!pathname.startsWith(PROPERTY_DETAIL_PREFIX)) return undefined;
+  const rest = pathname.slice(PROPERTY_DETAIL_PREFIX.length).replace(/\/+$/, "");
+  if (!rest || rest.includes("/")) return undefined;
+  try {
+    return decodeURIComponent(rest);
+  } catch {
+    return rest;
+  }
+}
+
 /** Legacy global key — no longer written; kept so old sessions can be ignored per listing */
 export const UNLOCK_STORAGE_KEY = "proty-property-unlocked";
 

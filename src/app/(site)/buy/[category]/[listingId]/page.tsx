@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ListingDetailPageShell } from "@/components/properties/ListingDetailPageShell";
 import { formatHudPrice } from "@/lib/hud-listings";
+import { listingDetailMetadata } from "@/lib/listing-page-metadata";
 import { fetchPropertyListingById, fetchSourceMetaForPropertyRadar } from "@/lib/listings-repository";
 import {
   listingIdFromSlug,
@@ -39,10 +40,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "REOVANA" };
   }
 
-  return {
-    title: `${listing.address}, ${listing.city} ${listing.state} — REOVANA`,
-    description: `${PROPERTY_CATEGORIES[categoryKey].title} at ${listing.address}, ${listing.city}, ${listing.state}. ${listing.price > 0 ? formatHudPrice(listing.price) : listing.status}.`,
-  };
+  return listingDetailMetadata({
+    listingId: listing.id,
+    address: listing.address,
+    city: listing.city,
+    state: listing.state,
+    kindLabel: PROPERTY_CATEGORIES[categoryKey].navLabel.toLowerCase(),
+    unlockedDescription: `${PROPERTY_CATEGORIES[categoryKey].title} at ${listing.address}, ${listing.city}, ${listing.state}. ${listing.price > 0 ? formatHudPrice(listing.price) : listing.status}.`,
+  });
 }
 
 export default async function PropertyRadarDetailPage({ params }: PageProps) {

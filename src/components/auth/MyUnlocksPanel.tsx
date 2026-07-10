@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { listMyListingUnlocks } from "@/lib/unlocks/entitlements";
 import { getAuthUser } from "@/lib/supabase/auth-server";
 
@@ -28,7 +29,7 @@ export async function MyUnlocksPanel() {
         <ul className="reovana-account-settings__intro" style={{ listStyle: "disc", paddingLeft: 20 }}>
           {unlocks.map((row) => (
             <li key={`${row.listingId}-${row.unlockedAt}`}>
-              <code>{row.listingId}</code>
+              <Link href={row.detailPath}>{row.label}</Link>
               <span>
                 {" "}
                 · {row.source.replace(/_/g, " ")} ·{" "}

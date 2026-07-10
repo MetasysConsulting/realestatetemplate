@@ -1,8 +1,16 @@
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminEmail } from "@/lib/admin/admin-allowlist";
+import {
+  auctionPropertyDetailPath,
+  bankOwnedDetailPath,
+  hudDetailPath,
+  LISTING_ROUTE_PREFIX,
+  propertyRadarDetailPath,
+  type PropertyCategoryKey,
+} from "@/lib/property-categories";
 import { createSupabaseAuthServerClient } from "@/lib/supabase/auth-server";
-import { getSupabaseAnonKey, getSupabaseUrl, isSupabaseAuthConfigured } from "@/lib/supabase/env";
+import { getSupabaseUrl, isSupabaseAuthConfigured } from "@/lib/supabase/env";
 
 export type ListingUnlockSource =
   | "stripe_one_time"
@@ -34,12 +42,15 @@ function createServiceClient() {
   });
 }
 
-/** Normalize HUD case numbers to listings.id when needed. */
+/**
+ * Normalize to `listings.id` (TEXT PK).
+ * HUD rows are stored as `hud-{caseNumber}` — bare case numbers get the prefix.
+ */
 export function toListingUnlockId(listingId: string): string {
   const trimmed = listingId.trim();
   if (!trimmed) return trimmed;
-  if (trimmed.startsWith("hud-") || trimmed.includes("-")) return trimmed;
-  // Bare HUD case numbers sometimes appear without prefix.
+  if (trimmed.startsWith("hud-")) return trimmed;
+  // Bare HUD case numbers: 061-123456 → hud-061-123456
   if (/^\d{3}-\d+$/.test(trimmed)) return `hud-${trimmed}`;
   return trimmed;
 }
@@ -178,7 +189,13 @@ export async function grantListingUnlock(
 
 /** List active unlocks for the signed-in user (My Unlocks UI). */
 export async function listMyListingUnlocks(): Promise<
-  Array<{ listingId: string; unlockedAt: string; source: string }>
+  Array<{
+    listingId: string;
+    unlockedAt: string;
+    source: string;
+    detailPath: string;
+    label: string;
+  }>
 > {
   if (!isSupabaseAuthConfigured()) return [];
 
@@ -187,19 +204,123 @@ export async function listMyListingUnlocks(): Promise<
     const nowIso = new Date().toISOString();
     const { data, error } = await supabase
       .from("listing_unlocks")
-      .select("listing_id, unlocked_at, source")
+      .select(
+        "listing_id, unlocked_at, source, listings ( id, category, external_id, address, city, state )",
+      )
       .is("revoked_at", null)
       .or(`expires_at.is.null,expires_at.gt."${nowIso}"`)
       .order("unlocked_at", { ascending: false });
 
-    if (error || !data) return [];
+    if (error || !data) {
+      // Join may fail if migration/relationship missing — fall back to id-only rows.
+      const fallback = await supabase
+        .from("listing_unlocks")
+        .select("listing_id, unlocked_at, source")
+        .is("revoked_at", null)
+        .or(`expires_at.is.null,expires_at.gt."${nowIso}"`)
+        .order("unlocked_at", { ascending: false });
 
-    return data.map((row) => ({
-      listingId: String(row.listing_id),
-      unlockedAt: String(row.unlocked_at),
-      source: String(row.source),
-    }));
+      if (fallback.error || !fallback.data) return [];
+
+      return fallback.data.map((row) => {
+        const listingId = String(row.listing_id);
+        return {
+          listingId,
+          unlockedAt: String(row.unlocked_at),
+          source: String(row.source),
+          detailPath: detailPathForListingId(listingId),
+          label: listingId,
+        };
+      });
+    }
+
+    return data.map((row) => {
+      const listingId = String(row.listing_id);
+      const listing = normalizeJoinedListing(row.listings);
+      const detailPath = detailPathForListingId(
+        listingId,
+        listing?.category,
+        listing?.external_id,
+      );
+      const label = listingLabel(listingId, listing);
+      return {
+        listingId,
+        unlockedAt: String(row.unlocked_at),
+        source: String(row.source),
+        detailPath,
+        label,
+      };
+    });
   } catch {
     return [];
   }
+}
+
+type JoinedListing = {
+  id?: string;
+  category?: string;
+  external_id?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+};
+
+function normalizeJoinedListing(value: unknown): JoinedListing | null {
+  if (!value) return null;
+  if (Array.isArray(value)) {
+    return (value[0] as JoinedListing | undefined) ?? null;
+  }
+  return value as JoinedListing;
+}
+
+function listingLabel(listingId: string, listing: JoinedListing | null): string {
+  if (!listing) return listingId;
+  const street = listing.address?.trim();
+  const cityState = [listing.city, listing.state].filter(Boolean).join(", ");
+  if (street && cityState) return `${street}, ${cityState}`;
+  if (street) return street;
+  if (cityState) return cityState;
+  return listingId;
+}
+
+/** Resolve public detail URL from listings.id (+ optional category/external_id). */
+export function detailPathForListingId(
+  listingId: string,
+  category?: string | null,
+  externalId?: string | null,
+): string {
+  const id = toListingUnlockId(listingId);
+  const categoryKey = category as PropertyCategoryKey | undefined;
+
+  if (id.startsWith("hud-") || categoryKey === "hud-home") {
+    const caseNumber = externalId?.trim() || id.replace(/^hud-/, "");
+    return hudDetailPath(caseNumber);
+  }
+
+  if (categoryKey === "bank-owned" || id.startsWith("vrm-") || id.startsWith("homesteps-")) {
+    return bankOwnedDetailPath(id);
+  }
+
+  if (
+    categoryKey === "auction-property" ||
+    id.startsWith("gsa-") ||
+    id.startsWith("gsa-sale-")
+  ) {
+    return auctionPropertyDetailPath(id);
+  }
+
+  if (
+    categoryKey === "motivated-seller" ||
+    categoryKey === "off-market" ||
+    categoryKey === "foreclosure" ||
+    categoryKey === "pre-foreclosure"
+  ) {
+    return propertyRadarDetailPath(categoryKey, id);
+  }
+
+  if (categoryKey === "sheriffs-sale" || categoryKey === "tax-delinquent") {
+    return `${LISTING_ROUTE_PREFIX}/${categoryKey}/${encodeURIComponent(id)}`;
+  }
+
+  return bankOwnedDetailPath(id);
 }

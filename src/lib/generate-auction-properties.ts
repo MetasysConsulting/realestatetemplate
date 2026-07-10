@@ -12,6 +12,7 @@ export type AuctionProperty = {
   city: string;
   state: string;
   zip: string;
+  browseLocked?: boolean;
   beds: number;
   baths: number;
   sqft: number;

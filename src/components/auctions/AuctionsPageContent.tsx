@@ -2,6 +2,10 @@ import { AuctionsExplorer } from "@/components/auctions/AuctionsExplorer";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
+import {
+  maybeRedactAuctionProperties,
+} from "@/lib/listing-browse-redact";
+import { shouldRevealBrowseDetails } from "@/lib/listing-browse-access";
 import { fetchAuctionProperties } from "@/lib/listings-repository";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import { BUY_CATEGORIES } from "@/lib/buy-categories";
@@ -12,7 +16,11 @@ type AuctionsPageContentProps = {
 
 export async function AuctionsPageContent({ categoryKey }: AuctionsPageContentProps) {
   const config = BUY_CATEGORIES[categoryKey];
-  const properties = await fetchAuctionProperties(categoryKey);
+  const reveal = await shouldRevealBrowseDetails();
+  const properties = maybeRedactAuctionProperties(
+    await fetchAuctionProperties(categoryKey),
+    reveal,
+  );
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)

@@ -176,6 +176,8 @@ export function redactProtyListingDetail(model: ProtyListingDetailModel): ProtyL
     yearBuilt: null,
     lotSize: null,
     listingId: "••••",
+    propertyType: "—",
+    status: "—",
     description:
       "Full pricing, address, specs, and seller contact are locked. Unlock this listing to view complete details.",
     detailFacts: model.detailFacts.map((fact) => ({
@@ -203,9 +205,10 @@ export function redactProtyListingDetail(model: ProtyListingDetailModel): ProtyL
 
 export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string): ProtyListingDetailModel {
   const priceDisplay = formatHudPrice(listing.listPrice);
+  const unlockId = listing.id || `hud-${listing.caseNumber}`;
 
   return {
-    id: `hud-${listing.caseNumber}`,
+    id: unlockId,
     listingId: listing.caseNumber,
     categoryLabel: "HUD Home",
     backHref: "/buy/hud-home",
@@ -249,7 +252,7 @@ export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string):
     mapCounty: listing.county,
     disclaimer: `Listing data last updated ${formatHudScrapedDate(scrapedAt)}. Bids on HUD homes require a HUD-registered broker. REOVANA hosts this inventory for your convenience.`,
     recentlyViewed: {
-      id: `hud-${listing.caseNumber}`,
+      id: unlockId,
       address: listing.address,
       city: listing.city,
       state: listing.state,
