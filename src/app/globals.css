@@ -58,20 +58,20 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 5px 10px;
+  padding: 6px 11px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: rgba(255, 255, 255, 0.88);
-  font-size: 11px;
+  font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .reovana-unlock-card__title {
-  margin: 14px 0 6px;
-  font-size: 1.2rem;
+  margin: 14px 0 8px;
+  font-size: 1.4rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: #fff;
@@ -80,7 +80,7 @@ body {
 
 .reovana-unlock-card__subtitle {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 1rem;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.68);
   font-weight: 400;
@@ -102,9 +102,9 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: #2c2e33;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 .reovana-unlock-card__check {
@@ -171,24 +171,14 @@ body {
   justify-content: space-between;
   gap: 12px;
   width: 100%;
-  font-size: 0.92rem;
+  font-size: 1.02rem;
   font-weight: 600;
 }
 
 .reovana-unlock-card__price-row strong {
-  font-size: 0.95rem;
+  font-size: 1.08rem;
   font-weight: 700;
   letter-spacing: -0.01em;
-}
-
-.reovana-unlock-card__secure {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin: 14px 0 0;
-  font-size: 0.75rem;
-  color: var(--Note, #a8abae);
 }
 
 /* Legacy template gate (PropertyUnlockGate) */

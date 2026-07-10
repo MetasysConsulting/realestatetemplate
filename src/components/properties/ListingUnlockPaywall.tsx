@@ -43,19 +43,6 @@ function CheckIcon() {
   );
 }
 
-function ShieldIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-      <path
-        d="M8 1.75 13.25 4v3.4c0 3.15-2.1 5.95-5.25 6.85C4.85 13.35 2.75 10.55 2.75 7.4V4L8 1.75Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 export function ListingUnlockPaywall({ unlocked, onUnlock }: ListingUnlockPaywallProps) {
   const [isPending, startTransition] = useTransition();
   const [optimisticUnlocked, setOptimisticUnlocked] = useOptimistic(unlocked);
@@ -120,11 +107,6 @@ export function ListingUnlockPaywall({ unlocked, onUnlock }: ListingUnlockPaywal
             </span>
           </button>
         </div>
-
-        <p className="reovana-unlock-card__secure">
-          <ShieldIcon />
-          Secure checkout · Stripe
-        </p>
       </div>
     </aside>
   );

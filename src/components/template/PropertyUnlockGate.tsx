@@ -76,7 +76,6 @@ function buildPaywallHtml(): string {
           </button>
         </div>
         <div class="proty-unlocked-note">Unlocked — full listing details now visible</div>
-        <p class="reovana-unlock-card__secure proty-unlock-secure">Secure checkout · Stripe</p>
       </div>
     </aside>
   `;
