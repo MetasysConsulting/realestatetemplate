@@ -69,7 +69,7 @@ export function ListingUnlockPaywall({
 
     onCheckoutSoon?.();
     setNotice(
-      "Paid unlocks are almost ready. Checkout isn’t live yet — we’ll enable one-tap unlock here soon.",
+      "Checkout isn’t live yet. Your unlock will be saved to your account once Stripe is connected — entitlements are already wired on our side.",
     );
   };
 

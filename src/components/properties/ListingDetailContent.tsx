@@ -5,12 +5,16 @@ import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
 
 type ListingDetailContentProps = {
   model: ProtyListingDetailModel;
-  paywallBypass?: boolean;
+  unlocked?: boolean;
+  isAdminBypass?: boolean;
 };
 
 export function ListingDetailContent({
   model,
-  paywallBypass = false,
+  unlocked = false,
+  isAdminBypass = false,
 }: ListingDetailContentProps) {
-  return <ProtyPropertyDetail model={model} paywallBypass={paywallBypass} />;
+  return (
+    <ProtyPropertyDetail model={model} unlocked={unlocked} isAdminBypass={isAdminBypass} />
+  );
 }

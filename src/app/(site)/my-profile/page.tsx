@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AccountSettingsForm } from "@/components/auth/AccountSettingsForm";
+import { MyUnlocksPanel } from "@/components/auth/MyUnlocksPanel";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
@@ -28,10 +29,11 @@ export default function MyProfilePage() {
               <div className="reovana-account-page__header">
                 <h1 className="reovana-account-page__title">Account settings</h1>
                 <p className="reovana-account-page__subtitle">
-                  Manage your profile details for REOVANA.
+                  Manage your profile and unlocked listings on REOVANA.
                 </p>
               </div>
               <AccountSettingsForm />
+              <MyUnlocksPanel />
             </div>
           </div>
         </div>

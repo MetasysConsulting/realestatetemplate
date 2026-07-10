@@ -5,7 +5,7 @@ import {
   applyLockedBlur,
   clearGalleryBlur,
   clearLockedBlur,
-  fetchPaywallBypass,
+  fetchPaywallAccess,
   trackUnlockIntent,
 } from "@/lib/property-gate";
 import { recordRecentlyViewed } from "@/lib/recently-viewed";
@@ -163,10 +163,10 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
       if (!root || cancelled) return;
 
       const scope = window.location.pathname;
-      const bypass = await fetchPaywallBypass();
+      const access = await fetchPaywallAccess();
       if (cancelled) return;
 
-      initGate(root, scope, bypass);
+      initGate(root, scope, access.unlocked);
     };
 
     void run();

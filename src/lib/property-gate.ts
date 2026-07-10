@@ -45,17 +45,39 @@ export function trackUnlockIntent(
 }
 
 export async function fetchPaywallBypass(): Promise<boolean> {
+  const access = await fetchPaywallAccess();
+  return access.bypass;
+}
+
+export async function fetchPaywallAccess(listingId?: string): Promise<{
+  bypass: boolean;
+  unlocked: boolean;
+  hasUnlock: boolean;
+}> {
   try {
-    const res = await fetch("/api/paywall/bypass", {
+    const url = listingId
+      ? `/api/paywall/bypass?listingId=${encodeURIComponent(listingId)}`
+      : "/api/paywall/bypass";
+    const res = await fetch(url, {
       method: "GET",
       credentials: "same-origin",
       cache: "no-store",
     });
-    if (!res.ok) return false;
-    const data = (await res.json()) as { bypass?: boolean };
-    return Boolean(data.bypass);
+    if (!res.ok) {
+      return { bypass: false, unlocked: false, hasUnlock: false };
+    }
+    const data = (await res.json()) as {
+      bypass?: boolean;
+      unlocked?: boolean;
+      hasUnlock?: boolean;
+    };
+    return {
+      bypass: Boolean(data.bypass),
+      unlocked: Boolean(data.unlocked ?? data.bypass),
+      hasUnlock: Boolean(data.hasUnlock),
+    };
   } catch {
-    return false;
+    return { bypass: false, unlocked: false, hasUnlock: false };
   }
 }
 

@@ -5,9 +5,16 @@ import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
 
 type HudDetailContentProps = {
   model: ProtyListingDetailModel;
-  paywallBypass?: boolean;
+  unlocked?: boolean;
+  isAdminBypass?: boolean;
 };
 
-export function HudDetailContent({ model, paywallBypass = false }: HudDetailContentProps) {
-  return <ProtyPropertyDetail model={model} paywallBypass={paywallBypass} />;
+export function HudDetailContent({
+  model,
+  unlocked = false,
+  isAdminBypass = false,
+}: HudDetailContentProps) {
+  return (
+    <ProtyPropertyDetail model={model} unlocked={unlocked} isAdminBypass={isAdminBypass} />
+  );
 }

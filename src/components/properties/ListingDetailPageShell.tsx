@@ -1,6 +1,5 @@
 import { ListingDetailContent } from "@/components/properties/ListingDetailContent";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
-import { isAdminEmail } from "@/lib/admin/admin-allowlist";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
@@ -9,6 +8,7 @@ import {
   redactProtyListingDetail,
 } from "@/lib/proty-listing-detail";
 import { getAuthUser } from "@/lib/supabase/auth-server";
+import { resolveListingAccess } from "@/lib/unlocks/entitlements";
 
 type ListingDetailPageShellProps = {
   listing: PropertyListing;
@@ -33,7 +33,7 @@ export async function ListingDetailPageShell({
     : { headerHtml: "", footerHtml: "", tailHtml: "" };
 
   const user = await getAuthUser();
-  const paywallBypass = isAdminEmail(user?.email);
+  const access = await resolveListingAccess(user, listing.id);
   const fullModel = propertyListingToProtyDetail(
     listing,
     categoryLabel,
@@ -41,7 +41,7 @@ export async function ListingDetailPageShell({
     scrapedAt,
     sourceAgency,
   );
-  const model = paywallBypass ? fullModel : redactProtyListingDetail(fullModel);
+  const model = access.unlocked ? fullModel : redactProtyListingDetail(fullModel);
 
   return (
     <TemplateChrome
@@ -50,7 +50,11 @@ export async function ListingDetailPageShell({
       tailHtml={chrome.tailHtml}
       bodyClass={bodyClass}
     >
-      <ListingDetailContent model={model} paywallBypass={paywallBypass} />
+      <ListingDetailContent
+        model={model}
+        unlocked={access.unlocked}
+        isAdminBypass={access.isAdminBypass}
+      />
     </TemplateChrome>
   );
 }

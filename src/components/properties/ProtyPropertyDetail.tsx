@@ -13,8 +13,9 @@ import {
 
 type ProtyPropertyDetailProps = {
   model: ProtyListingDetailModel;
-  /** Allowlisted admin members skip the listing paywall. */
-  paywallBypass?: boolean;
+  /** Full listing visible (admin bypass or purchased unlock). */
+  unlocked?: boolean;
+  isAdminBypass?: boolean;
 };
 
 const OVERVIEW_ACTION_ICONS = [
@@ -218,10 +219,11 @@ function SidebarAds() {
   );
 }
 
-export function ProtyPropertyDetail({ model, paywallBypass = false }: ProtyPropertyDetailProps) {
-  // Only allowlisted admins unlock. SessionStorage free unlocks are disabled.
-  const unlocked = paywallBypass;
-
+export function ProtyPropertyDetail({
+  model,
+  unlocked = false,
+  isAdminBypass = false,
+}: ProtyPropertyDetailProps) {
   const applyBlurState = useEffectEvent((isUnlocked: boolean) => {
     const root = document.getElementById("listing-detail-root");
     if (!root) return;
@@ -235,7 +237,7 @@ export function ProtyPropertyDetail({ model, paywallBypass = false }: ProtyPrope
   }, [unlocked]);
 
   const handleCheckoutSoon = () => {
-    trackUnlockIntent(model.id, "checkout_soon");
+    trackUnlockIntent(model.id, isAdminBypass ? "admin" : "checkout_soon");
   };
 
   const mapUrl = useMemo(
