@@ -4,9 +4,19 @@ import { formatCount } from "@/lib/admin/listing-analytics";
 import {
   formatActivityTime,
   formatEventLabel,
+  formatTrendDay,
   type SiteActivitySummary,
 } from "@/lib/admin/site-activity-analytics";
-import { Activity, Eye, Unlock, UserPlus, Users } from "lucide-react";
+import {
+  Activity,
+  Eye,
+  Layers,
+  Link2,
+  Timer,
+  Unlock,
+  UserPlus,
+  Users,
+} from "lucide-react";
 
 type AdminHomeProps = {
   activity: SiteActivitySummary;
@@ -21,12 +31,16 @@ export default function AdminHome({ activity }: AdminHomeProps) {
       activity.unlockIntents7d > 0 ||
       activity.recentEvents.length > 0);
 
+  const maxTrendViews = Math.max(1, ...activity.dailyTrend.map((d) => d.pageViews));
+  const maxSectionViews = Math.max(1, ...activity.trafficBySection.map((s) => s.views));
+  const maxReferrerViews = Math.max(1, ...activity.topReferrers.map((r) => r.views));
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-white">Activity</h1>
         <p className="text-sm sm:text-base text-white/50 mt-1">
-          Site visits, top pages, and key member actions
+          Site visits, traffic patterns, and key member actions
         </p>
       </div>
 
@@ -50,7 +64,7 @@ export default function AdminHome({ activity }: AdminHomeProps) {
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 text-white/50 mb-2">
@@ -82,6 +96,20 @@ export default function AdminHome({ activity }: AdminHomeProps) {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-2 text-white/50 mb-2">
+                  <Timer className="h-4 w-4" />
+                  <p className="text-xs uppercase tracking-wider">Sessions (7 days)</p>
+                </div>
+                <p className="text-3xl font-bold text-white">
+                  {formatCount(activity.sessions7d)}
+                </p>
+                <p className="text-xs text-white/40 mt-1">
+                  {activity.avgPagesPerVisitor7d} pages / visitor avg
+                </p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-2 text-white/50 mb-2">
                   <UserPlus className="h-4 w-4" />
                   <p className="text-xs uppercase tracking-wider">Auth (7 days)</p>
                 </div>
@@ -90,7 +118,8 @@ export default function AdminHome({ activity }: AdminHomeProps) {
                 </p>
                 <p className="text-xs text-white/40 mt-1">
                   {formatCount(activity.loginEvents7d)} logins ·{" "}
-                  {formatCount(activity.signupEvents7d)} signups
+                  {formatCount(activity.signupEvents7d)} signups ·{" "}
+                  {formatCount(activity.logoutEvents7d)} logouts
                 </p>
               </CardContent>
             </Card>
@@ -104,6 +133,131 @@ export default function AdminHome({ activity }: AdminHomeProps) {
                   {formatCount(activity.unlockIntents7d)}
                 </p>
                 <p className="text-xs text-white/40 mt-1">Listing unlock intents</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-white text-base sm:text-lg">7-day trend</CardTitle>
+              <p className="text-sm text-white/50">Daily page views and unique visitors</p>
+            </CardHeader>
+            <CardContent>
+              {activity.dailyTrend.length === 0 ? (
+                <AdminEmptyState
+                  compact
+                  title="No trend data yet"
+                  description="Daily traffic will appear once page views are recorded."
+                />
+              ) : (
+                <div className="space-y-3">
+                  {activity.dailyTrend.map((day) => {
+                    const pct = Math.round((day.pageViews / maxTrendViews) * 100);
+                    return (
+                      <div key={day.date} className="space-y-1.5">
+                        <div className="flex items-center justify-between gap-3 text-sm">
+                          <p className="text-white/80">{formatTrendDay(day.date)}</p>
+                          <p className="text-white/70 text-xs sm:text-sm">
+                            {formatCount(day.pageViews)} views · {formatCount(day.visitors)}{" "}
+                            visitors
+                          </p>
+                        </div>
+                        <div className="w-full bg-white/10 rounded-full h-1.5">
+                          <div
+                            className="bg-primary h-1.5 rounded-full"
+                            style={{ width: `${Math.max(pct, 2)}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white text-base sm:text-lg flex items-center gap-2">
+                  <Layers className="h-5 w-5 text-primary" />
+                  Traffic by section
+                </CardTitle>
+                <p className="text-sm text-white/50">Where visitors spend time (7 days)</p>
+              </CardHeader>
+              <CardContent>
+                {activity.trafficBySection.length === 0 ? (
+                  <AdminEmptyState
+                    compact
+                    title="No section data yet"
+                    description="Section breakdowns will appear once visitors browse the site."
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {activity.trafficBySection.map((row) => {
+                      const pct = Math.round((row.views / maxSectionViews) * 100);
+                      return (
+                        <div key={row.section} className="space-y-1.5">
+                          <div className="flex items-center justify-between gap-3 text-sm">
+                            <p className="text-white">{row.section}</p>
+                            <p className="text-white/80 font-medium">
+                              {formatCount(row.views)}
+                            </p>
+                          </div>
+                          <div className="w-full bg-white/10 rounded-full h-1.5">
+                            <div
+                              className="bg-primary h-1.5 rounded-full"
+                              style={{ width: `${Math.max(pct, 2)}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-white text-base sm:text-lg flex items-center gap-2">
+                  <Link2 className="h-5 w-5 text-primary" />
+                  Top referrers
+                </CardTitle>
+                <p className="text-sm text-white/50">How people arrive at the site (7 days)</p>
+              </CardHeader>
+              <CardContent>
+                {activity.topReferrers.length === 0 ? (
+                  <AdminEmptyState
+                    compact
+                    title="No referrer data yet"
+                    description="Referrers will appear once page views include referral info."
+                  />
+                ) : (
+                  <div className="space-y-3">
+                    {activity.topReferrers.map((row) => {
+                      const pct = Math.round((row.views / maxReferrerViews) * 100);
+                      return (
+                        <div key={row.referrer} className="space-y-1.5">
+                          <div className="flex items-center justify-between gap-3 text-sm">
+                            <p className="text-white truncate text-xs sm:text-sm">
+                              {row.referrer}
+                            </p>
+                            <p className="text-white/80 font-medium shrink-0">
+                              {formatCount(row.views)}
+                            </p>
+                          </div>
+                          <div className="w-full bg-white/10 rounded-full h-1.5">
+                            <div
+                              className="bg-primary h-1.5 rounded-full"
+                              style={{ width: `${Math.max(pct, 2)}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
