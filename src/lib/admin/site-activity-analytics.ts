@@ -391,23 +391,7 @@ async function fetchViaSupabase(): Promise<SiteActivitySummary | null> {
   };
 }
 
-async function fetchViaSummaryRpc(): Promise<SiteActivitySummary | null> {
-  const url = getSupabaseUrl();
-  const key = getServiceKey();
-  if (!url || !key) return null;
-
-  const client = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
-  const { data, error } = await client.rpc("get_site_activity_summary");
-  if (error) {
-    console.error("[site-activity] Summary RPC failed:", error.message);
-    return null;
-  }
-  if (!data || typeof data !== "object") return null;
-
-  const raw = data as Record<string, unknown>;
+function mapSummaryRpcPayload(raw: Record<string, unknown>): SiteActivitySummary {
   if (raw.available === false) return emptySummary();
 
   const visitors7d = Number(raw.visitors7d) || 0;
@@ -465,6 +449,42 @@ async function fetchViaSummaryRpc(): Promise<SiteActivitySummary | null> {
         })
       : [],
   };
+}
+
+async function fetchViaSummaryRpc(): Promise<SiteActivitySummary | null> {
+  const url = getSupabaseUrl();
+  if (!url) return null;
+
+  // 1) Prefer service role (works without a user session).
+  const serviceKey = getServiceKey();
+  if (serviceKey) {
+    const client = createClient(url, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    });
+    const { data, error } = await client.rpc("get_site_activity_summary");
+    if (!error && data && typeof data === "object") {
+      return mapSummaryRpcPayload(data as Record<string, unknown>);
+    }
+    if (error) {
+      console.error("[site-activity] Service summary RPC failed:", error.message);
+    }
+  }
+
+  // 2) Fall back to the signed-in admin session (allowlisted in the RPC).
+  try {
+    const { createSupabaseAuthServerClient } = await import("@/lib/supabase/auth-server");
+    const sessionClient = await createSupabaseAuthServerClient();
+    const { data, error } = await sessionClient.rpc("get_site_activity_summary");
+    if (error) {
+      console.error("[site-activity] Session summary RPC failed:", error.message);
+      return null;
+    }
+    if (!data || typeof data !== "object") return null;
+    return mapSummaryRpcPayload(data as Record<string, unknown>);
+  } catch (error) {
+    console.error("[site-activity] Session summary RPC unavailable:", error);
+    return null;
+  }
 }
 
 export async function fetchSiteActivitySummary(): Promise<SiteActivitySummary> {
