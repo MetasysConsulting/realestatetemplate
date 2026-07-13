@@ -25,20 +25,34 @@ function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
     : formatCardPrice(listing.price);
 
   return (
-    <ListingDetailLink
-      href={listing.detailPath}
-      className="reovana-home-category-card"
-      ariaLabel={`View ${location}`}
-    >
-      <div className="reovana-home-category-card__media">
+    <article className="reovana-home-category-card">
+      <ListingDetailLink
+        href={listing.detailPath}
+        className="reovana-home-category-card__media"
+        ariaLabel={`View ${location}`}
+      >
         <ListingMedia imageUrl={listing.imageUrl} alt="" showMissingLabel={false} />
-      </div>
+      </ListingDetailLink>
       <div className="reovana-home-category-card__body">
         <p className="reovana-home-category-card__label">{priceLabel}</p>
         <p className="reovana-home-category-card__price">{price}</p>
-        <h4 className="reovana-home-category-card__address">{location}</h4>
+        <ListingDetailLink
+          href={listing.detailPath}
+          className="reovana-home-category-card__address"
+        >
+          {location}
+        </ListingDetailLink>
+        <div className="reovana-home-category-card__footer">
+          <ListingDetailLink
+            href={listing.detailPath}
+            className="tf-btn style-border pd-4 reovana-home-category-card__details"
+            ariaLabel={`Details for ${location}`}
+          >
+            Details
+          </ListingDetailLink>
+        </div>
       </div>
-    </ListingDetailLink>
+    </article>
   );
 }
 

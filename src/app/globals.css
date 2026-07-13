@@ -1210,10 +1210,9 @@ body.auctions-route .reovana-site .header {
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  height: 100%;
   box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  text-decoration: none;
   color: inherit;
-  cursor: pointer;
   transition:
     transform 0.18s ease,
     box-shadow 0.18s ease,
@@ -1226,15 +1225,16 @@ body.auctions-route .reovana-site .header {
   box-shadow: 0 14px 32px rgba(118, 149, 255, 0.14);
 }
 
-.reovana-home-category-card:focus-visible {
-  outline: 2px solid var(--Primary, #7695ff);
-  outline-offset: 2px;
-}
-
 .reovana-home-category-card__media {
+  display: block;
   aspect-ratio: 4 / 3;
   background: #ececf0;
   overflow: hidden;
+}
+
+.reovana-home-category-card__media:focus-visible {
+  outline: 2px solid var(--Primary, #7695ff);
+  outline-offset: -2px;
 }
 
 .reovana-home-category-card__media img {
@@ -1291,6 +1291,24 @@ body.auctions-route .reovana-site .header {
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 2.9em;
+  text-decoration: none;
+}
+
+.reovana-home-category-card__address:hover {
+  color: var(--Primary, #7695ff);
+}
+
+.reovana-home-category-card__footer {
+  margin-top: auto;
+  padding-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.reovana-home-category-card__details {
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 @media (max-width: 1100px) {
