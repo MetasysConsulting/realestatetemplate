@@ -30,9 +30,6 @@ function HomeCategoryCard({
   categoryLabel: string;
 }) {
   const location = formatCardLocation(listing);
-  const title = listing.browseLocked
-    ? location
-    : listing.address.trim() || location;
   const showPrice = listing.browseLocked || listing.price > 0;
   const price = listing.browseLocked
     ? BROWSE_LOCKED_PRICE_DISPLAY
@@ -60,14 +57,13 @@ function HomeCategoryCard({
       </div>
 
       <div className="reovana-home-category-card__body content">
-        <h5 className="reovana-home-category-card__title title">
-          <ListingDetailLink href={listing.detailPath}>{title}</ListingDetailLink>
-        </h5>
-
-        <p className="reovana-home-category-card__location location text-1 line-clamp-1">
+        <ListingDetailLink
+          href={listing.detailPath}
+          className="reovana-home-category-card__location location text-1"
+        >
           <i className="icon-location" aria-hidden="true" />
           <span>{location}</span>
-        </p>
+        </ListingDetailLink>
 
         {showMeta ? (
           <ul className="meta-list flex reovana-home-category-card__meta">

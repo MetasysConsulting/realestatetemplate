@@ -57,7 +57,7 @@ export function getHomeRecentlyViewedListings(): PropertyListing[] {
     bathrooms: 0,
     squareFootage: 0,
     propertyType: "Recently Viewed",
-    status: "Viewed",
+    status: "For Sale",
     tags: ["Recently Viewed"],
     imageUrl: item.imageUrl,
     hasImage: Boolean(item.imageUrl?.trim()),
