@@ -669,9 +669,78 @@ body.auctions-route .reovana-site .header {
 }
 
 /* Search typing placeholder (homepage + /search) */
+.reovana-search-typing-host {
+  position: relative;
+}
+
+.reovana-search-typing-overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  gap: 1px;
+  padding: inherit;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* Align overlay text with input text (homepage hero fieldset) */
+#template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form fieldset.reovana-search-typing-host .reovana-search-typing-overlay,
+#template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form fieldset .reovana-search-typing-overlay {
+  padding: 6px 0;
+  left: 0;
+  right: 0;
+}
+
+.reovana-search-field__control.reovana-search-typing-host .reovana-search-typing-overlay {
+  left: 40px;
+  right: 12px;
+  padding: 0;
+}
+
+.reovana-search-typing-overlay.is-visible {
+  display: flex;
+}
+
+.reovana-search-typing-overlay__text {
+  font-family: var(--font-search) !important;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.4;
+  color: rgba(92, 94, 97, 0.72);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reovana-search-typing-overlay__caret {
+  flex-shrink: 0;
+  width: 1.5px;
+  height: 1.05em;
+  margin-left: 1px;
+  border-radius: 1px;
+  background: rgba(118, 149, 255, 0.95);
+  animation: reovana-search-caret-blink 1s steps(1, end) infinite;
+}
+
+@keyframes reovana-search-caret-blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
 .reovana-search-typing-input,
 .reovana-search-field__input.reovana-search-typing-input {
   font-family: var(--font-search) !important;
+  position: relative;
+  z-index: 2;
+  background: transparent !important;
 }
 
 .reovana-search-typing-input::placeholder,
