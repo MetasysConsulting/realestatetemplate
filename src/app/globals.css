@@ -5,6 +5,7 @@
   --font-main-3: var(--font-poppins), "Poppins", sans-serif;
   --font-main-4: var(--font-mulish), "Mulish", sans-serif;
   --font-main-5: var(--font-manrope), "Manrope", sans-serif;
+  --font-search: var(--font-inter), "Inter", system-ui, sans-serif;
 }
 
 /* Site-wide blue theme — replaces default orange (#f1913d) everywhere */
@@ -650,7 +651,9 @@ body.auctions-route .reovana-site .header {
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form fieldset input {
-  font-size: 13px !important;
+  font-family: var(--font-search) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
   line-height: 1.4 !important;
   min-height: 48px;
   padding: 6px 0;
@@ -658,7 +661,33 @@ body.auctions-route .reovana-site .header {
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title form fieldset input::placeholder {
-  font-size: 13px !important;
+  font-family: var(--font-search) !important;
+  font-size: 14px !important;
+  font-weight: 300 !important;
+  color: rgba(92, 94, 97, 0.72) !important;
+  opacity: 1;
+}
+
+/* Search typing placeholder (homepage + /search) */
+.reovana-search-typing-input,
+.reovana-search-field__input.reovana-search-typing-input {
+  font-family: var(--font-search) !important;
+}
+
+.reovana-search-typing-input::placeholder,
+.reovana-search-field__input.reovana-search-typing-input::placeholder {
+  font-family: var(--font-search) !important;
+  font-weight: 300 !important;
+  color: rgba(92, 94, 97, 0.7);
+  opacity: 1;
+}
+
+.reovana-search-field__input {
+  font-family: var(--font-search);
+}
+
+.reovana-search-field__select {
+  font-family: var(--font-search);
 }
 
 #template-root .page-title.home01.reovana-home-hero .wg-filter .form-title .btn-filter {

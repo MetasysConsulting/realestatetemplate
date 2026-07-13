@@ -7,6 +7,7 @@ import {
   attachSearchSuggestions,
   suggestionInputValue,
 } from "@/lib/attach-search-suggestions";
+import { attachTypingPlaceholder } from "@/lib/search-typing-placeholder";
 import type { SearchSuggestion } from "@/lib/search-suggestion-types";
 import { US_STATE_OPTIONS } from "@/lib/us-states";
 
@@ -84,10 +85,15 @@ export function SearchPageForm({
   useEffect(() => {
     const input = qInputRef.current;
     if (!input) return;
-    return attachSearchSuggestions(input, {
+    const detachSuggestions = attachSearchSuggestions(input, {
       onSelect: (suggestion) => handleSuggestionSelect(suggestion),
     });
-  }, []);
+    const detachTyping = q.trim() ? undefined : attachTypingPlaceholder(input);
+    return () => {
+      detachSuggestions?.();
+      detachTyping?.();
+    };
+  }, [q]);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -119,8 +125,8 @@ export function SearchPageForm({
                 ref={qInputRef}
                 name="q"
                 defaultValue={q}
-                placeholder="City, address, or ZIP"
-                className="reovana-search-field__input"
+                placeholder={q ? "City, address, or ZIP" : ""}
+                className="reovana-search-field__input reovana-search-typing-input"
                 autoComplete="off"
               />
             </div>

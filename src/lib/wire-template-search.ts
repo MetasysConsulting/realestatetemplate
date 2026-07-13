@@ -1,6 +1,7 @@
 "use client";
 
 import { attachSearchSuggestions } from "@/lib/attach-search-suggestions";
+import { attachTypingPlaceholder } from "@/lib/search-typing-placeholder";
 import { normalizeStateQuery } from "@/lib/us-states";
 
 type SearchPayload = {
@@ -112,6 +113,7 @@ export function wireTemplateSearch(): void {
 
   form.addEventListener("submit", submit);
   submitLink.addEventListener("click", submit);
+  attachTypingPlaceholder(input);
   attachSearchSuggestions(input, {
     onSelect: (suggestion) => {
       // Input already filled by attachSearchSuggestions; navigate to the suggestion URL.

@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import {
+  Inter,
   Lexend,
   Manrope,
   Mulish,
   Poppins,
 } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 const lexend = Lexend({
   subsets: ["latin"],
@@ -48,7 +55,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${lexend.variable} ${manrope.variable} ${poppins.variable} ${mulish.variable}`}
+      className={`${inter.variable} ${lexend.variable} ${manrope.variable} ${poppins.variable} ${mulish.variable}`}
     >
       <body>{children}</body>
     </html>
