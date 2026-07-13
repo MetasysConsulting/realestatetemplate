@@ -10,53 +10,120 @@ import { HudHomesPromoSection } from "@/components/home/HudHomesPromoSection";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 import {
   BROWSE_LOCKED_PRICE_DISPLAY,
-  BROWSE_LOCKED_PRICE_LABEL,
   formatCardLocation,
   formatCardPrice,
 } from "@/lib/listing-browse-redact";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import { getHomeRecentlyViewedListings } from "@/lib/recently-viewed";
 
-function HomeCategoryCard({ listing }: { listing: PropertyListing }) {
+function saleStatusLabel(status: string | undefined): string {
+  const trimmed = status?.trim() ?? "";
+  if (!trimmed || /^active$/i.test(trimmed)) return "For Sale";
+  return trimmed;
+}
+
+function HomeCategoryCard({
+  listing,
+  categoryLabel,
+}: {
+  listing: PropertyListing;
+  categoryLabel: string;
+}) {
   const location = formatCardLocation(listing);
-  const priceLabel = listing.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : listing.priceLabel;
+  const title = listing.browseLocked
+    ? location
+    : listing.address.trim() || location;
+  const showPrice = listing.browseLocked || listing.price > 0;
   const price = listing.browseLocked
     ? BROWSE_LOCKED_PRICE_DISPLAY
     : formatCardPrice(listing.price);
+  const showBeds = listing.bedrooms > 0;
+  const showBaths = listing.bathrooms > 0;
+  const showSqft = listing.squareFootage > 0;
+  const showMeta = showBeds || showBaths || showSqft;
+  const statusLabel = saleStatusLabel(listing.status);
 
   return (
-    <article className="reovana-home-category-card">
-      <ListingDetailLink
-        href={listing.detailPath}
-        className="reovana-home-category-card__media"
-        ariaLabel={`View ${location}`}
-      >
-        <ListingMedia imageUrl={listing.imageUrl} alt="" showMissingLabel={false} />
-      </ListingDetailLink>
-      <div className="reovana-home-category-card__body">
-        <p className="reovana-home-category-card__label">{priceLabel}</p>
-        <p className="reovana-home-category-card__price">{price}</p>
+    <article className="reovana-home-category-card box-house hover-img">
+      <div className="reovana-home-category-card__image-wrap image-wrap">
         <ListingDetailLink
           href={listing.detailPath}
-          className="reovana-home-category-card__address"
+          className="reovana-home-category-card__media"
+          ariaLabel={`View ${location}`}
         >
-          {location}
+          <ListingMedia imageUrl={listing.imageUrl} alt="" showMissingLabel={false} />
         </ListingDetailLink>
-        <div className="reovana-home-category-card__footer">
-          <ListingDetailLink
-            href={listing.detailPath}
-            className="tf-btn style-border pd-4 reovana-home-category-card__details"
-            ariaLabel={`Details for ${location}`}
-          >
-            Details
-          </ListingDetailLink>
+        <ul className="box-tag flex gap-8">
+          <li className="flat-tag text-4 bg-main fw-6 text_white">{categoryLabel}</li>
+          <li className="flat-tag text-4 bg-3 fw-6 text_white">{statusLabel}</li>
+        </ul>
+      </div>
+
+      <div className="reovana-home-category-card__body content">
+        <h5 className="reovana-home-category-card__title title">
+          <ListingDetailLink href={listing.detailPath}>{title}</ListingDetailLink>
+        </h5>
+
+        <p className="reovana-home-category-card__location location text-1 line-clamp-1">
+          <i className="icon-location" aria-hidden="true" />
+          <span>{location}</span>
+        </p>
+
+        {showMeta ? (
+          <ul className="meta-list flex reovana-home-category-card__meta">
+            {showBeds ? (
+              <li className="text-1 flex">
+                <span>{listing.bedrooms}</span>Beds
+              </li>
+            ) : null}
+            {showBaths ? (
+              <li className="text-1 flex">
+                <span>
+                  {Number.isInteger(listing.bathrooms)
+                    ? listing.bathrooms
+                    : listing.bathrooms.toFixed(1)}
+                </span>
+                Baths
+              </li>
+            ) : null}
+            {showSqft ? (
+              <li className="text-1 flex">
+                <span>{listing.squareFootage.toLocaleString()}</span>Sqft
+              </li>
+            ) : null}
+          </ul>
+        ) : null}
+
+        <div className="reovana-home-category-card__bot bot flex justify-between items-center">
+          {showPrice ? (
+            <h5 className="reovana-home-category-card__price price">{price}</h5>
+          ) : (
+            <span />
+          )}
+          <div className="wrap-btn flex reovana-home-category-card__actions">
+            <ListingDetailLink
+              href={listing.detailPath}
+              className="tf-btn style-border pd-4 reovana-home-category-card__details"
+              ariaLabel={`Details for ${location}`}
+            >
+              Details
+            </ListingDetailLink>
+          </div>
         </div>
       </div>
     </article>
   );
 }
 
-function CategoryRow({ title, listings }: { title: string; listings: PropertyListing[] }) {
+function CategoryRow({
+  title,
+  categoryLabel,
+  listings,
+}: {
+  title: string;
+  categoryLabel: string;
+  listings: PropertyListing[];
+}) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(false);
@@ -131,7 +198,11 @@ function CategoryRow({ title, listings }: { title: string; listings: PropertyLis
             onScroll={updateScrollState}
           >
             {listings.slice(0, 6).map((listing) => (
-              <HomeCategoryCard key={`${title}-${listing.id}`} listing={listing} />
+              <HomeCategoryCard
+                key={`${title}-${listing.id}`}
+                listing={listing}
+                categoryLabel={categoryLabel}
+              />
             ))}
           </div>
 
@@ -177,10 +248,18 @@ export function HomeCategoryRows({ rowListings }: HomeCategoryRowsProps) {
 
   return (
     <div className="reovana-home-category-rows">
-      <CategoryRow title="Recently Viewed" listings={recentListings} />
+      <CategoryRow
+        title="Recently Viewed"
+        categoryLabel="Recent"
+        listings={recentListings}
+      />
       {categoryRows.map((row) => (
         <div key={row.key} className="reovana-home-category-row-group">
-          <CategoryRow title={row.title} listings={row.listings} />
+          <CategoryRow
+            title={row.title}
+            categoryLabel={row.title}
+            listings={row.listings}
+          />
           {row.key === "hud-home" ? <HudHomesPromoSection /> : null}
         </div>
       ))}
