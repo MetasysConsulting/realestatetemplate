@@ -1186,7 +1186,8 @@ body.auctions-route .reovana-site .header {
 .reovana-home-category-row__track {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 48px) / 4);
+  /* Match Proty homepage: 3 equal cards per row (lg-col-3) */
+  grid-auto-columns: calc((100% - 32px) / 3);
   gap: 16px;
   overflow-x: auto;
   padding-bottom: 20px;
@@ -1294,7 +1295,8 @@ body.auctions-route .reovana-site .header {
 
 @media (max-width: 1100px) {
   .reovana-home-category-row__track {
-    grid-auto-columns: calc((100% - 32px) / 3);
+    /* Match Proty md-col-2 */
+    grid-auto-columns: calc((100% - 16px) / 2);
   }
 }
 

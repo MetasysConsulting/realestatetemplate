@@ -90,7 +90,7 @@ function CategoryRow({ title, listings }: { title: string; listings: PropertyLis
 
   if (!listings.length) return null;
 
-  const showArrows = listings.length > 4;
+  const showArrows = listings.length > 3;
 
   return (
     <section className="reovana-home-category-row">
