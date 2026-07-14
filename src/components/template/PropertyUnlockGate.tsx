@@ -126,11 +126,11 @@ function attachUnlockHandlers(gate: HTMLElement, listingId: string) {
       setNotice("Checking your account…");
       btn.disabled = true;
       void startStripeCheckout({ listingId, plan }).then((result) => {
-        if (result.loginRequired) {
-          setNotice("Create a free account or sign in before purchasing.");
-          return;
-        }
         if (!result.ok) {
+          if (result.loginRequired) {
+            setNotice("Create a free account or sign in before purchasing.");
+            return;
+          }
           setNotice(result.error);
           btn.disabled = false;
         }
