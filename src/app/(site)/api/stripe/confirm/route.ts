@@ -4,18 +4,18 @@ import { fulfillCheckoutSessionForUser } from "@/lib/stripe/fulfill-checkout";
 import { getAuthUser } from "@/lib/supabase/auth-server";
 import { toListingUnlockId } from "@/lib/unlocks/entitlements";
 
+/**
+ * Confirm a paid Checkout session and grant unlock/membership.
+ * - Prefer signed-in user.
+ * - With a Stripe `session_id` from the success URL, anonymous callers can still fulfill
+ *   (session id is unguessable and Stripe payment is re-verified server-side).
+ */
 export async function POST(request: NextRequest) {
   if (!isStripeConfigured()) {
     return NextResponse.json({ error: "Stripe is not configured." }, { status: 503 });
   }
 
   const user = await getAuthUser();
-  if (!user) {
-    return NextResponse.json(
-      { error: "Sign in required.", loginRequired: true },
-      { status: 401 },
-    );
-  }
 
   let body: unknown;
   try {
@@ -30,6 +30,16 @@ export async function POST(request: NextRequest) {
   const listingId =
     typeof payload.listingId === "string" ? toListingUnlockId(payload.listingId) : "";
 
+  if (!sessionId && !user) {
+    return NextResponse.json(
+      {
+        error: "Sign in required, or open your checkout success link with session_id.",
+        loginRequired: true,
+      },
+      { status: 401 },
+    );
+  }
+
   if (!sessionId && !listingId) {
     return NextResponse.json(
       { error: "sessionId or listingId is required." },
@@ -39,7 +49,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const result = await fulfillCheckoutSessionForUser({
-      userId: user.id,
+      userId: user?.id ?? null,
       sessionId: sessionId || null,
       listingId: listingId || null,
     });
@@ -48,6 +58,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           unlocked: false,
+          needsLogin: result.needsLogin || !user,
           error: result.error,
           sessionId: result.sessionId,
         },
@@ -57,6 +68,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       unlocked: true,
+      needsLogin: Boolean(result.needsLogin) || !user,
       sessionId: result.sessionId,
     });
   } catch (error) {

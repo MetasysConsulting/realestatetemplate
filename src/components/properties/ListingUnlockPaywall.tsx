@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { fetchPaywallAccess } from "@/lib/property-gate";
-import { confirmStripeCheckout } from "@/lib/stripe/confirm-checkout-client";
+import { confirmStripeCheckout, redirectToLoginForUnlock } from "@/lib/stripe/confirm-checkout-client";
 import { startStripeCheckout } from "@/lib/stripe/start-checkout";
 import type { StripeCheckoutPlan } from "@/lib/stripe/types";
 
@@ -93,8 +93,20 @@ export function ListingUnlockPaywall({
     void (async () => {
       const confirmed = await confirmStripeCheckout({ listingId, sessionId });
       if (cancelled) return;
+
       if (confirmed.unlocked) {
+        if (confirmed.needsLogin) {
+          setNotice("Payment saved. Sign in with the same account to view the unlocked listing…");
+          window.setTimeout(() => redirectToLoginForUnlock(), 800);
+          return;
+        }
         finishUnlocked();
+        return;
+      }
+
+      if (confirmed.needsLogin) {
+        setNotice("Sign in with the account that paid to finish unlocking…");
+        window.setTimeout(() => redirectToLoginForUnlock(), 800);
         return;
       }
 
@@ -111,7 +123,7 @@ export function ListingUnlockPaywall({
       if (!cancelled) {
         setNotice(
           confirmed.error ||
-            "Payment received, but unlock didn’t apply yet. Stay signed in, refresh, or contact support with your Stripe receipt.",
+            "Payment received, but unlock didn’t apply yet. Stay signed in, confirm SUPABASE_SECRET_KEY is on Vercel, then refresh this success link.",
         );
       }
     })();

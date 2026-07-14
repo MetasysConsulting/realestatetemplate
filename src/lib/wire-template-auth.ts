@@ -134,7 +134,7 @@ function wireLoginForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserClien
 
     trackClientEvent("login_success", { metadata: { method: "password" } });
     closeModal("modalLogin");
-    window.location.href = "/";
+    window.location.href = getPostLoginRedirect();
   };
 
   form.addEventListener("submit", handleLogin);
@@ -267,7 +267,7 @@ function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
 
     clearAuthMessage(modal);
 
-    const redirectTo = `${window.location.origin}/auth/callback?next=/`;
+    const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(getPostLoginRedirect())}`;
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -368,6 +368,19 @@ function wireOAuthButtons(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
   wireModal("modalRegister");
 }
 
+function getPostLoginRedirect(): string {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get("next");
+    if (next && next.startsWith("/") && !next.startsWith("//")) {
+      return next;
+    }
+  } catch {
+    /* ignore */
+  }
+  return "/";
+}
+
 function handleLoginQueryParam() {
   const params = new URLSearchParams(window.location.search);
   const login = params.get("login");
@@ -387,6 +400,7 @@ function handleLoginQueryParam() {
 
   const clean = new URL(window.location.href);
   clean.searchParams.delete("login");
+  // Keep `next` so password login can redirect back to the unlocked listing.
   window.history.replaceState({}, "", clean.toString());
 }
 
