@@ -15,6 +15,7 @@ export async function GET(request: NextRequest) {
   if (!listingId) {
     const access = await resolveListingAccess(user, "");
     return NextResponse.json({
+      signedIn: Boolean(user),
       bypass: access.isAdminBypass,
       unlocked: access.isAdminBypass,
       hasUnlock: false,
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
 
   const access = await resolveListingAccess(user, listingId);
   return NextResponse.json({
+    signedIn: Boolean(user),
     bypass: access.isAdminBypass,
     unlocked: access.unlocked,
     hasUnlock: access.hasUnlock,

@@ -1,4 +1,6 @@
+import { tryCreateSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { StripeCheckoutPlan } from "@/lib/stripe/types";
+import { redirectToLoginForUnlock } from "@/lib/stripe/confirm-checkout-client";
 
 export type StartCheckoutResult =
   | { ok: true }
@@ -6,7 +8,7 @@ export type StartCheckoutResult =
 
 /**
  * Starts Stripe Checkout for a listing unlock or unlimited membership.
- * Redirects the browser to Stripe on success.
+ * Requires a signed-in REOVANA account — guests are sent to login first.
  */
 export async function startStripeCheckout(input: {
   listingId: string;
@@ -16,6 +18,24 @@ export async function startStripeCheckout(input: {
   const returnPath =
     input.returnPath ||
     (typeof window !== "undefined" ? window.location.pathname : "/");
+
+  const supabase = tryCreateSupabaseBrowserClient();
+  if (!supabase) {
+    return { ok: false, error: "Sign-in isn’t configured right now." };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirectToLoginForUnlock();
+    return {
+      ok: false,
+      loginRequired: true,
+      error: "Create a free account or sign in before purchasing.",
+    };
+  }
 
   try {
     const res = await fetch("/api/stripe/checkout", {
@@ -37,10 +57,12 @@ export async function startStripeCheckout(input: {
     };
 
     if (res.status === 401 || data.loginRequired) {
-      const next = new URL(returnPath, window.location.origin);
-      next.searchParams.set("login", "required");
-      window.location.href = next.toString();
-      return { ok: false, loginRequired: true, error: "Sign in required." };
+      redirectToLoginForUnlock();
+      return {
+        ok: false,
+        loginRequired: true,
+        error: "Create a free account or sign in before purchasing.",
+      };
     }
 
     if (!res.ok || !data.url) {

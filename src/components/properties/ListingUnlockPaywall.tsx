@@ -56,10 +56,21 @@ export function ListingUnlockPaywall({
   const [isPending, startTransition] = useTransition();
   const [notice, setNotice] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(unlocked);
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
 
   useEffect(() => {
     setIsUnlocked(unlocked);
   }, [unlocked]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchPaywallAccess(listingId).then((access) => {
+      if (!cancelled) setSignedIn(access.signedIn);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [listingId]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -110,7 +121,6 @@ export function ListingUnlockPaywall({
         return;
       }
 
-      // Fallback: poll in case webhook wins the race after confirm looked too early.
       for (let attempt = 0; attempt < 6 && !cancelled; attempt += 1) {
         await new Promise((r) => window.setTimeout(r, 1000));
         const access = await fetchPaywallAccess(listingId);
@@ -147,6 +157,8 @@ export function ListingUnlockPaywall({
     });
   };
 
+  const showAuthGate = signedIn === false;
+
   return (
     <aside className="reovana-unlock-card mb-30" aria-label="Unlock property details">
       <div className="reovana-unlock-card__head">
@@ -156,7 +168,9 @@ export function ListingUnlockPaywall({
         </span>
         <h4 className="reovana-unlock-card__title">Unlock this listing</h4>
         <p className="reovana-unlock-card__subtitle">
-          Reveal the full address, pricing, specs, and seller contact in one step.
+          {showAuthGate
+            ? "Create a free account or sign in first — purchases are saved to your REOVANA account."
+            : "Reveal the full address, pricing, specs, and seller contact in one step."}
         </p>
       </div>
 
@@ -173,28 +187,43 @@ export function ListingUnlockPaywall({
         </ul>
 
         <div className="reovana-unlock-card__actions">
-          <button
-            type="button"
-            className="reovana-unlock-card__primary"
-            onClick={() => handleCheckout("unlock")}
-            disabled={isPending}
-          >
-            <span className="reovana-unlock-card__price-row">
-              <span>{isPending ? "Starting checkout…" : "Unlock this property"}</span>
-              <strong>$4.99</strong>
-            </span>
-          </button>
-          <button
-            type="button"
-            className="reovana-unlock-card__secondary"
-            onClick={() => handleCheckout("unlimited")}
-            disabled={isPending}
-          >
-            <span className="reovana-unlock-card__price-row">
-              <span>Unlimited access</span>
-              <strong>$49/mo</strong>
-            </span>
-          </button>
+          {showAuthGate ? (
+            <button
+              type="button"
+              className="reovana-unlock-card__primary"
+              onClick={() => redirectToLoginForUnlock()}
+            >
+              <span className="reovana-unlock-card__price-row">
+                <span>Sign in or create account</span>
+                <strong>Free</strong>
+              </span>
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                className="reovana-unlock-card__primary"
+                onClick={() => handleCheckout("unlock")}
+                disabled={isPending || signedIn === null}
+              >
+                <span className="reovana-unlock-card__price-row">
+                  <span>{isPending ? "Starting checkout…" : "Unlock this property"}</span>
+                  <strong>$4.99</strong>
+                </span>
+              </button>
+              <button
+                type="button"
+                className="reovana-unlock-card__secondary"
+                onClick={() => handleCheckout("unlimited")}
+                disabled={isPending || signedIn === null}
+              >
+                <span className="reovana-unlock-card__price-row">
+                  <span>Unlimited access</span>
+                  <strong>$49/mo</strong>
+                </span>
+              </button>
+            </>
+          )}
         </div>
 
         {notice ? (

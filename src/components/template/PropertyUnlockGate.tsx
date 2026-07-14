@@ -123,10 +123,14 @@ function attachUnlockHandlers(gate: HTMLElement, listingId: string) {
       }
 
       trackUnlockIntent(listingId, "checkout_start");
-      setNotice("Starting secure checkout…");
+      setNotice("Checking your account…");
       btn.disabled = true;
       void startStripeCheckout({ listingId, plan }).then((result) => {
-        if (!result.ok && !result.loginRequired) {
+        if (result.loginRequired) {
+          setNotice("Create a free account or sign in before purchasing.");
+          return;
+        }
+        if (!result.ok) {
           setNotice(result.error);
           btn.disabled = false;
         }

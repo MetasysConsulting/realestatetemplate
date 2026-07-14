@@ -27,7 +27,10 @@ export async function POST(request: NextRequest) {
   const user = await getAuthUser();
   if (!user) {
     return NextResponse.json(
-      { error: "Sign in required.", loginRequired: true },
+      {
+        error: "Create a free account or sign in before purchasing.",
+        loginRequired: true,
+      },
       { status: 401 },
     );
   }

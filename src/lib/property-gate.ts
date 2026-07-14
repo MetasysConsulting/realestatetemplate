@@ -62,6 +62,7 @@ export async function fetchPaywallBypass(): Promise<boolean> {
 }
 
 export async function fetchPaywallAccess(listingId?: string): Promise<{
+  signedIn: boolean;
   bypass: boolean;
   unlocked: boolean;
   hasUnlock: boolean;
@@ -76,20 +77,22 @@ export async function fetchPaywallAccess(listingId?: string): Promise<{
       cache: "no-store",
     });
     if (!res.ok) {
-      return { bypass: false, unlocked: false, hasUnlock: false };
+      return { signedIn: false, bypass: false, unlocked: false, hasUnlock: false };
     }
     const data = (await res.json()) as {
+      signedIn?: boolean;
       bypass?: boolean;
       unlocked?: boolean;
       hasUnlock?: boolean;
     };
     return {
+      signedIn: Boolean(data.signedIn),
       bypass: Boolean(data.bypass),
       unlocked: Boolean(data.unlocked ?? data.bypass),
       hasUnlock: Boolean(data.hasUnlock),
     };
   } catch {
-    return { bypass: false, unlocked: false, hasUnlock: false };
+    return { signedIn: false, bypass: false, unlocked: false, hasUnlock: false };
   }
 }
 
