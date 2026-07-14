@@ -20,6 +20,8 @@ type TemplatePageProps = {
   showNeighborhoodsCarousel?: boolean;
   homeCategoryRows?: Record<string, PropertyListing[]>;
   homeNeighborhoods?: HomeNeighborhood[];
+  /** When true, Recently Viewed cards soft-gate like the server-redacted category rows. */
+  browseSoftGate?: boolean;
 };
 
 function normalizeBodyClass(bodyClass: string): string {
@@ -44,6 +46,7 @@ export function TemplatePage({
   showNeighborhoodsCarousel = false,
   homeCategoryRows = {},
   homeNeighborhoods = [],
+  browseSoftGate = false,
 }: TemplatePageProps) {
   const safeHtml = normalizeTemplateHtml(html);
 
@@ -86,7 +89,9 @@ export function TemplatePage({
   return (
     <>
       <PropertyUnlockGate enabled={propertyGate} />
-      {showHomeCategoryRows ? <HomeCategoryRowsMount rowListings={homeCategoryRows} /> : null}
+      {showHomeCategoryRows ? (
+        <HomeCategoryRowsMount rowListings={homeCategoryRows} browseSoftGate={browseSoftGate} />
+      ) : null}
       {showLoanSteps ? <LoanStepsSectionMount /> : null}
       {showNeighborhoodsCarousel ? (
         <NeighborhoodsCarouselMount neighborhoods={homeNeighborhoods} />

@@ -59,9 +59,11 @@ export default async function TemplateRoutePage({ params }: PageProps) {
     notFound();
   }
 
+  const revealBrowseDetails =
+    route === "/" ? await shouldRevealBrowseDetails() : true;
   const homeCategoryRows =
     route === "/"
-      ? maybeRedactHomeCategoryRows(await fetchHomeCategoryRows(), await shouldRevealBrowseDetails())
+      ? maybeRedactHomeCategoryRows(await fetchHomeCategoryRows(), revealBrowseDetails)
       : {};
   const homeNeighborhoods = route === "/" ? await fetchHomeNeighborhoods() : [];
 
@@ -75,6 +77,7 @@ export default async function TemplateRoutePage({ params }: PageProps) {
       showNeighborhoodsCarousel={route === "/"}
       homeCategoryRows={homeCategoryRows}
       homeNeighborhoods={homeNeighborhoods}
+      browseSoftGate={route === "/" ? !revealBrowseDetails : false}
     />
   );
 }

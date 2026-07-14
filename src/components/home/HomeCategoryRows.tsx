@@ -12,6 +12,7 @@ import {
   BROWSE_LOCKED_PRICE_DISPLAY,
   formatCardLocation,
   formatCardPrice,
+  redactPropertyListingForBrowse,
 } from "@/lib/listing-browse-redact";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import { getHomeRecentlyViewedListings } from "@/lib/recently-viewed";
@@ -34,9 +35,10 @@ function HomeCategoryCard({
   const price = listing.browseLocked
     ? BROWSE_LOCKED_PRICE_DISPLAY
     : formatCardPrice(listing.price);
-  const showBeds = listing.bedrooms > 0;
-  const showBaths = listing.bathrooms > 0;
-  const showSqft = listing.squareFootage > 0;
+  // Soft-gated cards only tease area + locked price (match browse soft-gate).
+  const showBeds = !listing.browseLocked && listing.bedrooms > 0;
+  const showBaths = !listing.browseLocked && listing.bathrooms > 0;
+  const showSqft = !listing.browseLocked && listing.squareFootage > 0;
   const showMeta = showBeds || showBaths || showSqft;
   const statusLabel = saleStatusLabel(listing.status);
 
@@ -213,17 +215,26 @@ function CategoryRow({
 
 type HomeCategoryRowsProps = {
   rowListings: Record<string, PropertyListing[]>;
+  browseSoftGate?: boolean;
 };
 
-export function HomeCategoryRows({ rowListings }: HomeCategoryRowsProps) {
+export function HomeCategoryRows({
+  rowListings,
+  browseSoftGate = false,
+}: HomeCategoryRowsProps) {
   const [recentListings, setRecentListings] = useState<PropertyListing[]>([]);
 
   useEffect(() => {
-    const refresh = () => setRecentListings(getHomeRecentlyViewedListings());
+    const refresh = () => {
+      const recent = getHomeRecentlyViewedListings();
+      setRecentListings(
+        browseSoftGate ? recent.map(redactPropertyListingForBrowse) : recent,
+      );
+    };
     refresh();
     window.addEventListener("reovana:recently-viewed", refresh);
     return () => window.removeEventListener("reovana:recently-viewed", refresh);
-  }, []);
+  }, [browseSoftGate]);
 
   const categoryRows = useMemo(
     () =>

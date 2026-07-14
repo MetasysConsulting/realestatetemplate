@@ -53,6 +53,9 @@ export function redactPropertyListingForBrowse(listing: PropertyListing): Proper
     ...lockLocation(listing),
     price: 0,
     priceLabel: BROWSE_LOCKED_PRICE_LABEL,
+    bedrooms: 0,
+    bathrooms: 0,
+    squareFootage: 0,
   };
 }
 

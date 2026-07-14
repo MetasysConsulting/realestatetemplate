@@ -7,9 +7,13 @@ import type { PropertyListing } from "@/lib/load-category-listings";
 
 type HomeCategoryRowsMountProps = {
   rowListings: Record<string, PropertyListing[]>;
+  browseSoftGate?: boolean;
 };
 
-export function HomeCategoryRowsMount({ rowListings }: HomeCategoryRowsMountProps) {
+export function HomeCategoryRowsMount({
+  rowListings,
+  browseSoftGate = false,
+}: HomeCategoryRowsMountProps) {
   const [mount, setMount] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -18,5 +22,8 @@ export function HomeCategoryRowsMount({ rowListings }: HomeCategoryRowsMountProp
 
   if (!mount) return null;
 
-  return createPortal(<HomeCategoryRows rowListings={rowListings} />, mount);
+  return createPortal(
+    <HomeCategoryRows rowListings={rowListings} browseSoftGate={browseSoftGate} />,
+    mount,
+  );
 }
