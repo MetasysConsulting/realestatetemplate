@@ -29,11 +29,13 @@ export default function MyProfilePage() {
               <div className="reovana-account-page__header">
                 <h1 className="reovana-account-page__title">Account settings</h1>
                 <p className="reovana-account-page__subtitle">
-                  Manage your profile and unlocked listings on REOVANA.
+                  Manage your profile and reopen any listing you&apos;ve unlocked.
                 </p>
               </div>
-              <AccountSettingsForm />
-              <MyUnlocksPanel />
+              <div className="reovana-account-page__stack">
+                <AccountSettingsForm />
+                <MyUnlocksPanel />
+              </div>
             </div>
           </div>
         </div>

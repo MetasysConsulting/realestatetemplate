@@ -6,19 +6,11 @@ import { getStripe } from "@/lib/stripe/server";
 import { handleCheckoutSessionCompleted } from "@/lib/stripe/webhook-handlers";
 import { toListingUnlockId, userHasListingUnlock } from "@/lib/unlocks/entitlements";
 import { userHasActiveMembership } from "@/lib/unlocks/membership";
-import { getSupabaseUrl } from "@/lib/supabase/env";
-
-function getServiceKey(): string | undefined {
-  return (
-    process.env.SUPABASE_SECRET_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_SERVICE_KEY
-  );
-}
+import { getSupabaseProjectUrl, getSupabaseServiceRoleKey } from "@/lib/supabase/env";
 
 async function serviceHasListingUnlock(userId: string, listingId: string): Promise<boolean> {
-  const url = getSupabaseUrl();
-  const key = getServiceKey();
+  const url = getSupabaseProjectUrl();
+  const key = getSupabaseServiceRoleKey();
   if (!url || !key) return false;
   const client = createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -37,8 +29,8 @@ async function serviceHasListingUnlock(userId: string, listingId: string): Promi
 }
 
 async function serviceHasActiveMembership(userId: string): Promise<boolean> {
-  const url = getSupabaseUrl();
-  const key = getServiceKey();
+  const url = getSupabaseProjectUrl();
+  const key = getSupabaseServiceRoleKey();
   if (!url || !key) return false;
   const client = createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },

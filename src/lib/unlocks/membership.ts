@@ -2,19 +2,15 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseAuthServerClient } from "@/lib/supabase/auth-server";
-import { getSupabaseUrl, isSupabaseAuthConfigured } from "@/lib/supabase/env";
-
-function getServiceKey(): string | undefined {
-  return (
-    process.env.SUPABASE_SECRET_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_SERVICE_KEY
-  );
-}
+import {
+  getSupabaseProjectUrl,
+  getSupabaseServiceRoleKey,
+  isSupabaseAuthConfigured,
+} from "@/lib/supabase/env";
 
 function createServiceClient() {
-  const url = getSupabaseUrl();
-  const key = getServiceKey();
+  const url = getSupabaseProjectUrl();
+  const key = getSupabaseServiceRoleKey();
   if (!url || !key) return null;
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },

@@ -1,7 +1,11 @@
 import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { getDatabaseUrl } from "@/lib/supabase/listings-query";
-import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
+import {
+  getSupabasePublishableKey,
+  getSupabaseProjectUrl,
+  getSupabaseServiceRoleKey,
+} from "@/lib/supabase/env";
 import type { AnalyticsEventName } from "@/lib/analytics/types";
 import { normalizeAnalyticsPath } from "@/lib/analytics/types";
 
@@ -17,14 +21,6 @@ export type AnalyticsEventInsert = {
   metadata: Record<string, unknown>;
   userAgent: string | null;
 };
-
-function getServiceKey(): string | undefined {
-  return (
-    process.env.SUPABASE_SECRET_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_SERVICE_KEY
-  );
-}
 
 function toRpcPayload(events: AnalyticsEventInsert[]) {
   return events.map((event) => ({
@@ -87,8 +83,8 @@ async function insertViaPostgres(events: AnalyticsEventInsert[]): Promise<boolea
 }
 
 async function insertViaSupabaseService(events: AnalyticsEventInsert[]): Promise<boolean> {
-  const url = getSupabaseUrl();
-  const key = getServiceKey();
+  const url = getSupabaseProjectUrl();
+  const key = getSupabaseServiceRoleKey();
   if (!url || !key || events.length === 0) return false;
 
   const client = createClient(url, key, {
@@ -117,8 +113,8 @@ async function insertViaSupabaseService(events: AnalyticsEventInsert[]): Promise
 
 /** Works with anon key via SECURITY DEFINER RPC (production-safe fallback). */
 async function insertViaRpc(events: AnalyticsEventInsert[]): Promise<boolean> {
-  const url = getSupabaseUrl();
-  const key = getServiceKey() || getSupabaseAnonKey();
+  const url = getSupabaseProjectUrl();
+  const key = getSupabaseServiceRoleKey() || getSupabasePublishableKey();
   if (!url || !key || events.length === 0) return false;
 
   const client = createClient(url, key, {

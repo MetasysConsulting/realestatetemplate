@@ -5,11 +5,16 @@ import {
   bankOwnedDetailPath,
   hudDetailPath,
   LISTING_ROUTE_PREFIX,
+  PROPERTY_CATEGORIES,
   propertyRadarDetailPath,
   type PropertyCategoryKey,
 } from "@/lib/property-categories";
 import { createSupabaseAuthServerClient } from "@/lib/supabase/auth-server";
-import { getSupabaseUrl, isSupabaseAuthConfigured } from "@/lib/supabase/env";
+import {
+  getSupabaseProjectUrl,
+  getSupabaseServiceRoleKey,
+  isSupabaseAuthConfigured,
+} from "@/lib/supabase/env";
 import { userHasActiveMembership } from "@/lib/unlocks/membership";
 import { shouldAdminBypassPaywall } from "@/lib/unlocks/paywall-bypass";
 
@@ -26,17 +31,9 @@ export type ListingAccessResult = {
   userId: string | null;
 };
 
-function getServiceKey(): string | undefined {
-  return (
-    process.env.SUPABASE_SECRET_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_SERVICE_KEY
-  );
-}
-
 function createServiceClient() {
-  const url = getSupabaseUrl();
-  const key = getServiceKey();
+  const url = getSupabaseProjectUrl();
+  const key = getSupabaseServiceRoleKey();
   if (!url || !key) return null;
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -207,16 +204,24 @@ export async function grantListingUnlock(
   return { ok: true };
 }
 
+export type MyListingUnlockRow = {
+  listingId: string;
+  unlockedAt: string;
+  source: string;
+  detailPath: string;
+  label: string;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  category: string | null;
+  categoryLabel: string | null;
+  priceLabel: string | null;
+  imageUrl: string | null;
+};
+
 /** List active unlocks for the signed-in user (My Unlocks UI). */
-export async function listMyListingUnlocks(): Promise<
-  Array<{
-    listingId: string;
-    unlockedAt: string;
-    source: string;
-    detailPath: string;
-    label: string;
-  }>
-> {
+export async function listMyListingUnlocks(): Promise<MyListingUnlockRow[]> {
   if (!isSupabaseAuthConfigured()) return [];
 
   try {
@@ -225,7 +230,7 @@ export async function listMyListingUnlocks(): Promise<
     const { data, error } = await supabase
       .from("listing_unlocks")
       .select(
-        "listing_id, unlocked_at, source, listings ( id, category, external_id, address, city, state )",
+        "listing_id, unlocked_at, source, listings ( id, category, external_id, address, city, state, zip, price, price_label, image_url )",
       )
       .is("revoked_at", null)
       .or(`expires_at.is.null,expires_at.gt."${nowIso}"`)
@@ -250,6 +255,14 @@ export async function listMyListingUnlocks(): Promise<
           source: String(row.source),
           detailPath: detailPathForListingId(listingId),
           label: listingId,
+          address: null,
+          city: null,
+          state: null,
+          zip: null,
+          category: null,
+          categoryLabel: null,
+          priceLabel: null,
+          imageUrl: null,
         };
       });
     }
@@ -269,6 +282,14 @@ export async function listMyListingUnlocks(): Promise<
         source: String(row.source),
         detailPath,
         label,
+        address: listing?.address?.trim() || null,
+        city: listing?.city?.trim() || null,
+        state: listing?.state?.trim() || null,
+        zip: listing?.zip?.trim() || null,
+        category: listing?.category?.trim() || null,
+        categoryLabel: categoryNavLabel(listing?.category),
+        priceLabel: listingPriceLabel(listing),
+        imageUrl: listing?.image_url?.trim() || null,
       };
     });
   } catch {
@@ -283,6 +304,10 @@ type JoinedListing = {
   address?: string | null;
   city?: string | null;
   state?: string | null;
+  zip?: string | null;
+  price?: number | null;
+  price_label?: string | null;
+  image_url?: string | null;
 };
 
 function normalizeJoinedListing(value: unknown): JoinedListing | null {
@@ -301,6 +326,26 @@ function listingLabel(listingId: string, listing: JoinedListing | null): string 
   if (street) return street;
   if (cityState) return cityState;
   return listingId;
+}
+
+function categoryNavLabel(category: string | null | undefined): string | null {
+  if (!category) return null;
+  const config = PROPERTY_CATEGORIES[category as PropertyCategoryKey];
+  return config?.navLabel ?? category.replace(/-/g, " ");
+}
+
+function listingPriceLabel(listing: JoinedListing | null): string | null {
+  if (!listing) return null;
+  const labeled = listing.price_label?.trim();
+  if (labeled) return labeled;
+  if (typeof listing.price === "number" && Number.isFinite(listing.price) && listing.price > 0) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    }).format(listing.price);
+  }
+  return null;
 }
 
 /** Resolve public detail URL from listings.id (+ optional category/external_id). */
