@@ -1,6 +1,5 @@
 import type { User } from "@supabase/supabase-js";
 import { createClient } from "@supabase/supabase-js";
-import { isAdminEmail } from "@/lib/admin/admin-allowlist";
 import {
   auctionPropertyDetailPath,
   bankOwnedDetailPath,
@@ -12,6 +11,7 @@ import {
 import { createSupabaseAuthServerClient } from "@/lib/supabase/auth-server";
 import { getSupabaseUrl, isSupabaseAuthConfigured } from "@/lib/supabase/env";
 import { userHasActiveMembership } from "@/lib/unlocks/membership";
+import { shouldAdminBypassPaywall } from "@/lib/unlocks/paywall-bypass";
 
 export type ListingUnlockSource =
   | "stripe_one_time"
@@ -107,7 +107,7 @@ export async function resolveListingAccess(
   user: User | null | undefined,
   listingId: string,
 ): Promise<ListingAccessResult> {
-  const isAdminBypass = isAdminEmail(user?.email);
+  const isAdminBypass = await shouldAdminBypassPaywall(user?.email);
   if (isAdminBypass) {
     return {
       unlocked: true,

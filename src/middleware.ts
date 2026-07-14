@@ -2,11 +2,38 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseAnonKey, getSupabaseUrl } from "@/lib/supabase/env";
 import { isAdminEmail } from "@/lib/admin/admin-allowlist";
+import { FORCE_PAYWALL_COOKIE } from "@/lib/unlocks/paywall-bypass-cookie";
 
 function shouldRedirectToWww(request: NextRequest): boolean {
   if (process.env.NODE_ENV !== "production") return false;
   const host = request.headers.get("host")?.toLowerCase() ?? "";
   return host === "reovana.com";
+}
+
+/** `?forcePaywall=1` → cookie on (admins see paywall). `?forcePaywall=0` → off. */
+function applyForcePaywallQuery(request: NextRequest): NextResponse | null {
+  const value = request.nextUrl.searchParams.get("forcePaywall");
+  if (value !== "1" && value !== "0") return null;
+
+  const redirectUrl = request.nextUrl.clone();
+  redirectUrl.searchParams.delete("forcePaywall");
+  const response = NextResponse.redirect(redirectUrl);
+
+  if (value === "1") {
+    response.cookies.set(FORCE_PAYWALL_COOKIE, "1", {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 14,
+      sameSite: "lax",
+    });
+  } else {
+    response.cookies.set(FORCE_PAYWALL_COOKIE, "", {
+      path: "/",
+      maxAge: 0,
+      sameSite: "lax",
+    });
+  }
+
+  return response;
 }
 
 const MEMBER_PROTECTED_PREFIXES = [
@@ -48,6 +75,9 @@ export async function middleware(request: NextRequest) {
     url.host = "www.reovana.com";
     return NextResponse.redirect(url, 308);
   }
+
+  const forcePaywallResponse = applyForcePaywallQuery(request);
+  if (forcePaywallResponse) return forcePaywallResponse;
 
   const url = getSupabaseUrl();
   const key = getSupabaseAnonKey();
