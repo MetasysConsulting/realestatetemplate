@@ -11,6 +11,7 @@ import {
 } from "@/lib/property-categories";
 import { createSupabaseAuthServerClient } from "@/lib/supabase/auth-server";
 import { getSupabaseUrl, isSupabaseAuthConfigured } from "@/lib/supabase/env";
+import { userHasActiveMembership } from "@/lib/unlocks/membership";
 
 export type ListingUnlockSource =
   | "stripe_one_time"
@@ -101,7 +102,7 @@ export async function userHasListingUnlock(
   }
 }
 
-/** Admin allowlist OR active listing unlock. */
+/** Admin allowlist, active membership, or per-listing unlock. */
 export async function resolveListingAccess(
   user: User | null | undefined,
   listingId: string,
@@ -116,12 +117,31 @@ export async function resolveListingAccess(
     };
   }
 
-  if (!user?.id || !listingId) {
+  if (!user?.id) {
     return {
       unlocked: false,
       isAdminBypass: false,
       hasUnlock: false,
-      userId: user?.id ?? null,
+      userId: null,
+    };
+  }
+
+  const hasMembership = await userHasActiveMembership(user.id);
+  if (hasMembership) {
+    return {
+      unlocked: true,
+      isAdminBypass: false,
+      hasUnlock: true,
+      userId: user.id,
+    };
+  }
+
+  if (!listingId) {
+    return {
+      unlocked: false,
+      isAdminBypass: false,
+      hasUnlock: false,
+      userId: user.id,
     };
   }
 

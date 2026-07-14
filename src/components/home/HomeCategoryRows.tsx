@@ -41,13 +41,9 @@ function HomeCategoryCard({
   const statusLabel = saleStatusLabel(listing.status);
 
   return (
-    <article className="reovana-home-category-card box-house hover-img">
-      <div className="reovana-home-category-card__image-wrap image-wrap">
-        <ListingDetailLink
-          href={listing.detailPath}
-          className="reovana-home-category-card__media"
-          ariaLabel={`View ${location}`}
-        >
+    <article className="box-house hover-img reovana-home-category-card">
+      <div className="image-wrap">
+        <ListingDetailLink href={listing.detailPath} ariaLabel={`View ${location}`}>
           <ListingMedia imageUrl={listing.imageUrl} alt="" showMissingLabel={false} />
         </ListingDetailLink>
         <ul className="box-tag flex gap-8">
@@ -56,17 +52,17 @@ function HomeCategoryCard({
         </ul>
       </div>
 
-      <div className="reovana-home-category-card__body content">
+      <div className="content">
         <ListingDetailLink
           href={listing.detailPath}
-          className="reovana-home-category-card__location location text-1"
+          className="location text-1 line-clamp-1"
         >
           <i className="icon-location" aria-hidden="true" />
-          <span>{location}</span>
+          {location}
         </ListingDetailLink>
 
         {showMeta ? (
-          <ul className="meta-list flex reovana-home-category-card__meta">
+          <ul className="meta-list flex">
             {showBeds ? (
               <li className="text-1 flex">
                 <span>{listing.bedrooms}</span>Beds
@@ -90,16 +86,12 @@ function HomeCategoryCard({
           </ul>
         ) : null}
 
-        <div className="reovana-home-category-card__bot bot flex justify-between items-center">
-          {showPrice ? (
-            <h5 className="reovana-home-category-card__price price">{price}</h5>
-          ) : (
-            <span />
-          )}
-          <div className="wrap-btn flex reovana-home-category-card__actions">
+        <div className="bot flex justify-between items-center">
+          {showPrice ? <h5 className="price">{price}</h5> : <span />}
+          <div className="wrap-btn flex">
             <ListingDetailLink
               href={listing.detailPath}
-              className="tf-btn style-border pd-4 reovana-home-category-card__details"
+              className="tf-btn style-border pd-4"
               ariaLabel={`Details for ${location}`}
             >
               Details

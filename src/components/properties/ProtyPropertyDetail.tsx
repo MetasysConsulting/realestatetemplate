@@ -236,10 +236,6 @@ export function ProtyPropertyDetail({
     return () => window.clearTimeout(timer);
   }, [unlocked]);
 
-  const handleCheckoutSoon = () => {
-    trackUnlockIntent(model.id, isAdminBypass ? "admin" : "checkout_soon");
-  };
-
   const mapUrl = useMemo(
     () => (model.hasRealCoordinates ? buildMapEmbedUrl(model) : ""),
     [model],
@@ -393,9 +389,10 @@ export function ProtyPropertyDetail({
               <div className="tf-sidebar sticky-sidebar">
                 <ListingUnlockPaywall
                   unlocked={unlocked}
-                  allowUnlock={false}
-                  onUnlock={() => {}}
-                  onCheckoutSoon={handleCheckoutSoon}
+                  listingId={model.id}
+                  onUnlocked={() => {
+                    trackUnlockIntent(model.id, isAdminBypass ? "admin" : "paid");
+                  }}
                 />
 
                 <form className="form-contact-seller mb-30 reovana-blur-target" onSubmit={(e) => e.preventDefault()}>

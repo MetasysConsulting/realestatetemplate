@@ -9,6 +9,8 @@ import {
   listingIdFromPropertyDetailPath,
   trackUnlockIntent,
 } from "@/lib/property-gate";
+import { startStripeCheckout } from "@/lib/stripe/start-checkout";
+import type { StripeCheckoutPlan } from "@/lib/stripe/types";
 import { recordRecentlyViewed } from "@/lib/recently-viewed";
 import { DEFAULT_AUCTION_PROPERTY_IMAGE } from "@/lib/auction-property-images";
 
@@ -39,9 +41,6 @@ const BLUR_SELECTORS = [
   ".section-property-detail .form-contact-agent",
   ".section-similar-properties .box-house .content",
 ];
-
-const CHECKOUT_SOON_MESSAGE =
-  "Paid unlocks are almost ready. Checkout isn’t live yet — we’ll enable one-tap unlock here soon.";
 
 const LOCKED_PLACEHOLDER = "Unlock to view";
 
@@ -88,10 +87,10 @@ function buildPaywallHtml(): string {
           <li><span class="reovana-unlock-card__check">✓</span>Seller phone &amp; email</li>
         </ul>
         <div class="reovana-unlock-card__actions proty-unlock-btns">
-          <button type="button" class="reovana-unlock-card__primary" data-proty-unlock>
+          <button type="button" class="reovana-unlock-card__primary" data-proty-unlock data-plan="unlock">
             <span class="reovana-unlock-card__price-row"><span>Unlock this property</span><strong>$4.99</strong></span>
           </button>
-          <button type="button" class="reovana-unlock-card__secondary" data-proty-unlock>
+          <button type="button" class="reovana-unlock-card__secondary" data-proty-unlock data-plan="unlimited">
             <span class="reovana-unlock-card__price-row"><span>Unlimited access</span><strong>$49/mo</strong></span>
           </button>
         </div>
@@ -101,18 +100,36 @@ function buildPaywallHtml(): string {
   `;
 }
 
-function attachUnlockHandlers(gate: HTMLElement, scope: string) {
-  gate.querySelectorAll("[data-proty-unlock]").forEach((btn) => {
+function attachUnlockHandlers(gate: HTMLElement, listingId: string) {
+  gate.querySelectorAll<HTMLButtonElement>("[data-proty-unlock]").forEach((btn) => {
     if (btn.getAttribute("data-proty-unlock-wired") === "1") return;
     btn.setAttribute("data-proty-unlock-wired", "1");
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      trackUnlockIntent(scope, "checkout_soon");
+      const planAttr = btn.getAttribute("data-plan");
+      const plan: StripeCheckoutPlan =
+        planAttr === "unlimited" ? "unlimited" : "unlock";
       const notice = gate.querySelector<HTMLElement>("[data-proty-unlock-notice]");
-      if (notice) {
+      const setNotice = (text: string) => {
+        if (!notice) return;
         notice.hidden = false;
-        notice.textContent = CHECKOUT_SOON_MESSAGE;
+        notice.textContent = text;
+      };
+
+      if (!listingId) {
+        setNotice("Missing listing id for checkout.");
+        return;
       }
+
+      trackUnlockIntent(listingId, "checkout_start");
+      setNotice("Starting secure checkout…");
+      btn.disabled = true;
+      void startStripeCheckout({ listingId, plan }).then((result) => {
+        if (!result.ok && !result.loginRequired) {
+          setNotice(result.error);
+          btn.disabled = false;
+        }
+      });
     });
   });
 }
@@ -168,7 +185,23 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
       const access = await fetchPaywallAccess(listingId);
       if (cancelled) return;
 
-      initGate(root, listingId || scope, access.unlocked);
+      initGate(root, listingId || "", access.unlocked);
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("checkout") === "success" && listingId && !access.unlocked) {
+        // Webhook may lag the redirect — poll briefly then hard refresh.
+        for (let i = 0; i < 6 && !cancelled; i += 1) {
+          await new Promise((r) => window.setTimeout(r, 1000));
+          const again = await fetchPaywallAccess(listingId);
+          if (again.unlocked) {
+            const url = new URL(window.location.href);
+            url.searchParams.delete("checkout");
+            url.searchParams.delete("plan");
+            window.location.replace(url.pathname + url.search);
+            return;
+          }
+        }
+      }
     };
 
     void run();

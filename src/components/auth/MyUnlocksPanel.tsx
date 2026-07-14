@@ -9,7 +9,7 @@ export async function MyUnlocksPanel() {
       <div className="reovana-account-settings mt-30">
         <h2 className="title">My unlocks</h2>
         <p className="reovana-account-settings__intro">
-          Sign in to see listings you&apos;ve unlocked. Paid unlocks will appear here once checkout is live.
+          Sign in to see listings you&apos;ve unlocked.
         </p>
       </div>
     );
@@ -22,8 +22,7 @@ export async function MyUnlocksPanel() {
       <h2 className="title">My unlocks</h2>
       {unlocks.length === 0 ? (
         <p className="reovana-account-settings__intro">
-          No unlocked listings yet. When Stripe checkout goes live, purchases will be saved to your
-          account and show up here.
+          No unlocked listings yet. Unlock a property on any listing page and it will show up here.
         </p>
       ) : (
         <ul className="reovana-account-settings__intro" style={{ listStyle: "disc", paddingLeft: 20 }}>

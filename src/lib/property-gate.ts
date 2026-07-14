@@ -42,7 +42,7 @@ export function writeListingUnlocked(scope: string, reason: ListingUnlockReason)
 
 export function trackUnlockIntent(
   scope: string,
-  reason: ListingUnlockReason | "checkout_soon" = "checkout_soon",
+  reason: ListingUnlockReason | "checkout_soon" | "checkout_start" = "checkout_soon",
 ): void {
   try {
     void import("@/lib/analytics/client-track").then(({ trackClientEvent }) => {

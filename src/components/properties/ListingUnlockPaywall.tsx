@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { fetchPaywallAccess } from "@/lib/property-gate";
+import { startStripeCheckout } from "@/lib/stripe/start-checkout";
+import type { StripeCheckoutPlan } from "@/lib/stripe/types";
 
 type ListingUnlockPaywallProps = {
   unlocked: boolean;
-  /** When true (e.g. after Stripe), buttons unlock. Until then, show checkout-soon notice. */
-  allowUnlock?: boolean;
-  onUnlock: () => void;
-  onCheckoutSoon?: () => void;
+  listingId: string;
+  onUnlocked?: () => void;
 };
 
 const INCLUDED = [
@@ -48,29 +49,67 @@ function CheckIcon() {
 
 export function ListingUnlockPaywall({
   unlocked,
-  allowUnlock = false,
-  onUnlock,
-  onCheckoutSoon,
+  listingId,
+  onUnlocked,
 }: ListingUnlockPaywallProps) {
   const [isPending, startTransition] = useTransition();
   const [notice, setNotice] = useState<string | null>(null);
+  const [isUnlocked, setIsUnlocked] = useState(unlocked);
 
-  if (unlocked) {
+  useEffect(() => {
+    setIsUnlocked(unlocked);
+  }, [unlocked]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get("checkout");
+    if (checkout === "cancelled") {
+      setNotice("Checkout cancelled. Your card was not charged.");
+      return;
+    }
+    if (checkout !== "success") return;
+
+    setNotice("Payment received — unlocking this listing…");
+    let attempts = 0;
+    const timer = window.setInterval(() => {
+      attempts += 1;
+      void fetchPaywallAccess(listingId).then((access) => {
+        if (access.unlocked) {
+          window.clearInterval(timer);
+          setIsUnlocked(true);
+          setNotice("Unlocked. Refreshing details…");
+          onUnlocked?.();
+          window.setTimeout(() => {
+            const url = new URL(window.location.href);
+            url.searchParams.delete("checkout");
+            url.searchParams.delete("plan");
+            window.location.replace(url.pathname + url.search);
+          }, 400);
+        } else if (attempts >= 8) {
+          window.clearInterval(timer);
+          setNotice(
+            "Payment received. If details stay locked, refresh in a few seconds while the unlock finishes syncing.",
+          );
+        }
+      });
+    }, 1200);
+
+    return () => window.clearInterval(timer);
+  }, [listingId, onUnlocked]);
+
+  if (isUnlocked) {
     return null;
   }
 
-  const handlePrimary = () => {
-    if (allowUnlock) {
-      startTransition(() => {
-        onUnlock();
-      });
-      return;
-    }
-
-    onCheckoutSoon?.();
-    setNotice(
-      "Checkout isn’t live yet. Your unlock will be saved to your account once Stripe is connected — entitlements are already wired on our side.",
-    );
+  const handleCheckout = (plan: StripeCheckoutPlan) => {
+    setNotice(null);
+    startTransition(async () => {
+      const result = await startStripeCheckout({ listingId, plan });
+      if (!result.ok && !result.loginRequired) {
+        setNotice(result.error);
+      }
+    });
   };
 
   return (
@@ -102,18 +141,18 @@ export function ListingUnlockPaywall({
           <button
             type="button"
             className="reovana-unlock-card__primary"
-            onClick={handlePrimary}
+            onClick={() => handleCheckout("unlock")}
             disabled={isPending}
           >
             <span className="reovana-unlock-card__price-row">
-              <span>Unlock this property</span>
+              <span>{isPending ? "Starting checkout…" : "Unlock this property"}</span>
               <strong>$4.99</strong>
             </span>
           </button>
           <button
             type="button"
             className="reovana-unlock-card__secondary"
-            onClick={handlePrimary}
+            onClick={() => handleCheckout("unlimited")}
             disabled={isPending}
           >
             <span className="reovana-unlock-card__price-row">
