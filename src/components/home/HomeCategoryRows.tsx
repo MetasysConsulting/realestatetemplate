@@ -35,10 +35,9 @@ function HomeCategoryCard({
   const price = listing.browseLocked
     ? BROWSE_LOCKED_PRICE_DISPLAY
     : formatCardPrice(listing.price);
-  // Soft-gated cards only tease area + locked price (match browse soft-gate).
-  const showBeds = !listing.browseLocked && listing.bedrooms > 0;
-  const showBaths = !listing.browseLocked && listing.bathrooms > 0;
-  const showSqft = !listing.browseLocked && listing.squareFootage > 0;
+  const showBeds = listing.bedrooms > 0;
+  const showBaths = listing.bathrooms > 0;
+  const showSqft = listing.squareFootage > 0;
   const showMeta = showBeds || showBaths || showSqft;
   const statusLabel = saleStatusLabel(listing.status);
 
