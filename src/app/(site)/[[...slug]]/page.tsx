@@ -2,10 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TemplatePage } from "@/components/template/TemplatePage";
 import { isPropertyDetailRoute } from "@/lib/property-gate";
-import {
-  maybeRedactHomeCategoryRows,
-} from "@/lib/listing-browse-redact";
-import { shouldRevealBrowseDetails } from "@/lib/listing-browse-access";
 import { fetchHomeCategoryRows } from "@/lib/listings-repository";
 import { fetchHomeNeighborhoods } from "@/lib/fetch-home-neighborhoods";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
@@ -59,12 +55,8 @@ export default async function TemplateRoutePage({ params }: PageProps) {
     notFound();
   }
 
-  const revealBrowseDetails =
-    route === "/" ? await shouldRevealBrowseDetails() : true;
-  const homeCategoryRows =
-    route === "/"
-      ? maybeRedactHomeCategoryRows(await fetchHomeCategoryRows(), revealBrowseDetails)
-      : {};
+  // Homepage cards are open teaser rows (price + address shown). Paywall applies on detail pages.
+  const homeCategoryRows = route === "/" ? await fetchHomeCategoryRows() : {};
   const homeNeighborhoods = route === "/" ? await fetchHomeNeighborhoods() : [];
 
   return (
@@ -77,7 +69,7 @@ export default async function TemplateRoutePage({ params }: PageProps) {
       showNeighborhoodsCarousel={route === "/"}
       homeCategoryRows={homeCategoryRows}
       homeNeighborhoods={homeNeighborhoods}
-      browseSoftGate={route === "/" ? !revealBrowseDetails : false}
+      browseSoftGate={false}
     />
   );
 }
