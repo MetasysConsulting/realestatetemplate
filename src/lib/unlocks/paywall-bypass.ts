@@ -8,13 +8,17 @@ export { FORCE_PAYWALL_COOKIE };
 
 /**
  * Master switch (Vercel / .env):
- * - unset / true  → admins auto-unlock listings (default)
- * - false / 0 / off → admin unlock bypass disabled site-wide
+ * - unset / false → admins see the paywall like members (default — better for QA)
+ * - true / 1 / on → admins auto-unlock all listings
+ *
+ * Quick test without redeploying:
+ * - `?forcePaywall=1` → treat admin as locked (cookie)
+ * - `?forcePaywall=0` → clear that cookie
  */
 export function isPaywallAdminBypassEnvEnabled(): boolean {
   const raw = process.env.PAYWALL_ADMIN_BYPASS?.trim().toLowerCase();
-  if (!raw) return true;
-  return !["0", "false", "off", "no"].includes(raw);
+  if (!raw) return false;
+  return ["1", "true", "on", "yes"].includes(raw);
 }
 
 export async function isForcePaywallCookieActive(): Promise<boolean> {
