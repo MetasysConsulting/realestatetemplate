@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { fetchPaywallAccess } from "@/lib/property-gate";
+import { confirmStripeCheckout } from "@/lib/stripe/confirm-checkout-client";
 import { startStripeCheckout } from "@/lib/stripe/start-checkout";
 import type { StripeCheckoutPlan } from "@/lib/stripe/types";
 
@@ -70,32 +71,54 @@ export function ListingUnlockPaywall({
     }
     if (checkout !== "success") return;
 
-    setNotice("Payment received — unlocking this listing…");
-    let attempts = 0;
-    const timer = window.setInterval(() => {
-      attempts += 1;
-      void fetchPaywallAccess(listingId).then((access) => {
-        if (access.unlocked) {
-          window.clearInterval(timer);
-          setIsUnlocked(true);
-          setNotice("Unlocked. Refreshing details…");
-          onUnlocked?.();
-          window.setTimeout(() => {
-            const url = new URL(window.location.href);
-            url.searchParams.delete("checkout");
-            url.searchParams.delete("plan");
-            window.location.replace(url.pathname + url.search);
-          }, 400);
-        } else if (attempts >= 8) {
-          window.clearInterval(timer);
-          setNotice(
-            "Payment received. If details stay locked, refresh in a few seconds while the unlock finishes syncing.",
-          );
-        }
-      });
-    }, 1200);
+    let cancelled = false;
+    const sessionId = params.get("session_id");
 
-    return () => window.clearInterval(timer);
+    const finishUnlocked = () => {
+      if (cancelled) return;
+      setIsUnlocked(true);
+      setNotice("Unlocked. Refreshing details…");
+      onUnlocked?.();
+      window.setTimeout(() => {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("checkout");
+        url.searchParams.delete("plan");
+        url.searchParams.delete("session_id");
+        window.location.replace(url.pathname + url.search);
+      }, 400);
+    };
+
+    setNotice("Payment received — unlocking this listing…");
+
+    void (async () => {
+      const confirmed = await confirmStripeCheckout({ listingId, sessionId });
+      if (cancelled) return;
+      if (confirmed.unlocked) {
+        finishUnlocked();
+        return;
+      }
+
+      // Fallback: poll in case webhook wins the race after confirm looked too early.
+      for (let attempt = 0; attempt < 6 && !cancelled; attempt += 1) {
+        await new Promise((r) => window.setTimeout(r, 1000));
+        const access = await fetchPaywallAccess(listingId);
+        if (access.unlocked) {
+          finishUnlocked();
+          return;
+        }
+      }
+
+      if (!cancelled) {
+        setNotice(
+          confirmed.error ||
+            "Payment received, but unlock didn’t apply yet. Stay signed in, refresh, or contact support with your Stripe receipt.",
+        );
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [listingId, onUnlocked]);
 
   if (isUnlocked) {

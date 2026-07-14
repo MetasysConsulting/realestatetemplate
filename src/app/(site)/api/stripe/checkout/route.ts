@@ -60,7 +60,8 @@ export async function POST(request: NextRequest) {
 
   const returnPath = safeReturnPath(payload.returnPath);
   const origin = request.nextUrl.origin;
-  const successUrl = `${origin}${returnPath}?checkout=success&plan=${payload.plan}`;
+  // `{CHECKOUT_SESSION_ID}` is replaced by Stripe so we can fulfill unlocks if the webhook lags.
+  const successUrl = `${origin}${returnPath}?checkout=success&plan=${payload.plan}&session_id={CHECKOUT_SESSION_ID}`;
   const cancelUrl = `${origin}${returnPath}?checkout=cancelled`;
 
   try {

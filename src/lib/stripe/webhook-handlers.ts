@@ -19,14 +19,14 @@ function subscriptionPeriodEnd(sub: Stripe.Subscription): string | null {
 
 export async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
-): Promise<void> {
+): Promise<{ ok: boolean; error?: string }> {
   const userId = meta(session, "userId") || session.client_reference_id?.trim() || "";
   const listingId = meta(session, "listingId");
   const plan = meta(session, "plan") || (session.mode === "subscription" ? "unlimited" : "unlock");
 
   if (!userId) {
     console.error("[stripe/webhook] Missing userId on checkout session", session.id);
-    return;
+    return { ok: false, error: "Missing userId on checkout session." };
   }
 
   const customerId =
@@ -68,6 +68,7 @@ export async function handleCheckoutSessionCompleted(
 
     if (!membership.ok) {
       console.error("[stripe/webhook] membership upsert failed", membership.error);
+      return { ok: false, error: membership.error };
     }
 
     // Also unlock the listing they checked out from, for an immediate win.
@@ -85,14 +86,15 @@ export async function handleCheckoutSessionCompleted(
       });
       if (!grant.ok) {
         console.error("[stripe/webhook] listing grant failed", grant.error);
+        // Membership still granted — treat as ok for unlimited plan.
       }
     }
-    return;
+    return { ok: true };
   }
 
   if (!listingId) {
     console.error("[stripe/webhook] Missing listingId on payment checkout", session.id);
-    return;
+    return { ok: false, error: "Missing listingId on checkout session." };
   }
 
   const grant = await grantListingUnlock({
@@ -109,7 +111,10 @@ export async function handleCheckoutSessionCompleted(
 
   if (!grant.ok) {
     console.error("[stripe/webhook] listing grant failed", grant.error);
+    return { ok: false, error: grant.error };
   }
+
+  return { ok: true };
 }
 
 export async function handleSubscriptionUpdated(

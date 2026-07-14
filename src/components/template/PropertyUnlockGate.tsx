@@ -9,6 +9,7 @@ import {
   listingIdFromPropertyDetailPath,
   trackUnlockIntent,
 } from "@/lib/property-gate";
+import { confirmStripeCheckout } from "@/lib/stripe/confirm-checkout-client";
 import { startStripeCheckout } from "@/lib/stripe/start-checkout";
 import type { StripeCheckoutPlan } from "@/lib/stripe/types";
 import { recordRecentlyViewed } from "@/lib/recently-viewed";
@@ -189,14 +190,27 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
 
       const params = new URLSearchParams(window.location.search);
       if (params.get("checkout") === "success" && listingId && !access.unlocked) {
-        // Webhook may lag the redirect — poll briefly then hard refresh.
-        for (let i = 0; i < 6 && !cancelled; i += 1) {
+        const confirmed = await confirmStripeCheckout({
+          listingId,
+          sessionId: params.get("session_id"),
+        });
+        if (cancelled) return;
+        if (confirmed.unlocked) {
+          const url = new URL(window.location.href);
+          url.searchParams.delete("checkout");
+          url.searchParams.delete("plan");
+          url.searchParams.delete("session_id");
+          window.location.replace(url.pathname + url.search);
+          return;
+        }
+        for (let i = 0; i < 4 && !cancelled; i += 1) {
           await new Promise((r) => window.setTimeout(r, 1000));
           const again = await fetchPaywallAccess(listingId);
           if (again.unlocked) {
             const url = new URL(window.location.href);
             url.searchParams.delete("checkout");
             url.searchParams.delete("plan");
+            url.searchParams.delete("session_id");
             window.location.replace(url.pathname + url.search);
             return;
           }

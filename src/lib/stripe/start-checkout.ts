@@ -31,6 +31,7 @@ export async function startStripeCheckout(input: {
 
     const data = (await res.json().catch(() => ({}))) as {
       url?: string;
+      sessionId?: string;
       error?: string;
       loginRequired?: boolean;
     };
@@ -47,6 +48,15 @@ export async function startStripeCheckout(input: {
         ok: false,
         error: data.error || "Could not start checkout. Try again.",
       };
+    }
+
+    try {
+      if (data.sessionId) {
+        sessionStorage.setItem("reovana_checkout_session", data.sessionId);
+        sessionStorage.setItem("reovana_checkout_listing", input.listingId);
+      }
+    } catch {
+      /* private browsing */
     }
 
     window.location.href = data.url;
