@@ -68,7 +68,13 @@ export function classifyTrafficSection(path: string): string {
   if (clean.startsWith("/learn")) return "Learn";
   if (clean.startsWith("/sell")) return "Sell";
   if (clean.startsWith("/loans")) return "Loans";
-  if (clean.startsWith("/my-profile") || clean.startsWith("/auth")) return "Account";
+  if (
+    clean.startsWith("/my-profile") ||
+    clean.startsWith("/billing") ||
+    clean.startsWith("/auth")
+  ) {
+    return "Account";
+  }
   return "Other";
 }
 
@@ -170,6 +176,7 @@ async function fetchViaPostgres(): Promise<SiteActivitySummary | null> {
             WHEN split_part(path, '?', 1) ILIKE '/sell%' THEN 'Sell'
             WHEN split_part(path, '?', 1) ILIKE '/loans%' THEN 'Loans'
             WHEN split_part(path, '?', 1) ILIKE '/my-profile%'
+              OR split_part(path, '?', 1) ILIKE '/billing%'
               OR split_part(path, '?', 1) ILIKE '/auth%' THEN 'Account'
             ELSE 'Other'
           END AS section,

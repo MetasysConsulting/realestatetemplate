@@ -135,7 +135,7 @@ export async function MyUnlocksPanel() {
   const unlocks = await listMyListingUnlocks();
 
   return (
-    <div className="widget-box-2 reovana-account-settings reovana-my-unlocks">
+    <div id="my-unlocks" className="widget-box-2 reovana-account-settings reovana-my-unlocks">
       <div className="box">
         <div className="reovana-my-unlocks__header">
           <div>

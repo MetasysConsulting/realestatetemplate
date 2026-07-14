@@ -550,6 +550,131 @@ body.auctions-route .reovana-site .header {
   gap: 24px;
 }
 
+.reovana-account-page__link {
+  color: var(--Primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.reovana-billing .reovana-account-settings__intro {
+  margin-bottom: 0;
+}
+
+.reovana-billing__header {
+  margin-bottom: 22px;
+}
+
+.reovana-billing__plan {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  border: 1px solid rgba(20, 30, 40, 0.08);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.reovana-billing__plan-name {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--Heading);
+}
+
+.reovana-billing__plan-detail {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--Text);
+}
+
+.reovana-billing__status {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: capitalize;
+}
+
+.reovana-billing__status--active {
+  color: var(--Primary);
+  background: color-mix(in srgb, var(--Primary) 12%, transparent);
+}
+
+.reovana-billing__status--inactive {
+  color: var(--Text);
+  background: #f1f3f5;
+}
+
+.reovana-billing__facts {
+  display: grid;
+  gap: 14px;
+  margin: 22px 0 0;
+}
+
+.reovana-billing__facts > div {
+  display: grid;
+  gap: 4px;
+}
+
+.reovana-billing__facts dt {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--Text) 80%, transparent);
+}
+
+.reovana-billing__facts dd {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--Heading);
+}
+
+.reovana-billing__facts a {
+  color: var(--Primary);
+  font-weight: 600;
+}
+
+.reovana-billing__actions {
+  margin-top: 26px;
+}
+
+.reovana-billing__portal {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.reovana-billing__footnote {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--Text);
+}
+
+.reovana-billing__error {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: #c0392b;
+}
+
+@media (max-width: 767px) {
+  .reovana-billing__plan {
+    flex-direction: column;
+  }
+}
+
 .reovana-my-unlocks .reovana-account-settings__intro {
   margin-bottom: 0;
 }

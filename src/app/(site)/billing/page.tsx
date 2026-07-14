@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { AccountSettingsForm } from "@/components/auth/AccountSettingsForm";
-import { MyUnlocksPanel } from "@/components/auth/MyUnlocksPanel";
+import { BillingPanel } from "@/components/auth/BillingPanel";
 import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
-  title: "Account Settings — REOVANA",
+  title: "Billing — REOVANA",
 };
 
-export default function MyProfilePage() {
+export default function BillingPage() {
   const home = loadTemplatePageBySlug("index");
   const chrome = home
     ? extractTemplateChrome(home.html)
@@ -28,18 +29,12 @@ export default function MyProfilePage() {
           <div className="row justify-content-center">
             <div className="col-12 col-xl-8">
               <div className="reovana-account-page__header">
-                <h1 className="reovana-account-page__title">Account settings</h1>
+                <h1 className="reovana-account-page__title">Billing</h1>
                 <p className="reovana-account-page__subtitle">
-                  Manage your profile and reopen any listing you&apos;ve unlocked.{" "}
-                  <Link href="/billing" className="reovana-account-page__link">
-                    Billing &amp; subscription
-                  </Link>
+                  See your REOVANA plan and manage or cancel your Stripe subscription.
                 </p>
               </div>
-              <div className="reovana-account-page__stack">
-                <AccountSettingsForm />
-                <MyUnlocksPanel />
-              </div>
+              <BillingPanel />
             </div>
           </div>
         </div>

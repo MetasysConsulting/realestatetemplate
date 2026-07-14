@@ -39,6 +39,7 @@ function applyForcePaywallQuery(request: NextRequest): NextResponse | null {
 const MEMBER_PROTECTED_PREFIXES = [
   "/dashboard",
   "/my-profile",
+  "/billing",
   "/my-package",
   "/my-favorites",
   "/my-save-search",

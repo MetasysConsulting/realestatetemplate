@@ -10,6 +10,7 @@ import {
 import { getStripe } from "@/lib/stripe/server";
 import type { StripeCheckoutPlan } from "@/lib/stripe/types";
 import { toListingUnlockId } from "@/lib/unlocks/entitlements";
+import { resolveStripeCustomerIdForUser } from "@/lib/unlocks/membership";
 
 export type CreateCheckoutSessionInput = {
   userId: string;
@@ -72,9 +73,13 @@ export async function createListingCheckoutSession(
     plan,
   };
 
+  const existingCustomerId = await resolveStripeCustomerIdForUser(input.userId);
+
   return stripe.checkout.sessions.create({
     mode,
-    customer_email: input.userEmail || undefined,
+    ...(existingCustomerId
+      ? { customer: existingCustomerId }
+      : { customer_email: input.userEmail || undefined }),
     client_reference_id: input.userId,
     line_items: [plan === "unlimited" ? unlimitedLineItem() : unlockLineItem(listingId)],
     success_url: input.successUrl,

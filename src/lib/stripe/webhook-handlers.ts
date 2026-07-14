@@ -24,6 +24,20 @@ export async function handleCheckoutSessionCompleted(
   const listingId = meta(session, "listingId");
   const plan = meta(session, "plan") || (session.mode === "subscription" ? "unlimited" : "unlock");
 
+  // Only grant after Stripe reports payment (or no charge due, e.g. $0 trials).
+  if (
+    session.payment_status &&
+    session.payment_status !== "paid" &&
+    session.payment_status !== "no_payment_required"
+  ) {
+    console.error(
+      "[stripe/webhook] Ignoring unpaid checkout session",
+      session.id,
+      session.payment_status,
+    );
+    return { ok: false, error: `Checkout not paid yet (${session.payment_status}).` };
+  }
+
   if (!userId) {
     console.error("[stripe/webhook] Missing userId on checkout session", session.id);
     return { ok: false, error: "Missing userId on checkout session." };
