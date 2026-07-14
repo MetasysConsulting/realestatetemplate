@@ -216,8 +216,15 @@ export function PropertyUnlockGate({ enabled }: PropertyUnlockGateProps) {
         root.querySelector(".wg-property.box-overview .location")?.textContent?.trim() ||
         root.querySelector(".wg-property .title")?.textContent?.trim() ||
         "Property listing";
+      // Don't save paywall placeholders into Recently Viewed.
+      if (/address locked|unlock to view|unlock for full|••••/i.test(location)) {
+        return;
+      }
       const priceText =
         root.querySelector(".wg-property.box-overview .price")?.textContent?.trim() || "$0";
+      if (/••••|unlock/i.test(priceText)) {
+        return;
+      }
       const price = Number(priceText.replace(/[^0-9.]/g, "")) || 0;
       const imageUrl =
         root.querySelector<HTMLImageElement>(".section-property-image img")?.src ||

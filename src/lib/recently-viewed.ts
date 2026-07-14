@@ -33,7 +33,14 @@ export function recordRecentlyViewed(item: Omit<RecentlyViewedListing, "viewedAt
   if (typeof window === "undefined") return;
 
   const entry: RecentlyViewedListing = { ...item, viewedAt: Date.now() };
-  const existing = getRecentlyViewed().filter((row) => row.id !== entry.id);
+  // Never persist paywall placeholders from locked detail pages.
+  if (isLockedPlaceholder(entry) || (!entry.price && entry.address.trim().toLowerCase() === "address locked")) {
+    return;
+  }
+
+  const existing = getRecentlyViewed().filter(
+    (row) => row.id !== entry.id && !isLockedPlaceholder(row),
+  );
   const next = [entry, ...existing].slice(0, MAX_ITEMS);
 
   try {
@@ -44,27 +51,38 @@ export function recordRecentlyViewed(item: Omit<RecentlyViewedListing, "viewedAt
   }
 }
 
+function isLockedPlaceholder(item: RecentlyViewedListing): boolean {
+  const address = item.address?.trim().toLowerCase() ?? "";
+  return (
+    address === "address locked" ||
+    address.startsWith("address locked,") ||
+    address.includes("— unlock for full address")
+  );
+}
+
 export function getHomeRecentlyViewedListings(): PropertyListing[] {
-  return getRecentlyViewed().map((item) => ({
-    id: item.id,
-    address: item.address,
-    city: item.city,
-    state: item.state,
-    zip: item.zip,
-    price: item.price,
-    priceLabel: item.priceLabel,
-    bedrooms: 0,
-    bathrooms: 0,
-    squareFootage: 0,
-    propertyType: "Recently Viewed",
-    status: "For Sale",
-    tags: ["Recently Viewed"],
-    imageUrl: item.imageUrl,
-    hasImage: Boolean(item.imageUrl?.trim()),
-    detailPath: item.detailPath,
-    lat: 0,
-    lng: 0,
-    hasRealCoordinates: false,
-    isNew: false,
-  }));
+  return getRecentlyViewed()
+    .filter((item) => !isLockedPlaceholder(item))
+    .map((item) => ({
+      id: item.id,
+      address: item.address,
+      city: item.city,
+      state: item.state,
+      zip: item.zip,
+      price: item.price,
+      priceLabel: item.priceLabel,
+      bedrooms: 0,
+      bathrooms: 0,
+      squareFootage: 0,
+      propertyType: "Recently Viewed",
+      status: "For Sale",
+      tags: ["Recently Viewed"],
+      imageUrl: item.imageUrl,
+      hasImage: Boolean(item.imageUrl?.trim()),
+      detailPath: item.detailPath,
+      lat: 0,
+      lng: 0,
+      hasRealCoordinates: false,
+      isNew: false,
+    }));
 }

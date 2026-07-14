@@ -194,12 +194,8 @@ export function redactProtyListingDetail(model: ProtyListingDetailModel): ProtyL
     disclaimer: model.disclaimer
       ? "Unlock this listing to view source and update details."
       : undefined,
-    recentlyViewed: {
-      ...model.recentlyViewed,
-      address: "Address locked",
-      zip: "",
-      price: 0,
-    },
+    // Keep real address/price for homepage Recently Viewed — paywall only redacts the page UI.
+    recentlyViewed: model.recentlyViewed,
   };
 }
 
