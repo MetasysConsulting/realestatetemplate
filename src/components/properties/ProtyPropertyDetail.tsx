@@ -116,8 +116,8 @@ function ListingOverview({
   return (
     <>
       <div className="heading flex justify-between">
-        <div className="title text-5 fw-6 text-color-heading reovana-blur-target">{model.title}</div>
-        <div className="price text-5 fw-6 text-color-heading reovana-blur-target">
+        <div className="title text-5 fw-6 text-color-heading">{model.title}</div>
+        <div className="price text-5 fw-6 text-color-heading">
           {model.priceDisplay}
           {model.priceSuffix ? (
             <span className="h5 lh-30 fw-4 text-color-default">{model.priceSuffix}</span>
@@ -126,11 +126,11 @@ function ListingOverview({
       </div>
       <div className="info flex justify-between">
         <div className="feature">
-          <p className="location text-1 flex items-center gap-10 reovana-blur-target">
+          <p className="location text-1 flex items-center gap-10">
             <i className="icon-location" />
             {model.locationLine}
           </p>
-          <ul className="meta-list flex reovana-blur-target">
+          <ul className="meta-list flex">
             {model.bedrooms > 0 ? (
               <li className="text-1 flex">
                 <span>{model.bedrooms}</span>Bed
@@ -167,7 +167,7 @@ function ListingOverview({
           </ul>
         </div>
       </div>
-      <div className="info-detail reovana-blur-target">
+      <div className="info-detail">
         <div className="wrap-box">
           <InfoDetailBox iconClass="icon-HouseLine" label="ID:" value={model.listingId} />
           <InfoDetailBox iconClass="icon-Bathtub" label="Bathrooms:" value={formatRooms(model.bathrooms)} />
@@ -192,9 +192,50 @@ function ListingOverview({
   );
 }
 
+function OwnerContactBlock({
+  owner,
+  unlocked,
+}: {
+  owner: NonNullable<ProtyListingDetailModel["ownerContact"]>;
+  unlocked: boolean;
+}) {
+  return (
+    <div className={`wg-property box-owner-contact${unlocked ? "" : " reovana-blur-target"}`}>
+      <div className="wg-title text-11 fw-6 text-color-heading">Owner information</div>
+      <div className="box">
+        <ul>
+          {owner.name?.trim() ? (
+            <li className="flex">
+              <p className="fw-6">Owner</p>
+              <p>{owner.name}</p>
+            </li>
+          ) : null}
+          {owner.phone?.trim() ? (
+            <li className="flex">
+              <p className="fw-6">Phone</p>
+              <p>{owner.phone}</p>
+            </li>
+          ) : null}
+          {owner.email?.trim() ? (
+            <li className="flex">
+              <p className="fw-6">Email</p>
+              <p>{owner.email}</p>
+            </li>
+          ) : null}
+        </ul>
+      </div>
+      {!unlocked ? (
+        <p className="reovana-owner-locked-hint text-1">
+          Unlock this listing to reveal owner contact details.
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function SidebarAds() {
   return (
-    <div className="sidebar-ads mb-30 reovana-blur-target">
+    <div className="sidebar-ads mb-30">
       <div className="image-wrap">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/home/house-db-1.jpg" alt="" />
@@ -268,7 +309,7 @@ export function ProtyPropertyDetail({
                   <li>
                     <Link href={model.backHref}>{model.backLabel}</Link>
                   </li>
-                  <li className="reovana-blur-target">{model.title}</li>
+                  <li>{model.title}</li>
                 </ul>
               </div>
             </div>
@@ -294,7 +335,7 @@ export function ProtyPropertyDetail({
                 <ListingOverview model={model} initialFavorited={initialFavorited} />
               </div>
 
-              <div className="wg-property box-property-detail reovana-blur-target">
+              <div className="wg-property box-property-detail">
                 <div className="wg-title text-11 fw-6 text-color-heading">Property Details</div>
                 <div className="content">
                   <p className="description text-1">{model.description}</p>
@@ -319,8 +360,12 @@ export function ProtyPropertyDetail({
                 </div>
               </div>
 
+              {model.ownerContact ? (
+                <OwnerContactBlock owner={model.ownerContact} unlocked={unlocked} />
+              ) : null}
+
               {amenityColumns.length > 0 ? (
-                <div className="wg-property box-amenities reovana-blur-target">
+                <div className="wg-property box-amenities">
                   <div className="wg-title text-11 fw-6 text-color-heading">Amenities And Features</div>
                   <div className="wrap-feature">
                     {amenityColumns.map((column, columnIndex) => (
@@ -339,7 +384,7 @@ export function ProtyPropertyDetail({
               ) : null}
 
               {model.hasRealCoordinates ? (
-                <div className="wg-property single-property-map reovana-blur-target">
+                <div className="wg-property single-property-map">
                   <div className="wg-title text-11 fw-6 text-color-heading">Get Direction</div>
                   <iframe
                     className="map reovana-listing-detail__map"
@@ -386,7 +431,7 @@ export function ProtyPropertyDetail({
               ) : null}
 
               {model.disclaimer ? (
-                <p className="reovana-listing-detail__disclaimer reovana-blur-target">{model.disclaimer}</p>
+                <p className="reovana-listing-detail__disclaimer">{model.disclaimer}</p>
               ) : null}
             </div>
 
@@ -395,12 +440,13 @@ export function ProtyPropertyDetail({
                 <ListingUnlockPaywall
                   unlocked={unlocked}
                   listingId={model.id}
+                  hasOwnerContact={Boolean(model.ownerContact)}
                   onUnlocked={() => {
                     trackUnlockIntent(model.id, isAdminBypass ? "admin" : "paid");
                   }}
                 />
 
-                <form className="form-contact-seller mb-30 reovana-blur-target" onSubmit={(e) => e.preventDefault()}>
+                <form className="form-contact-seller mb-30" onSubmit={(e) => e.preventDefault()}>
                   <h4 className="heading-title mb-30">Contact Sellers</h4>
                   <div className="seller-info">
                     <div className="avartar">
@@ -434,7 +480,7 @@ export function ProtyPropertyDetail({
 
                 <SidebarAds />
 
-                <form className="form-contact-agent reovana-blur-target" onSubmit={(e) => e.preventDefault()}>
+                <form className="form-contact-agent" onSubmit={(e) => e.preventDefault()}>
                   <h4 className="heading-title mb-30">More About This Property</h4>
                   <fieldset>
                     <input type="text" className="form-control" placeholder="Your name" name="name" />

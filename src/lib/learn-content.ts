@@ -268,25 +268,24 @@ export const HELP_ARTICLE_UNLOCKING: LearnArticle = {
   sections: [
     {
       type: "p",
-      text: "Every REOVANA listing shows you a lot for free — the price estimate, distress stage, photos, neighborhood, and key dates. A few sensitive details are held back until you unlock them: the exact street address and the owner's contact information. Here's how that works.",
+      text: "Every REOVANA listing shows public property details for free — address, price, beds/baths/sqft, photos, map, and facts when we have them. Only owner-of-record contact is held back until you unlock. If we don’t have owner data for a listing, that section simply isn’t shown.",
     },
     { type: "h2", text: "What you can see for free" },
     {
       type: "ul",
       items: [
-        "Estimated value, amount owed, and equity",
-        "Distress stage and the full foreclosure timeline",
+        "Full street address, city, state, and ZIP",
+        "List price or estimated value when available",
         "Bedrooms, bathrooms, square footage, and photos",
-        "Approximate location and neighborhood",
+        "Property facts, amenities, and map pin when available",
       ],
     },
     { type: "h2", text: "What unlocking reveals" },
     {
       type: "ul",
       items: [
-        "The exact street address",
-        "Owner of record and direct contact details",
-        "Parcel ID and lender information",
+        "Owner of record and direct contact details (when present in our data)",
+        "Saved unlock access on your REOVANA account",
       ],
     },
     {
@@ -297,7 +296,7 @@ export const HELP_ARTICLE_UNLOCKING: LearnArticle = {
     {
       type: "ol",
       items: [
-        "Pay per property — unlock a single listing's full details for a one-time fee.",
+        "Pay per property — unlock a single listing's owner contact for a one-time fee.",
         "Subscribe — unlock unlimited listings while your plan is active, ideal for active investors.",
       ],
     },
@@ -305,10 +304,10 @@ export const HELP_ARTICLE_UNLOCKING: LearnArticle = {
     {
       type: "ol",
       items: [
-        "Open any listing and scroll to the locked panel.",
-        "Choose \"Unlock this property\" or \"Subscribe.\"",
+        "Open any listing — public details are already visible.",
+        "Choose \"Unlock this property\" or \"Subscribe\" for owner contact.",
         "Complete secure checkout.",
-        "The address and owner contact appear instantly, and the property is saved to your unlocked list.",
+        "Owner contact appears when we have it, and the unlock is saved to your account.",
       ],
     },
   ],
@@ -384,7 +383,7 @@ export const FAQ_ITEMS: FaqItem[] = [
   {
     question: "Why are some details blurred?",
     answer:
-      "The price, photos, and key facts are free. The exact address and owner contact are unlocked with a payment, which keeps detailed data available to serious buyers and investors.",
+      "The address, price, photos, and key facts are free. Owner-of-record contact is unlocked with a payment when that data is available for the listing.",
   },
   {
     question: "Do I pay per property or subscribe?",

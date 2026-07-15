@@ -1,3 +1,4 @@
+import type { ListingOwnerContact } from "@/lib/listing-owner-contact";
 import type { PropertyCategoryKey } from "@/lib/property-categories";
 
 export type PropertyListing = {
@@ -6,7 +7,7 @@ export type PropertyListing = {
   city: string;
   state: string;
   zip: string;
-  /** Soft-gated browse card — street/price hidden for non-admins. */
+  /** Soft-gated browse card — street/price hidden when true (legacy; browse is public now). */
   browseLocked?: boolean;
   price: number;
   priceLabel: string;
@@ -29,6 +30,8 @@ export type PropertyListing = {
   estEquity?: number | null;
   radarId?: string | null;
   detailUrl?: string | null;
+  /** Owner of record / contact — member-only on detail when present. */
+  ownerContact?: ListingOwnerContact | null;
 };
 
 /** @deprecated Use fetchCategoryListings from listings-repository (Supabase only). */

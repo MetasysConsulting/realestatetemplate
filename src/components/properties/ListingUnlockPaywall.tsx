@@ -9,15 +9,23 @@ import type { StripeCheckoutPlan } from "@/lib/stripe/types";
 type ListingUnlockPaywallProps = {
   unlocked: boolean;
   listingId: string;
+  /** When false, owner data isn’t on this listing — paywall still sells Unlimited + future owner intel. */
+  hasOwnerContact?: boolean;
   onUnlocked?: () => void;
 };
 
-const INCLUDED = [
-  "Exact list price",
-  "Full street address",
-  "Beds, baths & square footage",
-  "Amenities and property facts",
-  "Seller phone & email",
+const INCLUDED_WITH_OWNER = [
+  "Owner of record details",
+  "Owner phone & email",
+  "Saved unlock on your account",
+  "Unlimited plan: every listing while subscribed",
+] as const;
+
+const INCLUDED_WITHOUT_OWNER = [
+  "Owner contact when enriched for a listing",
+  "Unlimited access across inventory",
+  "Saved unlocks in your member dashboard",
+  "Priority for new owner/data fields as they arrive",
 ] as const;
 
 function LockIcon() {
@@ -51,6 +59,7 @@ function CheckIcon() {
 export function ListingUnlockPaywall({
   unlocked,
   listingId,
+  hasOwnerContact = false,
   onUnlocked,
 }: ListingUnlockPaywallProps) {
   const [isPending, startTransition] = useTransition();
@@ -159,24 +168,30 @@ export function ListingUnlockPaywall({
 
   const showAuthGate = signedIn === false;
 
+  const perks = hasOwnerContact ? INCLUDED_WITH_OWNER : INCLUDED_WITHOUT_OWNER;
+
   return (
-    <aside className="reovana-unlock-card mb-30" aria-label="Unlock property details">
+    <aside className="reovana-unlock-card mb-30" aria-label="Unlock owner contact">
       <div className="reovana-unlock-card__head">
         <span className="reovana-unlock-card__badge">
           <LockIcon />
           Members only
         </span>
-        <h4 className="reovana-unlock-card__title">Unlock this listing</h4>
+        <h4 className="reovana-unlock-card__title">
+          {hasOwnerContact ? "Unlock owner contact" : "Unlock member owner intel"}
+        </h4>
         <p className="reovana-unlock-card__subtitle">
           {showAuthGate
             ? "Create a free account or sign in first — purchases are saved to your REOVANA account."
-            : "Reveal the full address, pricing, specs, and seller contact in one step."}
+            : hasOwnerContact
+              ? "Address, price, and property facts are public. Unlock to reveal owner of record and contact details."
+              : "Address, price, and property facts are public. Subscribe for owner contact when available and unlimited access."}
         </p>
       </div>
 
       <div className="reovana-unlock-card__body">
         <ul className="reovana-unlock-card__perks">
-          {INCLUDED.map((item) => (
+          {perks.map((item) => (
             <li key={item}>
               <span className="reovana-unlock-card__check">
                 <CheckIcon />

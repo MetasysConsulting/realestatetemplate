@@ -1,4 +1,5 @@
 import { resolveListingImage } from "@/lib/listing-images";
+import { ownerContactFromMetadata } from "@/lib/listing-owner-contact";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
 import type { GsaDispositionListing, GsaDispositionsDataset } from "@/lib/gsa-dispositions";
 import type { GsaRealEstateSale, GsaRealEstateSalesDataset } from "@/lib/gsa-realestatesales";
@@ -449,6 +450,11 @@ function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListin
   const radarId = metaString(row, "radarId") || undefined;
   const { lat, lng, hasRealCoordinates } = coordsFromRow(row);
   const image = listingImageFromRow(row);
+  const ownerContact = ownerContactFromMetadata(
+    row.metadata && typeof row.metadata === "object"
+      ? (row.metadata as Record<string, unknown>)
+      : null,
+  );
 
   return {
     id: row.id,
@@ -477,6 +483,7 @@ function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListin
     estEquity: estEquity || null,
     radarId: radarId || null,
     detailUrl: row.detail_url,
+    ownerContact,
   };
 }
 

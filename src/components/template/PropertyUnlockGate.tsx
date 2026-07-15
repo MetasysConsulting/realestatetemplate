@@ -19,28 +19,10 @@ type PropertyUnlockGateProps = {
   enabled: boolean;
 };
 
-/** Sensitive listing fields — paywall hides price, address, specs & contact (photos stay visible). */
+/** Owner / seller contact only — public listing fields stay visible (Sammy Jul 2026). */
 const BLUR_SELECTORS = [
-  ".flat-title .breadcrumb li:last-child",
-  ".wg-property.box-overview .title",
-  ".wg-property.box-overview .price",
-  ".wg-property.box-overview .location",
-  ".wg-property.box-overview .meta-list",
-  ".wg-property.box-overview .action",
-  ".wg-property.box-overview .info-detail",
-  ".wg-property.box-property-detail",
-  ".wg-property.box-amenities",
-  ".wg-property.single-property-map",
-  ".wg-property.single-property-floor",
-  ".wg-property.box-attachments",
-  ".wg-property.box-virtual-tour",
-  ".wg-property.box-loan",
-  ".wg-property.single-property-nearby",
-  ".wg-property.box-comment",
-  ".section-property-detail .form-contact-seller",
-  ".section-property-detail .sidebar-ads",
-  ".section-property-detail .form-contact-agent",
-  ".section-similar-properties .box-house .content",
+  ".wg-property.box-owner-contact",
+  ".section-property-detail .form-contact-seller .seller-info .contact",
 ];
 
 const LOCKED_PLACEHOLDER = "Unlock to view";
@@ -76,16 +58,15 @@ function buildPaywallHtml(): string {
         <span class="reovana-unlock-card__badge">Members only</span>
         <h4 class="reovana-unlock-card__title">Unlock this listing</h4>
         <p class="reovana-unlock-card__subtitle">
-          Reveal the full address, pricing, specs, and seller contact in one step.
+          Address, price, and property facts are public. Unlock owner of record and contact details when available.
         </p>
       </div>
       <div class="reovana-unlock-card__body">
         <ul class="reovana-unlock-card__perks">
-          <li><span class="reovana-unlock-card__check">✓</span>Exact list price</li>
-          <li><span class="reovana-unlock-card__check">✓</span>Full street address</li>
-          <li><span class="reovana-unlock-card__check">✓</span>Beds, baths &amp; square footage</li>
-          <li><span class="reovana-unlock-card__check">✓</span>Amenities and property facts</li>
-          <li><span class="reovana-unlock-card__check">✓</span>Seller phone &amp; email</li>
+          <li><span class="reovana-unlock-card__check">✓</span>Owner of record (when available)</li>
+          <li><span class="reovana-unlock-card__check">✓</span>Owner phone &amp; email (when available)</li>
+          <li><span class="reovana-unlock-card__check">✓</span>Saved unlock on your account</li>
+          <li><span class="reovana-unlock-card__check">✓</span>Unlimited plan: every listing while subscribed</li>
         </ul>
         <div class="reovana-unlock-card__actions proty-unlock-btns">
           <button type="button" class="reovana-unlock-card__primary" data-proty-unlock data-plan="unlock">

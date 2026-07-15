@@ -3,6 +3,11 @@ import { formatHudPrice, formatHudScrapedDate } from "@/lib/hud-listings";
 import { hasListingImage } from "@/lib/listing-images";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import type { HudListing } from "@/lib/hud-listings";
+import {
+  hasOwnerContact,
+  redactOwnerContact,
+  type ListingOwnerContact,
+} from "@/lib/listing-owner-contact";
 import { hudDetailPath } from "@/lib/property-categories";
 
 export type ProtyListingDetailModel = {
@@ -38,6 +43,8 @@ export type ProtyListingDetailModel = {
   mapZip: string;
   mapCounty?: string;
   disclaimer?: string;
+  /** Owner of record — omit UI when null; blur values when locked. */
+  ownerContact: ListingOwnerContact | null;
   recentlyViewed: {
     id: string;
     address: string;
@@ -145,6 +152,7 @@ export function propertyListingToProtyDetail(
     disclaimer: scrapedAt
       ? `Listing data last updated ${formatHudScrapedDate(scrapedAt)}. REOVANA hosts this inventory for your convenience.`
       : undefined,
+    ownerContact: hasOwnerContact(listing.ownerContact) ? listing.ownerContact! : null,
     recentlyViewed: {
       id: listing.id,
       address: listing.address,
@@ -159,43 +167,15 @@ export function propertyListingToProtyDetail(
   };
 }
 
-/** Strip sensitive listing fields for non-admin / unpaid viewers. */
+/** Redact only owner/seller contact for locked viewers. Public listing fields stay visible. */
 export function redactProtyListingDetail(model: ProtyListingDetailModel): ProtyListingDetailModel {
-  const cityState = [model.mapCity, model.mapState].filter(Boolean).join(", ");
-  const areaLabel = cityState ? `${cityState} area` : "Listing area";
+  if (!hasOwnerContact(model.ownerContact)) {
+    return { ...model, ownerContact: null };
+  }
 
   return {
     ...model,
-    title: "Address locked",
-    priceDisplay: "••••••",
-    priceSuffix: undefined,
-    locationLine: `${areaLabel} — unlock for full address`,
-    bedrooms: 0,
-    bathrooms: 0,
-    squareFootage: 0,
-    yearBuilt: null,
-    lotSize: null,
-    listingId: "••••",
-    propertyType: "—",
-    status: "—",
-    description:
-      "Full pricing, address, specs, and seller contact are locked. Unlock this listing to view complete details.",
-    detailFacts: model.detailFacts.map((fact) => ({
-      label: fact.label,
-      value: "—",
-    })),
-    amenities: [],
-    mapAddress: areaLabel,
-    mapZip: "",
-    mapCounty: undefined,
-    hasRealCoordinates: false,
-    lat: 0,
-    lng: 0,
-    disclaimer: model.disclaimer
-      ? "Unlock this listing to view source and update details."
-      : undefined,
-    // Keep real address/price for homepage Recently Viewed — paywall only redacts the page UI.
-    recentlyViewed: model.recentlyViewed,
+    ownerContact: redactOwnerContact(model.ownerContact!),
   };
 }
 
@@ -247,6 +227,7 @@ export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string):
     mapZip: listing.zip,
     mapCounty: listing.county,
     disclaimer: `Listing data last updated ${formatHudScrapedDate(scrapedAt)}. Bids on HUD homes require a HUD-registered broker. REOVANA hosts this inventory for your convenience.`,
+    ownerContact: null,
     recentlyViewed: {
       id: unlockId,
       address: listing.address,

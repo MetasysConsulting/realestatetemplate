@@ -1,11 +1,7 @@
-import { getAuthUser } from "@/lib/supabase/auth-server";
-import { userHasActiveMembership } from "@/lib/unlocks/membership";
-import { shouldAdminBypassPaywall } from "@/lib/unlocks/paywall-bypass";
-
-/** Admins (when bypass is on) and active unlimited members see full browse cards. */
+/**
+ * Browse cards show street address + price publicly (Sammy Jul 2026: lock only owner info).
+ * Kept as an async helper so call sites stay unchanged if soft-gates return later.
+ */
 export async function shouldRevealBrowseDetails(): Promise<boolean> {
-  const user = await getAuthUser();
-  if (await shouldAdminBypassPaywall(user?.email)) return true;
-  if (!user?.id) return false;
-  return userHasActiveMembership(user.id);
+  return true;
 }
