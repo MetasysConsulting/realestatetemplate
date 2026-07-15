@@ -139,8 +139,14 @@ export async function middleware(request: NextRequest) {
 
   if (isMemberProtectedPath(pathname) && !user) {
     const redirectUrl = request.nextUrl.clone();
+    const nextPath = `${pathname}${request.nextUrl.search}`;
     redirectUrl.pathname = "/";
+    redirectUrl.search = "";
     redirectUrl.searchParams.set("login", "required");
+    // Preserve destination so login/register/Google return to Add Property, etc.
+    if (nextPath.startsWith("/") && !nextPath.startsWith("//")) {
+      redirectUrl.searchParams.set("next", nextPath);
+    }
     return NextResponse.redirect(redirectUrl);
   }
 

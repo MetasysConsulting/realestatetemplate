@@ -207,13 +207,14 @@ function wireRegisterForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
       return;
     }
 
+    const postAuthNext = getPostLoginRedirect();
     submitLink.classList.add("disabled");
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName },
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(postAuthNext)}`,
       },
     });
     submitLink.classList.remove("disabled");
@@ -229,7 +230,7 @@ function wireRegisterForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserCl
 
     if (data.session) {
       closeModal("modalRegister");
-      window.location.href = "/";
+      window.location.href = postAuthNext;
       return;
     }
 
@@ -386,21 +387,30 @@ function handleLoginQueryParam() {
   const login = params.get("login");
   if (!login) return;
 
+  const next = params.get("next") ?? "";
+  const addPropertyIntent =
+    next === "/add-property" || next.startsWith("/add-property?");
+
   if (login === "required" || login === "error") {
     window.setTimeout(() => {
       openLoginModal();
+      const modal = document.getElementById("modalLogin");
+      if (!modal) return;
       if (login === "error") {
-        const modal = document.getElementById("modalLogin");
-        if (modal) {
-          showAuthMessage(modal, "Sign-in link expired or invalid. Try again.");
-        }
+        showAuthMessage(modal, "Sign-in link expired or invalid. Try again.");
+      } else if (addPropertyIntent) {
+        showAuthMessage(
+          modal,
+          "Sign in or create an account to list your property.",
+          false,
+        );
       }
     }, 400);
   }
 
   const clean = new URL(window.location.href);
   clean.searchParams.delete("login");
-  // Keep `next` so password login can redirect back to the unlocked listing.
+  // Keep `next` so password/Google login can return to Add Property, unlocks, etc.
   window.history.replaceState({}, "", clean.toString());
 }
 
