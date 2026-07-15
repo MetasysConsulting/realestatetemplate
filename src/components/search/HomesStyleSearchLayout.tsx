@@ -246,7 +246,7 @@ export function HomesStyleSearchLayout({
   const [listPct, setListPct] = useState(LIST_PCT_DEFAULT);
   const [isDraggingSplit, setIsDraggingSplit] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
-  const [searchAsIMove, setSearchAsIMove] = useState(true);
+  const [searchAsIMove, setSearchAsIMove] = useState(false);
   const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
   const [pendingBounds, setPendingBounds] = useState<MapBounds | null>(null);
   const [hasMore, setHasMore] = useState(() => {
