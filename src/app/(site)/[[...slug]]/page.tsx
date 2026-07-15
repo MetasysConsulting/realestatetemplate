@@ -13,6 +13,21 @@ import {
 export const revalidate = 3600;
 export const dynamicParams = false;
 
+/**
+ * Member / billing routes are real App Router pages under `(site)/`.
+ * Keep them out of the Proty catch-all or mock HTML wins the build.
+ */
+const TEMPLATE_ROUTE_OVERRIDES = new Set([
+  "/dashboard",
+  "/my-favorites",
+  "/my-save-search",
+  "/my-profile",
+  "/my-package",
+  "/my-property",
+  "/billing",
+  "/review",
+]);
+
 type PageProps = {
   params: Promise<{ slug?: string[] }>;
 };
@@ -25,16 +40,21 @@ function resolveRoute(slug?: string[]): string {
 }
 
 export async function generateStaticParams() {
-  return TEMPLATE_PAGES.map((page) => {
-    if (page.route === "/") {
-      return { slug: [] };
-    }
-    return { slug: page.route.replace(/^\//, "").split("/") };
-  });
+  return TEMPLATE_PAGES.filter((page) => !TEMPLATE_ROUTE_OVERRIDES.has(page.route)).map(
+    (page) => {
+      if (page.route === "/") {
+        return { slug: [] };
+      }
+      return { slug: page.route.replace(/^\//, "").split("/") };
+    },
+  );
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const route = resolveRoute((await params).slug);
+  if (TEMPLATE_ROUTE_OVERRIDES.has(route)) {
+    notFound();
+  }
   const meta = getTemplateMetaByRoute(route);
   return {
     title: meta?.title ?? "Proty - Real Estate",
@@ -43,6 +63,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function TemplateRoutePage({ params }: PageProps) {
   const route = resolveRoute((await params).slug);
+  if (TEMPLATE_ROUTE_OVERRIDES.has(route)) {
+    notFound();
+  }
   const pageMeta = getTemplateMetaByRoute(route);
 
   if (!pageMeta) {
