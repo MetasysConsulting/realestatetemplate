@@ -5,6 +5,7 @@ import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 import { ListingMedia } from "@/components/listings/ListingMedia";
+import { FavoriteButton, useFavoriteIds } from "@/components/member/FavoriteButton";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import {
   BROWSE_LOCKED_PRICE_DISPLAY,
@@ -14,7 +15,13 @@ import {
 } from "@/lib/listing-browse-redact";
 import type { PropertyListing } from "@/lib/load-category-listings";
 
-function PropertyCard({ listing }: { listing: PropertyListing }) {
+function PropertyCard({
+  listing,
+  isFavorited,
+}: {
+  listing: PropertyListing;
+  isFavorited?: boolean;
+}) {
   const location = formatCardLocation(listing);
   const priceMissing = !listing.browseLocked && !(listing.price > 0);
   const priceLabel = listing.browseLocked
@@ -29,6 +36,11 @@ function PropertyCard({ listing }: { listing: PropertyListing }) {
   return (
     <article className="auctions-card hud-card">
       <div className="auctions-card__media">
+        <FavoriteButton
+          listingId={listing.id}
+          initialFavorited={isFavorited}
+          className="auctions-card__favorite"
+        />
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={listing.imageUrl}
@@ -128,6 +140,7 @@ export function PropertyCategoryExplorer({
   const [sortBy, setSortBy] = useState("price-desc");
   const [mapView, setMapView] = useState<"map" | "satellite">("map");
   const [layersOpen, setLayersOpen] = useState(false);
+  const { ids: favoriteIds } = useFavoriteIds();
 
   const states = useMemo(
     () => [...new Set(listings.map((l) => l.state))].sort(),
@@ -185,7 +198,11 @@ export function PropertyCategoryExplorer({
           </div>
           <div className="auctions-list">
             {filtered.map((listing) => (
-              <PropertyCard key={listing.id} listing={listing} />
+              <PropertyCard
+                key={listing.id}
+                listing={listing}
+                isFavorited={favoriteIds.has(listing.id)}
+              />
             ))}
             {filtered.length === 0 ? (
               <p className="auctions-empty">

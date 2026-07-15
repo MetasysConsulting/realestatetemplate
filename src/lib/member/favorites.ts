@@ -38,6 +38,13 @@ export async function listMyFavoriteIds(): Promise<string[]> {
   }
 }
 
+export async function isListingFavorited(listingId: string): Promise<boolean> {
+  const normalized = toListingUnlockId(listingId.trim());
+  if (!normalized) return false;
+  const ids = await listMyFavoriteIds();
+  return ids.includes(normalized);
+}
+
 export async function addFavorite(listingId: string): Promise<{ ok: boolean; error?: string }> {
   if (!isSupabaseAuthConfigured()) {
     return { ok: false, error: "Auth is not configured." };

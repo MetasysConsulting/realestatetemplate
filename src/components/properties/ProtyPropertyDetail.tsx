@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useEffectEvent, useMemo } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
+import { FavoriteButton } from "@/components/member/FavoriteButton";
 import { ListingGallery } from "@/components/properties/ListingGallery";
 import { ListingUnlockPaywall } from "@/components/properties/ListingUnlockPaywall";
 import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
@@ -16,20 +17,10 @@ type ProtyPropertyDetailProps = {
   /** Full listing visible (admin bypass or purchased unlock). */
   unlocked?: boolean;
   isAdminBypass?: boolean;
+  initialFavorited?: boolean;
 };
 
 const OVERVIEW_ACTION_ICONS = [
-  (
-    <svg key="heart" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M15.75 6.1875C15.75 4.32375 14.1758 2.8125 12.234 2.8125C10.7828 2.8125 9.53625 3.657 9 4.86225C8.46375 3.657 7.21725 2.8125 5.76525 2.8125C3.825 2.8125 2.25 4.32375 2.25 6.1875C2.25 11.6025 9 15.1875 9 15.1875C9 15.1875 15.75 11.6025 15.75 6.1875Z"
-        stroke="#5C5E61"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
   (
     <svg key="share" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
@@ -115,7 +106,13 @@ function InfoDetailBox({
   );
 }
 
-function ListingOverview({ model }: { model: ProtyListingDetailModel }) {
+function ListingOverview({
+  model,
+  initialFavorited,
+}: {
+  model: ProtyListingDetailModel;
+  initialFavorited?: boolean;
+}) {
   return (
     <>
       <div className="heading flex justify-between">
@@ -151,8 +148,15 @@ function ListingOverview({ model }: { model: ProtyListingDetailModel }) {
             ) : null}
           </ul>
         </div>
-        <div className="action reovana-blur-target">
+        <div className="action">
           <ul className="list-action">
+            <li>
+              <FavoriteButton
+                listingId={model.id}
+                initialFavorited={initialFavorited}
+                className="reovana-favorite-btn--inline"
+              />
+            </li>
             {OVERVIEW_ACTION_ICONS.map((icon, index) => (
               <li key={index}>
                 <a href="#" onClick={(e) => e.preventDefault()} aria-hidden="true" tabIndex={-1}>
@@ -223,6 +227,7 @@ export function ProtyPropertyDetail({
   model,
   unlocked = false,
   isAdminBypass = false,
+  initialFavorited = false,
 }: ProtyPropertyDetailProps) {
   const applyBlurState = useEffectEvent((isUnlocked: boolean) => {
     const root = document.getElementById("listing-detail-root");
@@ -286,7 +291,7 @@ export function ProtyPropertyDetail({
           <div className="row">
             <div className="col-xl-8 col-lg-7">
               <div className="wg-property box-overview">
-                <ListingOverview model={model} />
+                <ListingOverview model={model} initialFavorited={initialFavorited} />
               </div>
 
               <div className="wg-property box-property-detail reovana-blur-target">

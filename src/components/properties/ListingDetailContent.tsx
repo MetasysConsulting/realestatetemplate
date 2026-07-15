@@ -7,14 +7,21 @@ type ListingDetailContentProps = {
   model: ProtyListingDetailModel;
   unlocked?: boolean;
   isAdminBypass?: boolean;
+  initialFavorited?: boolean;
 };
 
 export function ListingDetailContent({
   model,
   unlocked = false,
   isAdminBypass = false,
+  initialFavorited = false,
 }: ListingDetailContentProps) {
   return (
-    <ProtyPropertyDetail model={model} unlocked={unlocked} isAdminBypass={isAdminBypass} />
+    <ProtyPropertyDetail
+      model={model}
+      unlocked={unlocked}
+      isAdminBypass={isAdminBypass}
+      initialFavorited={initialFavorited}
+    />
   );
 }

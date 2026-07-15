@@ -7,14 +7,21 @@ type HudDetailContentProps = {
   model: ProtyListingDetailModel;
   unlocked?: boolean;
   isAdminBypass?: boolean;
+  initialFavorited?: boolean;
 };
 
 export function HudDetailContent({
   model,
   unlocked = false,
   isAdminBypass = false,
+  initialFavorited = false,
 }: HudDetailContentProps) {
   return (
-    <ProtyPropertyDetail model={model} unlocked={unlocked} isAdminBypass={isAdminBypass} />
+    <ProtyPropertyDetail
+      model={model}
+      unlocked={unlocked}
+      isAdminBypass={isAdminBypass}
+      initialFavorited={initialFavorited}
+    />
   );
 }

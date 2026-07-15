@@ -1266,6 +1266,38 @@ body.auctions-route .reovana-site .header {
   color: #e2556f;
 }
 
+.reovana-favorite-btn--inline {
+  position: static;
+  width: 40px;
+  height: 40px;
+  box-shadow: none;
+  background: #f5f6f8;
+  color: #5c5e61;
+}
+
+.reovana-favorite-btn--inline.is-active {
+  color: #e2556f;
+  background: color-mix(in srgb, #e2556f 12%, #fff);
+}
+
+.map-property-popup {
+  position: relative;
+}
+
+.map-property-popup .reovana-favorite-btn.map-property-popup__fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  color: #c4c8d0;
+}
+
+.map-property-popup .reovana-favorite-btn.map-property-popup__fav.is-active {
+  color: #e2556f;
+}
+
 .search-map-save-search {
   position: relative;
   flex-shrink: 0;

@@ -3,12 +3,40 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
+const PENDING_FAVORITE_KEY = "reovana:pendingFavorite";
+
 type FavoriteButtonProps = {
   listingId: string;
   className?: string;
   /** Preloaded from parent when listing many cards. */
   initialFavorited?: boolean;
 };
+
+async function postFavorite(listingId: string): Promise<Response> {
+  return fetch("/api/member/favorites", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ listingId }),
+  });
+}
+
+async function deleteFavorite(listingId: string): Promise<Response> {
+  return fetch(`/api/member/favorites?listingId=${encodeURIComponent(listingId)}`, {
+    method: "DELETE",
+    credentials: "same-origin",
+  });
+}
+
+function redirectToLogin(router: ReturnType<typeof useRouter>, listingId: string) {
+  try {
+    sessionStorage.setItem(PENDING_FAVORITE_KEY, listingId);
+  } catch {
+    /* ignore */
+  }
+  const next = encodeURIComponent(`${window.location.pathname}${window.location.search}`);
+  router.push(`/?login=required&next=${next}`);
+}
 
 export function FavoriteButton({
   listingId,
@@ -25,6 +53,25 @@ export function FavoriteButton({
     }
   }, [initialFavorited, listingId]);
 
+  // After login redirect, complete a pending favorite for this listing.
+  useEffect(() => {
+    let cancelled = false;
+    try {
+      const pending = sessionStorage.getItem(PENDING_FAVORITE_KEY);
+      if (!pending || pending !== listingId) return;
+      sessionStorage.removeItem(PENDING_FAVORITE_KEY);
+      void postFavorite(listingId).then((res) => {
+        if (cancelled) return;
+        if (res.ok) setFavorited(true);
+      });
+    } catch {
+      /* ignore */
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [listingId]);
+
   const toggle = useCallback(
     async (event: React.MouseEvent<HTMLButtonElement>) => {
       event.preventDefault();
@@ -35,30 +82,16 @@ export function FavoriteButton({
 
       try {
         if (favorited) {
-          const res = await fetch(
-            `/api/member/favorites?listingId=${encodeURIComponent(listingId)}`,
-            { method: "DELETE", credentials: "same-origin" },
-          );
+          const res = await deleteFavorite(listingId);
           if (res.status === 401) {
-            const next = encodeURIComponent(
-              `${window.location.pathname}${window.location.search}`,
-            );
-            router.push(`/?login=required&next=${next}`);
+            redirectToLogin(router, listingId);
             return;
           }
           if (res.ok) setFavorited(false);
         } else {
-          const res = await fetch("/api/member/favorites", {
-            method: "POST",
-            credentials: "same-origin",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ listingId }),
-          });
+          const res = await postFavorite(listingId);
           if (res.status === 401) {
-            const next = encodeURIComponent(
-              `${window.location.pathname}${window.location.search}`,
-            );
-            router.push(`/?login=required&next=${next}`);
+            redirectToLogin(router, listingId);
             return;
           }
           if (res.ok) setFavorited(true);

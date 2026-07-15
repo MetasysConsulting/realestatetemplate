@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { BuyCategoryKey } from "@/lib/buy-categories";
 import { ListingMedia } from "@/components/listings/ListingMedia";
+import { FavoriteButton, useFavoriteIds } from "@/components/member/FavoriteButton";
 import {
   formatCurrency,
   getInventoryCount,
@@ -24,7 +25,13 @@ const FILTER_OPTIONS = {
   featured: ["All", "Featured Only"],
 };
 
-function PropertyCard({ property }: { property: AuctionProperty }) {
+function PropertyCard({
+  property,
+  isFavorited,
+}: {
+  property: AuctionProperty;
+  isFavorited?: boolean;
+}) {
   const location = formatCardLocation(property);
   const price = property.browseLocked
     ? BROWSE_LOCKED_PRICE_DISPLAY
@@ -33,6 +40,11 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
   return (
     <article className="auctions-card">
       <div className="auctions-card__media">
+        <FavoriteButton
+          listingId={property.id}
+          initialFavorited={isFavorited}
+          className="auctions-card__favorite"
+        />
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={property.imageUrl}
@@ -41,9 +53,6 @@ function PropertyCard({ property }: { property: AuctionProperty }) {
           />
         </div>
         {property.isNew ? <span className="auctions-card__badge">NEW</span> : null}
-        <button type="button" className="auctions-card__favorite" aria-label="Save property">
-          ♥
-        </button>
       </div>
       <div className="auctions-card__body">
         <p className="auctions-card__bid-label">
@@ -98,6 +107,7 @@ export function AuctionsExplorer({
   const [featured, setFeatured] = useState("All");
   const [mapView, setMapView] = useState<"map" | "satellite">("map");
   const [layersOpen, setLayersOpen] = useState(false);
+  const { ids: favoriteIds } = useFavoriteIds();
 
   const filtered = useMemo(() => {
     return properties.filter((p) => {
@@ -203,7 +213,11 @@ export function AuctionsExplorer({
           </div>
           <div className="auctions-list">
             {filtered.map((property) => (
-              <PropertyCard key={property.id} property={property} />
+              <PropertyCard
+                key={property.id}
+                property={property}
+                isFavorited={favoriteIds.has(property.id)}
+              />
             ))}
             {filtered.length === 0 ? (
               <p className="auctions-empty">No properties match your filters.</p>

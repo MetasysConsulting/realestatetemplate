@@ -3,6 +3,7 @@ import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import type { HudListing } from "@/lib/hud-listings";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
+import { isListingFavorited } from "@/lib/member/favorites";
 import { hudListingToProtyDetail, redactProtyListingDetail } from "@/lib/proty-listing-detail";
 import { getAuthUser } from "@/lib/supabase/auth-server";
 import { resolveListingAccess, toListingUnlockId } from "@/lib/unlocks/entitlements";
@@ -21,7 +22,10 @@ export async function HudDetailPageShell({ listing, scrapedAt }: HudDetailPageSh
   const user = await getAuthUser();
   // Prefer DB primary key (`hud-{caseNumber}`); fall back if id is missing.
   const listingId = toListingUnlockId(listing.id || listing.caseNumber);
-  const access = await resolveListingAccess(user, listingId);
+  const [access, initialFavorited] = await Promise.all([
+    resolveListingAccess(user, listingId),
+    user ? isListingFavorited(listingId) : Promise.resolve(false),
+  ]);
   const fullModel = hudListingToProtyDetail(listing, scrapedAt);
   const model = access.unlocked ? fullModel : redactProtyListingDetail(fullModel);
 
@@ -36,6 +40,7 @@ export async function HudDetailPageShell({ listing, scrapedAt }: HudDetailPageSh
         model={model}
         unlocked={access.unlocked}
         isAdminBypass={access.isAdminBypass}
+        initialFavorited={initialFavorited}
       />
     </TemplateChrome>
   );

@@ -3,6 +3,7 @@ import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
+import { isListingFavorited } from "@/lib/member/favorites";
 import {
   propertyListingToProtyDetail,
   redactProtyListingDetail,
@@ -33,7 +34,11 @@ export async function ListingDetailPageShell({
     : { headerHtml: "", footerHtml: "", tailHtml: "" };
 
   const user = await getAuthUser();
-  const access = await resolveListingAccess(user, toListingUnlockId(listing.id));
+  const unlockId = toListingUnlockId(listing.id);
+  const [access, initialFavorited] = await Promise.all([
+    resolveListingAccess(user, unlockId),
+    user ? isListingFavorited(unlockId) : Promise.resolve(false),
+  ]);
   const fullModel = propertyListingToProtyDetail(
     listing,
     categoryLabel,
@@ -54,6 +59,7 @@ export async function ListingDetailPageShell({
         model={model}
         unlocked={access.unlocked}
         isAdminBypass={access.isAdminBypass}
+        initialFavorited={initialFavorited}
       />
     </TemplateChrome>
   );

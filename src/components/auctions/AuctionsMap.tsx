@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import { MapPropertyPopup } from "@/components/auctions/MapPropertyPopup";
 import { MapLayerLegend, MapOptionsPanel } from "@/components/auctions/MapOptionsPanel";
+import { useFavoriteIds } from "@/components/member/FavoriteButton";
 import type { MapBounds } from "@/lib/map-bounds";
 import {
   buildLayerGrid,
@@ -76,6 +77,7 @@ export function AuctionsMap({
   const [activeId, setActiveId] = useState<string | null>(null);
   const [markerColor, setMarkerColor] = useState("#7695ff");
   const [selectedLayer, setSelectedLayer] = useState<MapLayerKey | null>(null);
+  const { ids: favoriteIds } = useFavoriteIds();
   const onBoundsChangeRef = useRef(onBoundsChange);
   onBoundsChangeRef.current = onBoundsChange;
 
@@ -367,7 +369,10 @@ export function AuctionsMap({
                 minWidth={248}
                 maxWidth={268}
               >
-                <MapPropertyPopup property={p} />
+                <MapPropertyPopup
+                  property={p}
+                  isFavorited={favoriteIds.has(p.id)}
+                />
               </Popup>
             </Marker>
           );
