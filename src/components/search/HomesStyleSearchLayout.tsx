@@ -17,6 +17,8 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
+import { FavoriteButton, useFavoriteIds } from "@/components/member/FavoriteButton";
+import { SaveSearchButton } from "@/components/member/SaveSearchButton";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 import { ListingMedia } from "@/components/listings/ListingMedia";
 import {
@@ -71,7 +73,13 @@ const LIST_PCT_DEFAULT = 50;
 const LIST_PCT_MIN = 28;
 const LIST_PCT_MAX = 72;
 
-function PropertyCard({ listing }: { listing: PropertyListing }) {
+function PropertyCard({
+  listing,
+  isFavorited,
+}: {
+  listing: PropertyListing;
+  isFavorited?: boolean;
+}) {
   const location = formatCardLocation(listing);
   const priceMissing = !listing.browseLocked && !(listing.price > 0);
   const priceLabel = listing.browseLocked
@@ -86,6 +94,11 @@ function PropertyCard({ listing }: { listing: PropertyListing }) {
   return (
     <article className="auctions-card hud-card">
       <div className="auctions-card__media">
+        <FavoriteButton
+          listingId={listing.id}
+          initialFavorited={isFavorited}
+          className="auctions-card__favorite"
+        />
         <div className="auctions-card__thumb">
           <ListingMedia
             imageUrl={listing.imageUrl}
@@ -580,6 +593,26 @@ export function HomesStyleSearchLayout({
 
   const showingCount = sorted.length;
   const totalLabel = typeof total === "number" ? total : showingCount;
+  const { ids: favoriteIds } = useFavoriteIds();
+
+  const saveSearchUrl = useMemo(() => {
+    const qs = filtersToQuery(filters, 1, mapBounds);
+    return qs ? `/search?${qs}` : "/search";
+  }, [filters, mapBounds]);
+
+  const saveSearchQuery = useMemo(
+    () => ({
+      q: filters.q,
+      state: filters.state,
+      propertyType: filters.propertyType,
+      beds: filters.beds || undefined,
+      baths: filters.baths || undefined,
+      minPrice: filters.minPrice || undefined,
+      maxPrice: filters.maxPrice || undefined,
+      bounds: mapBounds ?? undefined,
+    }),
+    [filters, mapBounds],
+  );
 
   return (
     <div
@@ -640,6 +673,7 @@ export function HomesStyleSearchLayout({
                 <span className="search-map-filters-btn__badge">{activeFilterCount}</span>
               ) : null}
             </button>
+            <SaveSearchButton searchUrl={saveSearchUrl} queryJson={saveSearchQuery} />
           </div>
 
           <div className="search-map-list__head">
@@ -664,7 +698,11 @@ export function HomesStyleSearchLayout({
 
           <div className="search-map-list__cards">
             {sorted.map((listing) => (
-              <PropertyCard key={listing.id} listing={listing} />
+              <PropertyCard
+                key={listing.id}
+                listing={listing}
+                isFavorited={favoriteIds.has(listing.id)}
+              />
             ))}
             {sorted.length === 0 ? <p className="auctions-empty">{emptyMessage}</p> : null}
 
