@@ -2,6 +2,11 @@ import "server-only";
 
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/server";
+import {
+  activateSellerPropertyForUser,
+  deactivateSellerPropertiesForUser,
+  upsertSellerListingSubscription,
+} from "@/lib/seller/properties";
 import { grantListingUnlock } from "@/lib/unlocks/entitlements";
 import { upsertStripeMembership } from "@/lib/unlocks/membership";
 
@@ -17,14 +22,26 @@ function subscriptionPeriodEnd(sub: Stripe.Subscription): string | null {
   return new Date(end * 1000).toISOString();
 }
 
+function resolvePlan(
+  session: Stripe.Checkout.Session,
+): "unlock" | "unlimited" | "seller_listing" {
+  const plan = meta(session, "plan");
+  if (plan === "seller_listing" || plan === "unlimited" || plan === "unlock") {
+    return plan;
+  }
+  // Legacy fallback — never treat unknown subscriptions as seller listing.
+  if (session.mode === "subscription") return "unlimited";
+  return "unlock";
+}
+
 export async function handleCheckoutSessionCompleted(
   session: Stripe.Checkout.Session,
 ): Promise<{ ok: boolean; error?: string }> {
   const userId = meta(session, "userId") || session.client_reference_id?.trim() || "";
   const listingId = meta(session, "listingId");
-  const plan = meta(session, "plan") || (session.mode === "subscription" ? "unlimited" : "unlock");
+  const propertyId = meta(session, "propertyId");
+  const plan = resolvePlan(session);
 
-  // Only grant after Stripe reports payment (or no charge due, e.g. $0 trials).
   if (
     session.payment_status &&
     session.payment_status !== "paid" &&
@@ -52,7 +69,49 @@ export async function handleCheckoutSessionCompleted(
       ? session.payment_intent
       : session.payment_intent?.id ?? null;
 
-  if (plan === "unlimited" || session.mode === "subscription") {
+  if (plan === "seller_listing") {
+    const stripe = getStripe();
+    const subscriptionId =
+      typeof session.subscription === "string"
+        ? session.subscription
+        : session.subscription?.id ?? null;
+
+    let status = "active";
+    let currentPeriodEnd: string | null = null;
+    let cancelAtPeriodEnd = false;
+
+    if (subscriptionId) {
+      const sub = await stripe.subscriptions.retrieve(subscriptionId);
+      status = sub.status;
+      currentPeriodEnd = subscriptionPeriodEnd(sub);
+      cancelAtPeriodEnd = Boolean(sub.cancel_at_period_end);
+    }
+
+    const membership = await upsertSellerListingSubscription({
+      userId,
+      stripeCustomerId: customerId,
+      stripeSubscriptionId: subscriptionId,
+      status,
+      currentPeriodEnd,
+      cancelAtPeriodEnd,
+      metadata: { checkoutSessionId: session.id, plan: "seller_listing", propertyId },
+    });
+
+    if (!membership.ok) {
+      console.error("[stripe/webhook] seller subscription upsert failed", membership.error);
+      return { ok: false, error: membership.error };
+    }
+
+    const activated = await activateSellerPropertyForUser({ userId, propertyId });
+    if (!activated.ok) {
+      console.error("[stripe/webhook] seller property activate failed", activated.error);
+      return { ok: false, error: activated.error };
+    }
+
+    return { ok: true };
+  }
+
+  if (plan === "unlimited") {
     const stripe = getStripe();
     const subscriptionId =
       typeof session.subscription === "string"
@@ -85,7 +144,6 @@ export async function handleCheckoutSessionCompleted(
       return { ok: false, error: membership.error };
     }
 
-    // Also unlock the listing they checked out from, for an immediate win.
     if (listingId) {
       const grant = await grantListingUnlock({
         userId,
@@ -100,7 +158,6 @@ export async function handleCheckoutSessionCompleted(
       });
       if (!grant.ok) {
         console.error("[stripe/webhook] listing grant failed", grant.error);
-        // Membership still granted — treat as ok for unlimited plan.
       }
     }
     return { ok: true };
@@ -131,15 +188,20 @@ export async function handleCheckoutSessionCompleted(
   return { ok: true };
 }
 
+function subscriptionPlan(
+  subscription: Stripe.Subscription,
+): "unlimited" | "seller_listing" {
+  const plan = subscription.metadata?.plan?.trim();
+  if (plan === "seller_listing") return "seller_listing";
+  return "unlimited";
+}
+
 export async function handleSubscriptionUpdated(
   subscription: Stripe.Subscription,
 ): Promise<void> {
   const userId = subscription.metadata?.userId?.trim() || "";
   if (!userId) {
-    console.error(
-      "[stripe/webhook] Missing userId on subscription",
-      subscription.id,
-    );
+    console.error("[stripe/webhook] Missing userId on subscription", subscription.id);
     return;
   }
 
@@ -148,16 +210,32 @@ export async function handleSubscriptionUpdated(
       ? subscription.customer
       : subscription.customer?.id ?? null;
 
-  const result = await upsertStripeMembership({
+  const plan = subscriptionPlan(subscription);
+  const payload = {
     userId,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
     status: subscription.status,
     currentPeriodEnd: subscriptionPeriodEnd(subscription),
     cancelAtPeriodEnd: Boolean(subscription.cancel_at_period_end),
-    metadata: { source: "subscription.updated" },
-  });
+    metadata: { source: "subscription.updated", plan },
+  };
 
+  if (plan === "seller_listing") {
+    const result = await upsertSellerListingSubscription(payload);
+    if (!result.ok) {
+      console.error("[stripe/webhook] seller subscription update failed", result.error);
+      return;
+    }
+    if (!["active", "trialing"].includes(subscription.status)) {
+      await deactivateSellerPropertiesForUser(userId);
+    } else {
+      await activateSellerPropertyForUser({ userId });
+    }
+    return;
+  }
+
+  const result = await upsertStripeMembership(payload);
   if (!result.ok) {
     console.error("[stripe/webhook] subscription update failed", result.error);
   }
@@ -180,16 +258,28 @@ export async function handleSubscriptionDeleted(
       ? subscription.customer
       : subscription.customer?.id ?? null;
 
-  const result = await upsertStripeMembership({
+  const plan = subscriptionPlan(subscription);
+  const payload = {
     userId,
     stripeCustomerId: customerId,
     stripeSubscriptionId: subscription.id,
     status: "canceled",
     currentPeriodEnd: subscriptionPeriodEnd(subscription),
     cancelAtPeriodEnd: false,
-    metadata: { source: "subscription.deleted" },
-  });
+    metadata: { source: "subscription.deleted", plan },
+  };
 
+  if (plan === "seller_listing") {
+    const result = await upsertSellerListingSubscription(payload);
+    if (!result.ok) {
+      console.error("[stripe/webhook] seller subscription delete failed", result.error);
+      return;
+    }
+    await deactivateSellerPropertiesForUser(userId);
+    return;
+  }
+
+  const result = await upsertStripeMembership(payload);
   if (!result.ok) {
     console.error("[stripe/webhook] subscription delete failed", result.error);
   }

@@ -11,8 +11,8 @@ const HERO_HOUSE_IMAGE = "/images/reovana/loan-steps-house-distressed.png";
 
 function SellIcon({ type }: { type: string }) {
   const common = {
-    width: 26,
-    height: 26,
+    width: 36,
+    height: 36,
     viewBox: "0 0 24 24",
     fill: "none",
     stroke: "currentColor",
@@ -167,11 +167,8 @@ export function SellPageContent() {
                     <li key={perk}>{perk}</li>
                   ))}
                 </ul>
-                {option.cta === "List My Property" ? (
-                  <Link
-                    href="/add-property"
-                    className={`sell-btn sell-btn--${option.tone}`}
-                  >
+                {option.href ? (
+                  <Link href={option.href} className={`sell-btn sell-btn--${option.tone}`}>
                     {option.cta}
                   </Link>
                 ) : (

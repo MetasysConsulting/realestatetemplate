@@ -1,1 +1,1 @@
-export type StripeCheckoutPlan = "unlock" | "unlimited";
+export type StripeCheckoutPlan = "unlock" | "unlimited" | "seller_listing";

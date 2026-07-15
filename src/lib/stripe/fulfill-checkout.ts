@@ -4,6 +4,7 @@ import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 import { getStripe } from "@/lib/stripe/server";
 import { handleCheckoutSessionCompleted } from "@/lib/stripe/webhook-handlers";
+import { userHasActiveSellerListingSubscription } from "@/lib/seller/properties";
 import { toListingUnlockId, userHasListingUnlock } from "@/lib/unlocks/entitlements";
 import { userHasActiveMembership } from "@/lib/unlocks/membership";
 import { getSupabaseProjectUrl, getSupabaseServiceRoleKey } from "@/lib/supabase/env";
@@ -46,6 +47,24 @@ async function serviceHasActiveMembership(userId: string): Promise<boolean> {
   return new Date(String(data.current_period_end)).getTime() > Date.now();
 }
 
+async function serviceHasActiveSellerListing(userId: string): Promise<boolean> {
+  const url = getSupabaseProjectUrl();
+  const key = getSupabaseServiceRoleKey();
+  if (!url || !key) return false;
+  const client = createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+  const { data, error } = await client
+    .from("seller_listing_subscriptions")
+    .select("status, current_period_end")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error || !data) return false;
+  if (!["active", "trialing"].includes(String(data.status))) return false;
+  if (!data.current_period_end) return true;
+  return new Date(String(data.current_period_end)).getTime() > Date.now();
+}
+
 export type FulfillCheckoutResult = {
   ok: boolean;
   unlocked: boolean;
@@ -53,6 +72,7 @@ export type FulfillCheckoutResult = {
   error?: string;
   sessionId?: string;
   paidUserId?: string;
+  plan?: string;
 };
 
 function isPaid(session: Stripe.Checkout.Session): boolean {
@@ -69,7 +89,6 @@ function sessionBelongsToUser(session: Stripe.Checkout.Session, userId: string):
 }
 
 export async function fulfillCheckoutSessionForUser(input: {
-  /** Signed-in user id, if any. When omitted, a valid paid session_id alone can fulfill. */
   userId?: string | null;
   sessionId?: string | null;
   listingId?: string | null;
@@ -109,7 +128,6 @@ export async function fulfillCheckoutSessionForUser(input: {
     };
   }
 
-  // If someone is signed in, they must be the payer. Anonymous is OK when session_id proves payment.
   if (input.userId && input.userId !== paidUserId) {
     return {
       ok: false,
@@ -141,18 +159,21 @@ export async function fulfillCheckoutSessionForUser(input: {
     };
   }
 
-  const plan = session.metadata?.plan || (session.mode === "subscription" ? "unlimited" : "unlock");
+  const plan =
+    session.metadata?.plan || (session.mode === "subscription" ? "unlimited" : "unlock");
   const sessionListingId = toListingUnlockId(session.metadata?.listingId || listingId);
 
-  // Prefer the authenticated user's read path when present; otherwise verify via service role.
   let unlocked = false;
   if (input.userId) {
-    unlocked =
-      plan === "unlimited"
-        ? await userHasActiveMembership(input.userId)
-        : sessionListingId
-          ? await userHasListingUnlock(input.userId, sessionListingId)
-          : false;
+    if (plan === "seller_listing") {
+      unlocked = await userHasActiveSellerListingSubscription(input.userId);
+    } else if (plan === "unlimited") {
+      unlocked = await userHasActiveMembership(input.userId);
+    } else if (sessionListingId) {
+      unlocked = await userHasListingUnlock(input.userId, sessionListingId);
+    }
+  } else if (plan === "seller_listing") {
+    unlocked = await serviceHasActiveSellerListing(paidUserId);
   } else if (plan === "unlimited") {
     unlocked = await serviceHasActiveMembership(paidUserId);
   } else if (sessionListingId) {
@@ -166,10 +187,11 @@ export async function fulfillCheckoutSessionForUser(input: {
       ok: false,
       unlocked: false,
       error:
-        "Payment verified, but unlock row is not readable yet. Confirm SUPABASE_SECRET_KEY is set on Vercel, then retry.",
+        "Payment verified, but entitlement is not readable yet. Confirm SUPABASE_SECRET_KEY is set on Vercel, then retry.",
       sessionId: session.id,
       paidUserId,
       needsLogin: !input.userId,
+      plan,
     };
   }
 
@@ -179,5 +201,6 @@ export async function fulfillCheckoutSessionForUser(input: {
     sessionId: session.id,
     paidUserId,
     needsLogin: !input.userId,
+    plan,
   };
 }

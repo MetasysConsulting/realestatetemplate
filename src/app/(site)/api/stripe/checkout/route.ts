@@ -1,17 +1,21 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { isStripeConfigured } from "@/lib/stripe/config";
-import { createListingCheckoutSession } from "@/lib/stripe/checkout";
+import {
+  createListingCheckoutSession,
+  createSellerListingCheckoutSession,
+} from "@/lib/stripe/checkout";
 import type { StripeCheckoutPlan } from "@/lib/stripe/types";
 import { getAuthUser } from "@/lib/supabase/auth-server";
+import { getMySellerProperty } from "@/lib/seller/properties";
 import { toListingUnlockId } from "@/lib/unlocks/entitlements";
 
 function isPlan(value: unknown): value is StripeCheckoutPlan {
-  return value === "unlock" || value === "unlimited";
+  return value === "unlock" || value === "unlimited" || value === "seller_listing";
 }
 
-function safeReturnPath(raw: unknown): string {
+function safeReturnPath(raw: unknown, fallback: string): string {
   if (typeof raw !== "string" || !raw.startsWith("/") || raw.startsWith("//")) {
-    return "/";
+    return fallback;
   }
   return raw;
 }
@@ -44,30 +48,65 @@ export async function POST(request: NextRequest) {
 
   const payload = body as {
     listingId?: unknown;
+    propertyId?: unknown;
     plan?: unknown;
     returnPath?: unknown;
   };
 
-  const listingId =
-    typeof payload.listingId === "string" ? toListingUnlockId(payload.listingId) : "";
-  if (!listingId) {
-    return NextResponse.json({ error: "listingId is required." }, { status: 400 });
-  }
-
   if (!isPlan(payload.plan)) {
     return NextResponse.json(
-      { error: 'plan must be "unlock" or "unlimited".' },
+      { error: 'plan must be "unlock", "unlimited", or "seller_listing".' },
       { status: 400 },
     );
   }
 
-  const returnPath = safeReturnPath(payload.returnPath);
   const origin = request.nextUrl.origin;
-  // `{CHECKOUT_SESSION_ID}` is replaced by Stripe so we can fulfill unlocks if the webhook lags.
-  const successUrl = `${origin}${returnPath}?checkout=success&plan=${payload.plan}&session_id={CHECKOUT_SESSION_ID}`;
-  const cancelUrl = `${origin}${returnPath}?checkout=cancelled`;
 
   try {
+    if (payload.plan === "seller_listing") {
+      const propertyId =
+        typeof payload.propertyId === "string" ? payload.propertyId.trim() : "";
+      if (!propertyId) {
+        return NextResponse.json({ error: "propertyId is required." }, { status: 400 });
+      }
+
+      const property = await getMySellerProperty(propertyId);
+      if (!property) {
+        return NextResponse.json({ error: "Property not found." }, { status: 404 });
+      }
+
+      const returnPath = safeReturnPath(payload.returnPath, "/my-property");
+      const successUrl = `${origin}${returnPath}?checkout=success&plan=seller_listing&session_id={CHECKOUT_SESSION_ID}`;
+      const cancelUrl = `${origin}${returnPath}?checkout=cancelled`;
+
+      const session = await createSellerListingCheckoutSession({
+        userId: user.id,
+        userEmail: user.email,
+        propertyId,
+        successUrl,
+        cancelUrl,
+      });
+
+      if (!session.url) {
+        return NextResponse.json(
+          { error: "Stripe did not return a checkout URL." },
+          { status: 502 },
+        );
+      }
+
+      return NextResponse.json({ url: session.url, sessionId: session.id });
+    }
+
+    const listingId =
+      typeof payload.listingId === "string" ? toListingUnlockId(payload.listingId) : "";
+    if (!listingId) {
+      return NextResponse.json({ error: "listingId is required." }, { status: 400 });
+    }
+
+    const returnPath = safeReturnPath(payload.returnPath, "/");
+    const successUrl = `${origin}${returnPath}?checkout=success&plan=${payload.plan}&session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${origin}${returnPath}?checkout=cancelled`;
+
     const session = await createListingCheckoutSession({
       userId: user.id,
       userEmail: user.email,

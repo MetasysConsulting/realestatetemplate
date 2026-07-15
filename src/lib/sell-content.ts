@@ -12,8 +12,8 @@ export const SELL_HERO_FEATURES = [
     tone: "orange",
   },
   {
-    title: "It's Completely Free",
-    description: "No listing fees. No obligations.",
+    title: "$49/month Listing",
+    description: "Publish and keep your listing live with a simple monthly plan.",
     icon: "shield",
     tone: "blue",
   },
@@ -32,6 +32,7 @@ export const SELL_OPTIONS = [
     ],
     cta: "Get My Cash Offer",
     decor: "house",
+    href: null,
   },
   {
     title: "Find a Realtor®",
@@ -45,19 +46,21 @@ export const SELL_OPTIONS = [
     ],
     cta: "Find a Realtor",
     decor: "city",
+    href: null,
   },
   {
-    title: "Sell by Yourself",
+    title: "Sell On Your Own",
     description: "List your property on REOVANA.com and sell on your own terms.",
     icon: "tag",
     tone: "orange",
     perks: [
-      "List your property for free",
+      "$49/month listing subscription",
       "Connect with interested buyers",
       "You stay in control",
     ],
     cta: "List My Property",
     decor: "forsale",
+    href: "/add-property",
   },
 ] as const;
 

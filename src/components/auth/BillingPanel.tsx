@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { ManageBillingButton } from "@/components/auth/ManageBillingButton";
 import { getAuthUser } from "@/lib/supabase/auth-server";
+import {
+  getMySellerListingSubscription,
+} from "@/lib/seller/properties";
 import { listMyListingUnlocks } from "@/lib/unlocks/entitlements";
 import {
   getMyStripeMembership,
@@ -55,8 +58,9 @@ export async function BillingPanel() {
     );
   }
 
-  const [membership, unlocks, customerId] = await Promise.all([
+  const [membership, sellerSub, unlocks, customerId] = await Promise.all([
     getMyStripeMembership(),
+    getMySellerListingSubscription(),
     listMyListingUnlocks(),
     resolveStripeCustomerIdForUser(user.id),
   ]);
@@ -64,7 +68,11 @@ export async function BillingPanel() {
   const active = membership
     ? isMembershipStatusActive(membership.status, membership.currentPeriodEnd)
     : false;
+  const sellerActive = sellerSub
+    ? isMembershipStatusActive(sellerSub.status, sellerSub.currentPeriodEnd)
+    : false;
   const periodEnd = formatDate(membership?.currentPeriodEnd ?? null);
+  const sellerPeriodEnd = formatDate(sellerSub?.currentPeriodEnd ?? null);
   const oneTimeCount = unlocks.filter((row) => row.source === "stripe_one_time").length;
 
   return (
@@ -84,12 +92,12 @@ export async function BillingPanel() {
           <div className="reovana-billing__plan">
             <div className="reovana-billing__plan-main">
               <p className="reovana-billing__plan-name">
-                {active ? "Unlimited Access" : "No active subscription"}
+                {active ? "Unlimited Access" : "No active Unlimited plan"}
               </p>
               <p className="reovana-billing__plan-detail">
                 {active
-                  ? "Unlock every listing while your plan is active."
-                  : "You're on pay-per-listing. Subscribe anytime from a locked listing page."}
+                  ? "Unlock every inventory listing while your plan is active."
+                  : "You're on pay-per-listing for buyer unlocks. Subscribe anytime from a locked listing page."}
               </p>
             </div>
             {membership ? (
@@ -107,19 +115,65 @@ export async function BillingPanel() {
             )}
           </div>
 
+          <div className="reovana-billing__plan" style={{ marginTop: 16 }}>
+            <div className="reovana-billing__plan-main">
+              <p className="reovana-billing__plan-name">
+                {sellerActive ? "Seller Listing ($49/mo)" : "No seller listing plan"}
+              </p>
+              <p className="reovana-billing__plan-detail">
+                {sellerActive
+                  ? "Your for-sale listings stay live while this subscription is active."
+                  : "List a property from Sell On Your Own, then subscribe to publish."}
+              </p>
+            </div>
+            {sellerSub ? (
+              <span
+                className={`reovana-billing__status ${
+                  sellerActive
+                    ? "reovana-billing__status--active"
+                    : "reovana-billing__status--inactive"
+                }`}
+              >
+                {statusLabel(sellerSub.status)}
+              </span>
+            ) : (
+              <span className="reovana-billing__status reovana-billing__status--inactive">
+                None
+              </span>
+            )}
+          </div>
+
           <dl className="reovana-billing__facts">
             {periodEnd ? (
               <div>
                 <dt>
-                  {membership?.cancelAtPeriodEnd ? "Access through" : "Renews / period ends"}
+                  {membership?.cancelAtPeriodEnd
+                    ? "Unlimited access through"
+                    : "Unlimited renews / period ends"}
                 </dt>
                 <dd>{periodEnd}</dd>
               </div>
             ) : null}
+            {sellerPeriodEnd ? (
+              <div>
+                <dt>
+                  {sellerSub?.cancelAtPeriodEnd
+                    ? "Seller listing through"
+                    : "Seller listing renews / period ends"}
+                </dt>
+                <dd>{sellerPeriodEnd}</dd>
+              </div>
+            ) : null}
             {membership?.cancelAtPeriodEnd && active ? (
               <div>
-                <dt>Cancellation</dt>
+                <dt>Unlimited cancellation</dt>
                 <dd>Scheduled — you'll keep access until the period ends</dd>
+              </div>
+            ) : null}
+            {sellerSub?.cancelAtPeriodEnd && sellerActive ? (
+              <div>
+                <dt>Seller listing cancellation</dt>
+                <dd>Scheduled — listings stay live until the period ends</dd>
               </div>
             ) : null}
             <div>
@@ -135,12 +189,18 @@ export async function BillingPanel() {
                 <Link href="/my-profile#my-unlocks">View list</Link>
               </dd>
             </div>
+            <div>
+              <dt>Seller listings</dt>
+              <dd>
+                <Link href="/my-property">Manage on My Properties</Link>
+              </dd>
+            </div>
           </dl>
 
           {customerId ? (
             <div className="reovana-billing__actions">
               <ManageBillingButton>
-                {active ? "Manage or cancel in Stripe" : "Open Stripe billing"}
+                {active || sellerActive ? "Manage or cancel in Stripe" : "Open Stripe billing"}
               </ManageBillingButton>
               <p className="reovana-billing__footnote">
                 You'll leave REOVANA briefly and return here after you're done in Stripe.

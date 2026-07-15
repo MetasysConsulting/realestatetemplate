@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { MemberDashboardShell } from "@/components/member/MemberDashboardShell";
+import { MemberSellerPropertiesList } from "@/components/member/MemberSellerPropertiesList";
+import { SellerCheckoutConfirm } from "@/components/sell/SellerCheckoutConfirm";
+import {
+  getMySellerListingSubscription,
+  listMySellerProperties,
+} from "@/lib/seller/properties";
+import { isMembershipStatusActive } from "@/lib/unlocks/membership";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -9,23 +15,42 @@ export const metadata: Metadata = {
   title: "My Properties — REOVANA",
 };
 
-export default function MyPropertyPage() {
+type PageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function MyPropertyPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const checkoutError =
+    typeof params.checkout_error === "string" ? params.checkout_error : null;
+  const draftSaved = typeof params.draft === "string";
+
+  const [properties, sellerSub] = await Promise.all([
+    listMySellerProperties(),
+    getMySellerListingSubscription(),
+  ]);
+
+  const hasActiveSellerSub = sellerSub
+    ? isMembershipStatusActive(sellerSub.status, sellerSub.currentPeriodEnd)
+    : false;
+
   return (
     <MemberDashboardShell
       activeHref="/my-property"
       title="My properties"
-      subtitle="Seller listings you publish on REOVANA will appear here."
+      subtitle="Seller listings you publish on REOVANA appear here."
     >
-      <div className="reovana-member-empty">
-        <p>You have not listed a property yet.</p>
-        <p className="reovana-member-empty__hint">
-          Use Add Property to submit a listing. Seller subscriptions and listing management are
-          part of the upcoming Sell page work.
-        </p>
-        <Link href="/add-property" className="tf-btn bg-color-primary pd-20">
-          Add property
-        </Link>
-      </div>
+      <SellerCheckoutConfirm />
+      <MemberSellerPropertiesList
+        properties={properties}
+        hasActiveSellerSub={hasActiveSellerSub}
+        checkoutNotice={
+          draftSaved
+            ? "Listing draft saved. Activate with $49/month to publish."
+            : null
+        }
+        checkoutError={checkoutError}
+      />
     </MemberDashboardShell>
   );
 }

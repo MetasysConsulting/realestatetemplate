@@ -26,6 +26,7 @@ const TEMPLATE_ROUTE_OVERRIDES = new Set([
   "/my-property",
   "/billing",
   "/review",
+  "/add-property",
 ]);
 
 type PageProps = {

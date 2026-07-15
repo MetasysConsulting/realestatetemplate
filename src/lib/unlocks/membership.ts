@@ -72,7 +72,7 @@ export async function getMyStripeMembership(): Promise<StripeMembershipRow | nul
   }
 }
 
-/** Prefer membership customer, else any unlock row that stored a Stripe customer id. */
+/** Prefer membership customer, else seller listing customer, else any unlock row. */
 export async function resolveStripeCustomerIdForUser(
   userId: string,
 ): Promise<string | null> {
@@ -81,6 +81,14 @@ export async function resolveStripeCustomerIdForUser(
 
   const service = createServiceClient();
   if (!service || !userId) return null;
+
+  const { data: seller } = await service
+    .from("seller_listing_subscriptions")
+    .select("stripe_customer_id")
+    .eq("user_id", userId)
+    .not("stripe_customer_id", "is", null)
+    .maybeSingle();
+  if (seller?.stripe_customer_id) return String(seller.stripe_customer_id);
 
   const { data } = await service
     .from("listing_unlocks")
