@@ -8,8 +8,10 @@ import {
   useState,
   type CSSProperties,
   type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
@@ -49,8 +51,8 @@ type HomesStyleSearchLayoutProps = {
   emptyMessage?: string;
 };
 
-const LIST_PCT_STORAGE_KEY = "reovana_search_list_pct";
-const LIST_PCT_DEFAULT = 42;
+const LIST_PCT_STORAGE_KEY = "reovana_search_list_pct_v2";
+const LIST_PCT_DEFAULT = 50;
 const LIST_PCT_MIN = 28;
 const LIST_PCT_MAX = 72;
 
@@ -206,6 +208,7 @@ export function HomesStyleSearchLayout({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [listPct, setListPct] = useState(LIST_PCT_DEFAULT);
   const [isDraggingSplit, setIsDraggingSplit] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
   const [hasMore, setHasMore] = useState(() => {
     if (typeof totalCount === "number") return initialListings.length < totalCount;
     return initialListings.length >= filters.pageSize;
@@ -221,6 +224,10 @@ export function HomesStyleSearchLayout({
   const safeFooterHtml = normalizeTemplateHtml(footerHtml);
 
   const activeFilterCount = countActiveSearchFilters(filters);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     try {
@@ -403,7 +410,11 @@ export function HomesStyleSearchLayout({
               className={`search-map-filters-btn${activeFilterCount > 0 ? " is-active" : ""}`}
               aria-haspopup="dialog"
               aria-expanded={filtersOpen}
-              onClick={() => setFiltersOpen(true)}
+              onClick={(event: ReactMouseEvent<HTMLButtonElement>) => {
+                event.preventDefault();
+                event.stopPropagation();
+                setFiltersOpen(true);
+              }}
             >
               <FilterIcon />
               <span>Filters</span>
@@ -507,42 +518,51 @@ export function HomesStyleSearchLayout({
         </div>
       </section>
 
-      {filtersOpen ? (
-        <div
-          className="search-filters-overlay"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setFiltersOpen(false);
-          }}
-        >
-          <div
-            ref={dialogRef}
-            className="search-filters-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="search-filters-title"
-          >
-            <div className="search-filters-dialog__header">
-              <h2 id="search-filters-title">Filters</h2>
-              <button
-                type="button"
-                className="search-filters-dialog__close"
-                aria-label="Close filters"
-                onClick={() => setFiltersOpen(false)}
+      {portalReady && filtersOpen
+        ? createPortal(
+            <div
+              className="search-filters-overlay"
+              role="presentation"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget) setFiltersOpen(false);
+              }}
+            >
+              <div
+                ref={dialogRef}
+                className="search-filters-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="search-filters-title"
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={(event) => event.stopPropagation()}
               >
-                ×
-              </button>
-            </div>
-            <div className="search-filters-dialog__body">
-              <SearchPageForm
-                {...filters}
-                variant="panel"
-                onSubmitted={() => setFiltersOpen(false)}
-              />
-            </div>
-          </div>
-        </div>
-      ) : null}
+                <div className="search-filters-dialog__header">
+                  <h2 id="search-filters-title">Filters</h2>
+                  <button
+                    type="button"
+                    className="search-filters-dialog__close"
+                    aria-label="Close filters"
+                    onClick={(event) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      setFiltersOpen(false);
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="search-filters-dialog__body">
+                  <SearchPageForm
+                    {...filters}
+                    variant="panel"
+                    onSubmitted={() => setFiltersOpen(false)}
+                  />
+                </div>
+              </div>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

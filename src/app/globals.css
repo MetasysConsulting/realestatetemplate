@@ -3337,13 +3337,37 @@ body.search-map-splitting {
 }
 
 .search-filters-overlay {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 80;
+  z-index: 4000;
   display: grid;
   place-items: center;
   padding: 24px;
   background: rgba(15, 23, 42, 0.45);
+}
+
+body.search-map-route .mobile-nav-wrap,
+body.search-map-route #menu-mobile {
+  display: none !important;
+  pointer-events: none !important;
+}
+
+.reovana-site .reovana-header-search-link {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--Heading, #161e2d);
+  text-decoration: none;
+  border-radius: 999px;
+}
+
+.reovana-site .reovana-header-search-link:hover,
+.reovana-site .reovana-header-search-link:focus-visible {
+  color: var(--Primary);
+  outline: none;
 }
 
 .search-filters-dialog {

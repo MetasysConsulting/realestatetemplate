@@ -7,6 +7,7 @@ import { maybeRedactPropertyListings } from "@/lib/listing-browse-redact";
 import { shouldRevealBrowseDetails } from "@/lib/listing-browse-access";
 import { HomesStyleSearchLayout } from "@/components/search/HomesStyleSearchLayout";
 import { normalizeStateQuery } from "@/lib/us-states";
+import { sanitizeChromeTailForSearch } from "@/lib/sanitize-chrome-tail";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -85,7 +86,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
     <TemplateChrome
       headerHtml={chrome.headerHtml}
       footerHtml=""
-      tailHtml={chrome.tailHtml}
+      tailHtml={sanitizeChromeTailForSearch(chrome.tailHtml)}
       bodyClass="theme-color-4 auctions-route search-map-route"
     >
       <HomesStyleSearchLayout
