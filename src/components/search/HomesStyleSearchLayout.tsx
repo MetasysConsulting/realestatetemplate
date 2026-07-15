@@ -6,12 +6,18 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
 } from "react";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
 import { ListingMedia } from "@/components/listings/ListingMedia";
-import { SearchPageForm } from "@/components/search/SearchPageForm";
+import {
+  SearchPageForm,
+  countActiveSearchFilters,
+} from "@/components/search/SearchPageForm";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import {
   BROWSE_LOCKED_PRICE_DISPLAY,
@@ -42,6 +48,11 @@ type HomesStyleSearchLayoutProps = {
   footerHtml: string;
   emptyMessage?: string;
 };
+
+const LIST_PCT_STORAGE_KEY = "reovana_search_list_pct";
+const LIST_PCT_DEFAULT = 42;
+const LIST_PCT_MIN = 28;
+const LIST_PCT_MAX = 72;
 
 function PropertyCard({ listing }: { listing: PropertyListing }) {
   const location = formatCardLocation(listing);
@@ -158,6 +169,23 @@ function mergeUnique(
   return merged;
 }
 
+function FilterIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path
+        d="M4 6h16M7 12h10M10 18h4"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function notifyMapResize() {
+  window.dispatchEvent(new Event("resize"));
+}
+
 export function HomesStyleSearchLayout({
   title,
   description,
@@ -175,6 +203,9 @@ export function HomesStyleSearchLayout({
   const [layersOpen, setLayersOpen] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [listPct, setListPct] = useState(LIST_PCT_DEFAULT);
+  const [isDraggingSplit, setIsDraggingSplit] = useState(false);
   const [hasMore, setHasMore] = useState(() => {
     if (typeof totalCount === "number") return initialListings.length < totalCount;
     return initialListings.length >= filters.pageSize;
@@ -182,10 +213,27 @@ export function HomesStyleSearchLayout({
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const listScrollRef = useRef<HTMLElement | null>(null);
+  const layoutRef = useRef<HTMLDivElement | null>(null);
   const loadingRef = useRef(false);
+  const draggingRef = useRef(false);
+  const filterBtnRef = useRef<HTMLButtonElement | null>(null);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
   const safeFooterHtml = normalizeTemplateHtml(footerHtml);
 
-  // Reset when server sends a new first page (filter change / navigation).
+  const activeFilterCount = countActiveSearchFilters(filters);
+
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(LIST_PCT_STORAGE_KEY);
+      const value = raw ? Number(raw) : NaN;
+      if (Number.isFinite(value) && value >= LIST_PCT_MIN && value <= LIST_PCT_MAX) {
+        setListPct(value);
+      }
+    } catch {
+      /* private browsing */
+    }
+  }, []);
+
   useEffect(() => {
     setListings(initialListings);
     setPage(1);
@@ -197,6 +245,21 @@ export function HomesStyleSearchLayout({
         : initialListings.length >= filters.pageSize,
     );
   }, [initialListings, totalCount, filters.pageSize]);
+
+  useEffect(() => {
+    if (!filtersOpen) return;
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") setFiltersOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialogRef.current?.querySelector<HTMLElement>("input, select, button")?.focus();
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [filtersOpen]);
 
   const sorted = useMemo(() => {
     return [...listings].sort((a, b) => {
@@ -270,15 +333,91 @@ export function HomesStyleSearchLayout({
     return () => observer.disconnect();
   }, [hasMore, loadMore, sorted.length]);
 
+  const updateSplitFromClientX = useCallback((clientX: number) => {
+    const layout = layoutRef.current;
+    if (!layout) return;
+    const rect = layout.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const pct = ((clientX - rect.left) / rect.width) * 100;
+    const clamped = Math.min(LIST_PCT_MAX, Math.max(LIST_PCT_MIN, pct));
+    setListPct(clamped);
+  }, []);
+
+  useEffect(() => {
+    const onMove = (event: PointerEvent) => {
+      if (!draggingRef.current) return;
+      updateSplitFromClientX(event.clientX);
+      notifyMapResize();
+    };
+    const onUp = () => {
+      if (!draggingRef.current) return;
+      draggingRef.current = false;
+      setIsDraggingSplit(false);
+      document.body.classList.remove("search-map-splitting");
+      try {
+        sessionStorage.setItem(LIST_PCT_STORAGE_KEY, String(listPct));
+      } catch {
+        /* ignore */
+      }
+      notifyMapResize();
+      window.setTimeout(notifyMapResize, 50);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+  }, [listPct, updateSplitFromClientX]);
+
+  const onSplitterPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    draggingRef.current = true;
+    setIsDraggingSplit(true);
+    document.body.classList.add("search-map-splitting");
+    updateSplitFromClientX(event.clientX);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
   const showingCount = sorted.length;
   const totalLabel = typeof total === "number" ? total : showingCount;
 
   return (
-    <div className="search-map-layout">
+    <div
+      ref={layoutRef}
+      className={`search-map-layout${isDraggingSplit ? " is-splitting" : ""}`}
+      style={
+        {
+          ["--search-list-pct" as string]: `${listPct}%`,
+        } as CSSProperties
+      }
+    >
       <section className="search-map-list" aria-label={title} ref={listScrollRef}>
         <div className="search-map-list__inner">
-          <div className="search-map-list__filters">
-            <SearchPageForm {...filters} />
+          <div className="search-map-list__toolbar">
+            <button
+              ref={filterBtnRef}
+              type="button"
+              className={`search-map-filters-btn${activeFilterCount > 0 ? " is-active" : ""}`}
+              aria-haspopup="dialog"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen(true)}
+            >
+              <FilterIcon />
+              <span>Filters</span>
+              {activeFilterCount > 0 ? (
+                <span className="search-map-filters-btn__badge">{activeFilterCount}</span>
+              ) : null}
+            </button>
+            {activeFilterCount > 0 ? (
+              <p className="search-map-list__toolbar-hint">
+                {activeFilterCount} filter{activeFilterCount === 1 ? "" : "s"} applied
+              </p>
+            ) : (
+              <p className="search-map-list__toolbar-hint">Refine location, price, beds &amp; more</p>
+            )}
           </div>
 
           <div className="search-map-list__head">
@@ -310,7 +449,9 @@ export function HomesStyleSearchLayout({
             {loadingMore ? (
               <p className="search-map-list__status">Loading more listings…</p>
             ) : null}
-            {loadError ? <p className="search-map-list__status search-map-list__status--error">{loadError}</p> : null}
+            {loadError ? (
+              <p className="search-map-list__status search-map-list__status--error">{loadError}</p>
+            ) : null}
             {!hasMore && sorted.length > 0 ? (
               <p className="search-map-list__status">End of results</p>
             ) : null}
@@ -324,6 +465,31 @@ export function HomesStyleSearchLayout({
           ) : null}
         </div>
       </section>
+
+      <div
+        className="search-map-splitter"
+        role="separator"
+        aria-orientation="vertical"
+        aria-label="Resize listings and map"
+        aria-valuemin={LIST_PCT_MIN}
+        aria-valuemax={LIST_PCT_MAX}
+        aria-valuenow={Math.round(listPct)}
+        tabIndex={0}
+        onPointerDown={onSplitterPointerDown}
+        onKeyDown={(event: ReactKeyboardEvent<HTMLDivElement>) => {
+          if (event.key === "ArrowLeft") {
+            event.preventDefault();
+            setListPct((p) => Math.max(LIST_PCT_MIN, p - 2));
+            notifyMapResize();
+          } else if (event.key === "ArrowRight") {
+            event.preventDefault();
+            setListPct((p) => Math.min(LIST_PCT_MAX, p + 2));
+            notifyMapResize();
+          }
+        }}
+      >
+        <span className="search-map-splitter__grip" aria-hidden="true" />
+      </div>
 
       <section className="search-map-panel" aria-label="Property map">
         <AuctionsMapToolbar
@@ -340,6 +506,43 @@ export function HomesStyleSearchLayout({
           />
         </div>
       </section>
+
+      {filtersOpen ? (
+        <div
+          className="search-filters-overlay"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setFiltersOpen(false);
+          }}
+        >
+          <div
+            ref={dialogRef}
+            className="search-filters-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="search-filters-title"
+          >
+            <div className="search-filters-dialog__header">
+              <h2 id="search-filters-title">Filters</h2>
+              <button
+                type="button"
+                className="search-filters-dialog__close"
+                aria-label="Close filters"
+                onClick={() => setFiltersOpen(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="search-filters-dialog__body">
+              <SearchPageForm
+                {...filters}
+                variant="panel"
+                onSubmitted={() => setFiltersOpen(false)}
+              />
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -3183,13 +3183,24 @@ body.search-map-route .template-chrome-footer {
 
 .search-map-layout {
   display: grid;
-  grid-template-columns: minmax(360px, 0.95fr) minmax(320px, 1.15fr);
+  grid-template-columns: var(--search-list-pct, 42%) 10px minmax(0, 1fr);
   gap: 0;
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
   overflow: hidden;
   background: #eef1f6;
+  position: relative;
+}
+
+.search-map-layout.is-splitting {
+  cursor: col-resize;
+  user-select: none;
+}
+
+body.search-map-splitting {
+  cursor: col-resize !important;
+  user-select: none !important;
 }
 
 .search-map-list {
@@ -3199,7 +3210,61 @@ body.search-map-route .template-chrome-footer {
   overflow-y: auto;
   overscroll-behavior: contain;
   background: #fff;
-  border-right: 1px solid rgba(22, 30, 45, 0.08);
+  border-right: none;
+  grid-column: 1;
+}
+
+.search-map-splitter {
+  grid-column: 2;
+  position: relative;
+  z-index: 5;
+  width: 10px;
+  margin: 0 -0;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-map-splitter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(22, 30, 45, 0.06);
+  transition: background 0.15s ease;
+}
+
+.search-map-splitter:hover::before,
+.search-map-splitter:focus-visible::before,
+.search-map-layout.is-splitting .search-map-splitter::before {
+  background: color-mix(in srgb, var(--Primary) 35%, rgba(22, 30, 45, 0.08));
+}
+
+.search-map-splitter__grip {
+  position: relative;
+  z-index: 1;
+  width: 4px;
+  height: 48px;
+  border-radius: 999px;
+  background: rgba(22, 30, 45, 0.22);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+.search-map-splitter:hover .search-map-splitter__grip,
+.search-map-layout.is-splitting .search-map-splitter__grip {
+  background: var(--Primary);
+}
+
+.search-map-panel {
+  grid-column: 3;
+  display: block;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #dfe5ee;
+  position: relative;
 }
 
 .search-map-list__inner {
@@ -3208,17 +3273,152 @@ body.search-map-route .template-chrome-footer {
   min-height: 100%;
 }
 
-.search-map-list__filters {
+.search-map-list__toolbar {
   position: sticky;
   top: 0;
   z-index: 20;
-  padding: 12px 16px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
   background: #fff;
   border-bottom: 1px solid rgba(22, 30, 45, 0.06);
 }
 
-.search-map-list__filters .reovana-search-bar {
+.search-map-filters-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 30, 45, 0.12);
+  background: #fff;
+  color: var(--Heading, #161e2d);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.search-map-filters-btn:hover,
+.search-map-filters-btn:focus-visible {
+  border-color: color-mix(in srgb, var(--Primary) 50%, transparent);
+  outline: none;
+}
+
+.search-map-filters-btn.is-active {
+  border-color: color-mix(in srgb, var(--Primary) 55%, transparent);
+  background: color-mix(in srgb, var(--Primary) 8%, #fff);
+  color: var(--Primary);
+}
+
+.search-map-filters-btn__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--Primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.search-map-list__toolbar-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--Note, #a8abae);
+}
+
+.search-filters-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.search-filters-dialog {
+  width: min(520px, 100%);
+  max-height: min(86vh, 720px);
+  overflow: auto;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow: 0 24px 64px rgba(15, 23, 42, 0.28);
+}
+
+.search-filters-dialog__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid rgba(22, 30, 45, 0.08);
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.search-filters-dialog__header h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--Heading, #161e2d);
+}
+
+.search-filters-dialog__close {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 999px;
+  background: #f1f3f5;
+  color: var(--Heading, #161e2d);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search-filters-dialog__body {
+  padding: 8px 12px 20px;
+}
+
+.reovana-search-bar--panel {
+  border: none;
   box-shadow: none;
+  padding: 8px 8px 0;
+  background: transparent;
+}
+
+.reovana-search-bar--panel .reovana-search-bar__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 12px;
+  align-items: end;
+}
+
+.reovana-search-bar--panel .reovana-search-field--query {
+  grid-column: 1 / -1;
+}
+
+.reovana-search-bar--panel .reovana-search-bar__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.reovana-search-bar--panel .reovana-search-bar__submit {
+  min-width: 140px;
 }
 
 .search-map-list__head {
@@ -3278,15 +3478,6 @@ body.search-map-route .template-chrome-footer {
   margin: 0 !important;
 }
 
-.search-map-panel {
-  display: block;
-  min-height: 0;
-  height: 100%;
-  overflow: hidden;
-  background: #dfe5ee;
-  position: relative;
-}
-
 .search-map-panel__wrap {
   position: absolute;
   inset: 0;
@@ -3324,6 +3515,15 @@ body.search-map-route .template-chrome-footer {
     overflow: visible;
   }
 
+  .search-map-splitter {
+    display: none;
+  }
+
+  .search-map-list,
+  .search-map-panel {
+    grid-column: 1;
+  }
+
   .search-map-list {
     height: auto;
     overflow: visible;
@@ -3336,8 +3536,12 @@ body.search-map-route .template-chrome-footer {
     min-height: 360px;
   }
 
-  .search-map-list__filters {
+  .search-map-list__toolbar {
     position: static;
+  }
+
+  .search-filters-overlay {
+    position: fixed;
   }
 }
 

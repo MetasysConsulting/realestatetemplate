@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useEffectEvent, useRef, useTransition, type FormEvent } from "react";
+import {
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useTransition,
+  type FormEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import {
   attachSearchSuggestions,
@@ -11,7 +17,7 @@ import { attachTypingPlaceholder } from "@/lib/search-typing-placeholder";
 import type { SearchSuggestion } from "@/lib/search-suggestion-types";
 import { US_STATE_OPTIONS } from "@/lib/us-states";
 
-type SearchPageFormProps = {
+export type SearchPageFormProps = {
   q: string;
   state: string;
   propertyType: string;
@@ -20,6 +26,10 @@ type SearchPageFormProps = {
   minPrice: number;
   maxPrice: number;
   pageSize: number;
+  /** bar = compact grid (legacy); panel = stacked fields for Filters popup */
+  variant?: "bar" | "panel";
+  /** Called after a successful navigation is kicked off (e.g. close modal). */
+  onSubmitted?: () => void;
 };
 
 const BED_OPTIONS = [1, 2, 3, 4, 5];
@@ -34,6 +44,26 @@ function SearchIcon() {
   );
 }
 
+export function countActiveSearchFilters(input: {
+  q?: string;
+  state?: string;
+  propertyType?: string;
+  beds?: number;
+  baths?: number;
+  minPrice?: number;
+  maxPrice?: number;
+}): number {
+  let n = 0;
+  if (input.q?.trim()) n += 1;
+  if (input.state?.trim()) n += 1;
+  if (input.propertyType?.trim()) n += 1;
+  if (input.beds) n += 1;
+  if (input.baths) n += 1;
+  if (input.minPrice) n += 1;
+  if (input.maxPrice) n += 1;
+  return n;
+}
+
 export function SearchPageForm({
   q,
   state,
@@ -43,6 +73,8 @@ export function SearchPageForm({
   minPrice,
   maxPrice,
   pageSize,
+  variant = "bar",
+  onSubmitted,
 }: SearchPageFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -78,6 +110,7 @@ export function SearchPageForm({
 
     startTransition(() => {
       router.push(suggestion.href);
+      onSubmitted?.();
     });
     return false;
   });
@@ -108,11 +141,15 @@ export function SearchPageForm({
     const href = params.toString() ? `/search?${params}` : "/search";
     startTransition(() => {
       router.push(href);
+      onSubmitted?.();
     });
   };
 
+  const rootClass =
+    variant === "panel" ? "reovana-search-bar reovana-search-bar--panel" : "reovana-search-bar";
+
   return (
-    <section className="reovana-search-bar" aria-label="Search filters">
+    <section className={rootClass} aria-label="Search filters">
       <form className="reovana-search-bar__form" action="/search" method="get" onSubmit={onSubmit}>
         <div className="reovana-search-bar__grid">
           <label className="reovana-search-field reovana-search-field--query">
@@ -213,14 +250,18 @@ export function SearchPageForm({
 
           <div className="reovana-search-bar__actions">
             {hasActiveFilters ? (
-              <Link href="/search" className="reovana-search-bar__clear">
+              <Link
+                href="/search"
+                className="reovana-search-bar__clear"
+                onClick={() => onSubmitted?.()}
+              >
                 Clear
               </Link>
             ) : (
               <span className="reovana-search-bar__clear-spacer" aria-hidden="true" />
             )}
             <button type="submit" className="reovana-search-bar__submit" disabled={isPending}>
-              {isPending ? "Searching…" : "Search"}
+              {isPending ? "Searching…" : "Apply filters"}
             </button>
           </div>
         </div>
