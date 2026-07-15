@@ -16,7 +16,12 @@ import type { PropertyListing } from "@/lib/load-category-listings";
 
 function PropertyCard({ listing }: { listing: PropertyListing }) {
   const location = formatCardLocation(listing);
-  const priceLabel = listing.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : listing.priceLabel;
+  const priceMissing = !listing.browseLocked && !(listing.price > 0);
+  const priceLabel = listing.browseLocked
+    ? BROWSE_LOCKED_PRICE_LABEL
+    : priceMissing
+      ? "Price TBD"
+      : listing.priceLabel;
   const price = listing.browseLocked
     ? BROWSE_LOCKED_PRICE_DISPLAY
     : formatCardPrice(listing.price);

@@ -26,6 +26,7 @@ import {
 } from "@/lib/supabase/listings-query";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { VrmListing, VrmListingsDataset } from "@/lib/vrm-listings";
+import { rankSearchListings } from "@/lib/search-query";
 import { normalizeStateQuery, parseLocationQuery } from "@/lib/us-states";
 import { connection } from "next/server";
 
@@ -840,6 +841,7 @@ export async function searchListings(
 
   const parsed = parseLocationQuery(q);
   const searchQ = parsed.q;
+  const parsedZip = parsed.zip;
   const parsedState = parsed.state || state;
 
   if (parsedState) {
@@ -851,7 +853,7 @@ export async function searchListings(
   }
 
   if (propertyType) {
-    query = query.ilike("property_type", `%${propertyType.replace(/[%_]/g, "\\$&")}%`);
+    query = query.ilike("property_type", `%${propertyType.replace(/[%_\\]/g, "\\$&")}%`);
   }
 
   if (beds) {
@@ -870,15 +872,24 @@ export async function searchListings(
     query = query.lte("price", maxPrice);
   }
 
+  // ZIP is an AND filter when we know it (e.g. "Los Angeles, CA 90012").
+  if (parsedZip) {
+    query = query.like("zip", `${parsedZip}%`);
+  }
+
   if (searchQ) {
-    const escaped = searchQ.replace(/[%_,]/g, "\\$&");
+    const escaped = searchQ.replace(/[%_,\\]/g, "\\$&");
     const clauses = [
       `address.ilike.%${escaped}%`,
       `city.ilike.%${escaped}%`,
-      `state.ilike.%${escaped}%`,
       `county.ilike.%${escaped}%`,
       `property_type.ilike.%${escaped}%`,
     ];
+    // Only ILIKE state text when we did not already apply a state filter —
+    // otherwise "CA" / "California" would never match abbr storage correctly.
+    if (!parsedState) {
+      clauses.push(`state.ilike.%${escaped}%`);
+    }
     if (/^\d+$/.test(searchQ)) {
       clauses.push(`zip.like.${searchQ}%`);
     }
@@ -894,9 +905,10 @@ export async function searchListings(
     return { listings: [] };
   }
 
-  const listings = (data as DatabaseListingRow[])
-    .map(rowToPropertyListing)
-    .filter(Boolean) as PropertyListing[];
+  const listings = rankSearchListings(
+    (data as DatabaseListingRow[]).map(rowToPropertyListing).filter(Boolean) as PropertyListing[],
+    q,
+  );
 
   return { listings, total: typeof count === "number" ? count : undefined };
 }

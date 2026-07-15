@@ -13,6 +13,7 @@ import {
   attachSearchSuggestions,
   suggestionInputValue,
 } from "@/lib/attach-search-suggestions";
+import { buildNormalizedSearchHref } from "@/lib/search-query";
 import { attachTypingPlaceholder } from "@/lib/search-typing-placeholder";
 import type { SearchSuggestion } from "@/lib/search-suggestion-types";
 import { US_STATE_OPTIONS } from "@/lib/us-states";
@@ -132,13 +133,16 @@ export function SearchPageForm({
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
-    const params = new URLSearchParams();
-    for (const [key, value] of data.entries()) {
-      const text = String(value).trim();
-      if (!text || (key === "pageSize" && text === "40")) continue;
-      params.set(key, text);
-    }
-    const href = params.toString() ? `/search?${params}` : "/search";
+    const href = buildNormalizedSearchHref({
+      q: String(data.get("q") ?? ""),
+      state: String(data.get("state") ?? ""),
+      propertyType: String(data.get("propertyType") ?? ""),
+      beds: String(data.get("beds") ?? ""),
+      baths: String(data.get("baths") ?? ""),
+      minPrice: String(data.get("minPrice") ?? ""),
+      maxPrice: String(data.get("maxPrice") ?? ""),
+      pageSize: String(data.get("pageSize") ?? ""),
+    });
     startTransition(() => {
       router.push(href);
       onSubmitted?.();

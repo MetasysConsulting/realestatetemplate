@@ -52,6 +52,8 @@ const STATE_NAME_TO_ABBR: Record<string, string> = {
   "district of columbia": "DC",
 };
 
+const STATE_ABBRS = new Set(Object.values(STATE_NAME_TO_ABBR));
+
 export const US_STATE_OPTIONS = Object.entries(STATE_NAME_TO_ABBR)
   .map(([name, abbr]) => ({
     abbr,
@@ -61,6 +63,12 @@ export const US_STATE_OPTIONS = Object.entries(STATE_NAME_TO_ABBR)
       .join(" "),
   }))
   .sort((a, b) => a.name.localeCompare(b.name));
+
+export function stateNameForAbbr(abbr: string): string {
+  const code = abbr.trim().toUpperCase();
+  const hit = US_STATE_OPTIONS.find((s) => s.abbr === code);
+  return hit?.name ?? code;
+}
 
 export function matchStateSuggestions(
   query: string,
@@ -101,50 +109,100 @@ export function normalizeStateQuery(input: string): string {
   return STATE_NAME_TO_ABBR[trimmed.toLowerCase()] ?? trimmed;
 }
 
-/** Parses a search query to check for trailing state abbreviations or names. */
-export function parseLocationQuery(query: string): { q: string; state: string } {
-  const trimmed = query.trim();
+function asValidStateAbbr(value: string): string {
+  const normalized = normalizeStateQuery(value);
+  if (normalized.length === 2 && STATE_ABBRS.has(normalized)) return normalized;
+  return "";
+}
 
-  // 1. Check for comma separation: "Miami, FL" or "Miami, Florida"
+/** True when the whole token is only a US state name or 2-letter code. */
+export function isBareStateQuery(query: string): boolean {
+  const trimmed = query.trim().replace(/\s+/g, " ");
+  if (!trimmed) return false;
+  return Boolean(asValidStateAbbr(trimmed));
+}
+
+export type ParsedLocationQuery = {
+  q: string;
+  state: string;
+  zip: string;
+};
+
+/**
+ * Realtor-style location parse:
+ * - "california" / "CA" → state only
+ * - "Miami, FL" / "Miami Florida" → city + state
+ * - "90210" / trailing ZIP → zip
+ * - "Los Angeles, CA 90012" → city + state + zip
+ */
+export function parseLocationQuery(query: string): ParsedLocationQuery {
+  let trimmed = query.trim().replace(/\s+/g, " ");
+  if (!trimmed) return { q: "", state: "", zip: "" };
+
+  let zip = "";
+  const pureZip = trimmed.match(/^(\d{5})(?:-\d{4})?$/);
+  if (pureZip) {
+    return { q: "", state: "", zip: pureZip[1] };
+  }
+
+  const trailingZip = trimmed.match(/^(.*?)[,\s]+(\d{5})(?:-\d{4})?$/);
+  if (trailingZip) {
+    zip = trailingZip[2];
+    trimmed = trailingZip[1].trim();
+  }
+
+  if (!trimmed) {
+    return { q: "", state: "", zip };
+  }
+
+  // Bare state / abbr (e.g. "california", "CA", "New York")
+  const bareState = asValidStateAbbr(trimmed);
+  if (bareState) {
+    return { q: "", state: bareState, zip };
+  }
+
+  // Comma: "Miami, FL" or "Miami, Florida"
   const commaIndex = trimmed.lastIndexOf(",");
   if (commaIndex !== -1) {
     const potentialState = trimmed.slice(commaIndex + 1).trim();
-    const normalizedState = normalizeStateQuery(potentialState);
-    // Verify that the normalized state is a valid 2-letter abbreviation
-    if (normalizedState.length === 2 && /^[A-Z]{2}$/.test(normalizedState)) {
+    const normalizedState = asValidStateAbbr(potentialState);
+    if (normalizedState) {
       return {
         q: trimmed.slice(0, commaIndex).trim(),
         state: normalizedState,
+        zip,
       };
     }
   }
 
-  // 2. Check for space separation at the end: "Miami FL" or "Miami Florida"
   const words = trimmed.split(/\s+/);
-  if (words.length > 1) {
-    // Check last word (e.g. "FL" or "Florida")
-    const lastWord = words[words.length - 1];
-    const normalizedLast = normalizeStateQuery(lastWord);
-    if (normalizedLast.length === 2 && /^[A-Z]{2}$/.test(normalizedLast)) {
+  if (words.length >= 2) {
+    // Multi-word states: "Buffalo New York", "Asheville North Carolina"
+    const lastTwoWords = words.slice(-2).join(" ");
+    const normalizedLastTwo = asValidStateAbbr(lastTwoWords);
+    if (normalizedLastTwo) {
       return {
-        q: words.slice(0, -1).join(" ").trim(),
-        state: normalizedLast,
+        q: words.slice(0, -2).join(" ").trim(),
+        state: normalizedLastTwo,
+        zip,
       };
     }
 
-    // Check last two words (e.g. "New York" or "North Carolina")
-    if (words.length > 2) {
-      const lastTwoWords = words.slice(-2).join(" ");
-      const normalizedLastTwo = normalizeStateQuery(lastTwoWords);
-      if (normalizedLastTwo.length === 2 && /^[A-Z]{2}$/.test(normalizedLastTwo)) {
+    // Trailing 2-letter only for spaced form ("Miami FL").
+    // Full names like "Florida" need a comma ("Miami, Florida") so we do not
+    // mis-parse places such as "Fort Washington".
+    const lastWord = words[words.length - 1];
+    if (lastWord.length === 2) {
+      const normalizedLast = asValidStateAbbr(lastWord);
+      if (normalizedLast) {
         return {
-          q: words.slice(0, -2).join(" ").trim(),
-          state: normalizedLastTwo,
+          q: words.slice(0, -1).join(" ").trim(),
+          state: normalizedLast,
+          zip,
         };
       }
     }
   }
 
-  return { q: trimmed, state: "" };
+  return { q: trimmed, state: "", zip };
 }
-

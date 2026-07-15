@@ -3292,6 +3292,7 @@ body.search-map-splitting {
 }
 
 .search-map-toolbar-search {
+  position: relative;
   flex: 1 1 auto;
   min-width: 0;
   display: flex;

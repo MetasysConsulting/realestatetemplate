@@ -1,17 +1,9 @@
 "use client";
 
 import { attachSearchSuggestions } from "@/lib/attach-search-suggestions";
+import { buildNormalizedSearchHref } from "@/lib/search-query";
 import { attachTypingPlaceholder } from "@/lib/search-typing-placeholder";
 import { normalizeStateQuery } from "@/lib/us-states";
-
-type SearchPayload = {
-  q?: string;
-  state?: string;
-  beds?: string;
-  baths?: string;
-  minPrice?: string;
-  maxPrice?: string;
-};
 
 function normalizeToken(value: string): string {
   return value.trim().replace(/\s+/g, " ");
@@ -44,18 +36,6 @@ function readOptionalCount(wrapper: Element | null): string {
 
 function advancedFiltersActive(advanced: Element | null): boolean {
   return Boolean(advanced?.classList.contains("show"));
-}
-
-function buildSearchUrl(payload: SearchPayload): string {
-  const params = new URLSearchParams();
-  if (payload.q) params.set("q", payload.q);
-  if (payload.state) params.set("state", payload.state);
-  if (payload.beds) params.set("beds", payload.beds);
-  if (payload.baths) params.set("baths", payload.baths);
-  if (payload.minPrice) params.set("minPrice", payload.minPrice);
-  if (payload.maxPrice) params.set("maxPrice", payload.maxPrice);
-  const qs = params.toString();
-  return qs ? `/search?${qs}` : "/search";
 }
 
 export function wireTemplateSearch(): void {
@@ -99,13 +79,13 @@ export function wireTemplateSearch(): void {
     const maxPrice =
       useAdvanced && maxPriceInput?.value ? asNumberToken(maxPriceInput.value) : "";
 
-    const url = buildSearchUrl({
-      q: q || undefined,
-      state: state || undefined,
-      beds: beds || undefined,
-      baths: baths || undefined,
-      minPrice: minPrice || undefined,
-      maxPrice: maxPrice || undefined,
+    const url = buildNormalizedSearchHref({
+      q,
+      state,
+      beds,
+      baths,
+      minPrice,
+      maxPrice,
     });
 
     window.location.assign(url);

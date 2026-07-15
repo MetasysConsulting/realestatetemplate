@@ -23,6 +23,10 @@ import {
   SearchPageForm,
   countActiveSearchFilters,
 } from "@/components/search/SearchPageForm";
+import {
+  attachSearchSuggestions,
+  suggestionInputValue,
+} from "@/lib/attach-search-suggestions";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import {
   BROWSE_LOCKED_PRICE_DISPLAY,
@@ -32,6 +36,9 @@ import {
 } from "@/lib/listing-browse-redact";
 import type { PropertyListing } from "@/lib/load-category-listings";
 import { normalizeTemplateHtml } from "@/lib/normalize-template-html";
+import { buildNormalizedSearchHref } from "@/lib/search-query";
+import type { SearchSuggestion } from "@/lib/search-suggestion-types";
+import { stateNameForAbbr } from "@/lib/us-states";
 
 export type SearchFilterValues = {
   q: string;
@@ -61,7 +68,12 @@ const LIST_PCT_MAX = 72;
 
 function PropertyCard({ listing }: { listing: PropertyListing }) {
   const location = formatCardLocation(listing);
-  const priceLabel = listing.browseLocked ? BROWSE_LOCKED_PRICE_LABEL : listing.priceLabel;
+  const priceMissing = !listing.browseLocked && !(listing.price > 0);
+  const priceLabel = listing.browseLocked
+    ? BROWSE_LOCKED_PRICE_LABEL
+    : priceMissing
+      ? "Price TBD"
+      : listing.priceLabel;
   const price = listing.browseLocked
     ? BROWSE_LOCKED_PRICE_DISPLAY
     : formatCardPrice(listing.price);
@@ -196,21 +208,6 @@ function SearchFieldIcon() {
   );
 }
 
-function filtersHref(filters: SearchFilterValues, nextQ: string): string {
-  const next = new URLSearchParams();
-  const q = nextQ.trim();
-  if (q) next.set("q", q);
-  if (filters.state) next.set("state", filters.state);
-  if (filters.propertyType) next.set("propertyType", filters.propertyType);
-  if (filters.beds) next.set("beds", String(filters.beds));
-  if (filters.baths) next.set("baths", String(filters.baths));
-  if (filters.minPrice) next.set("minPrice", String(filters.minPrice));
-  if (filters.maxPrice) next.set("maxPrice", String(filters.maxPrice));
-  if (filters.pageSize !== 40) next.set("pageSize", String(filters.pageSize));
-  const qs = next.toString();
-  return qs ? `/search?${qs}` : "/search";
-}
-
 function notifyMapResize() {
   window.dispatchEvent(new Event("resize"));
 }
@@ -249,24 +246,55 @@ export function HomesStyleSearchLayout({
   const loadingRef = useRef(false);
   const draggingRef = useRef(false);
   const filterBtnRef = useRef<HTMLButtonElement | null>(null);
+  const toolbarQRef = useRef<HTMLInputElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const safeFooterHtml = normalizeTemplateHtml(footerHtml);
 
   // Location lives in the toolbar search bar; badge counts refinement filters only.
   const activeFilterCount = countActiveSearchFilters({ ...filters, q: "" });
+  const toolbarLocationValue =
+    filters.q || (filters.state ? stateNameForAbbr(filters.state) : "");
+
+  const navigateFromToolbar = (nextQ: string) => {
+    startSearchTransition(() => {
+      router.push(
+        buildNormalizedSearchHref({
+          q: nextQ,
+          state: filters.state,
+          propertyType: filters.propertyType,
+          beds: filters.beds,
+          baths: filters.baths,
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+          pageSize: filters.pageSize,
+        }),
+      );
+    });
+  };
 
   const onToolbarSearch = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const nextQ = String(data.get("q") ?? "");
-    startSearchTransition(() => {
-      router.push(filtersHref(filters, nextQ));
-    });
+    navigateFromToolbar(String(data.get("q") ?? ""));
   };
 
   useEffect(() => {
     setPortalReady(true);
   }, []);
+
+  useEffect(() => {
+    const input = toolbarQRef.current;
+    if (!input) return;
+    return attachSearchSuggestions(input, {
+      onSelect: (suggestion: SearchSuggestion) => {
+        input.value = suggestionInputValue(suggestion);
+        startSearchTransition(() => {
+          router.push(suggestion.href);
+        });
+        return false;
+      },
+    });
+  }, [toolbarLocationValue, router]);
 
   useEffect(() => {
     try {
@@ -309,6 +337,9 @@ export function HomesStyleSearchLayout({
 
   const sorted = useMemo(() => {
     return [...listings].sort((a, b) => {
+      const aPriced = a.price > 0 ? 1 : 0;
+      const bPriced = b.price > 0 ? 1 : 0;
+      if (aPriced !== bPriced) return bPriced - aPriced;
       if (sortBy === "price-asc") return a.price - b.price;
       if (sortBy === "sqft-desc") return b.squareFootage - a.squareFootage;
       return b.price - a.price;
@@ -444,7 +475,7 @@ export function HomesStyleSearchLayout({
         <div className="search-map-list__inner">
           <div className="search-map-list__toolbar">
             <form
-              className="search-map-toolbar-search"
+              className="search-map-toolbar-search reovana-search-suggest-host"
               action="/search"
               method="get"
               onSubmit={onToolbarSearch}
@@ -453,11 +484,12 @@ export function HomesStyleSearchLayout({
                 <SearchFieldIcon />
               </span>
               <input
-                key={filters.q}
+                ref={toolbarQRef}
+                key={`${filters.q}|${filters.state}`}
                 type="search"
                 name="q"
-                defaultValue={filters.q}
-                placeholder="City, address, or ZIP"
+                defaultValue={toolbarLocationValue}
+                placeholder="City, address, ZIP, or state"
                 className="search-map-toolbar-search__input"
                 autoComplete="off"
                 aria-label="Search location"

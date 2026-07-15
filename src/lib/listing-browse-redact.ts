@@ -30,6 +30,7 @@ export function formatCardLocation(listing: Locatable & { browseLocked?: boolean
 
 export function formatCardPrice(price: number, browseLocked?: boolean): string {
   if (browseLocked) return BROWSE_LOCKED_PRICE_DISPLAY;
+  if (!Number.isFinite(price) || price <= 0) return "Price TBD";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
