@@ -3157,6 +3157,190 @@ body.auctions-route .auctions-page--search {
   gap: 10px;
 }
 
+/* ── Homes.com-style /search: list+footer left, sticky map right ─────────── */
+html:has(body.search-map-route) {
+  height: 100%;
+  overflow: hidden;
+}
+
+body.search-map-route {
+  height: 100% !important;
+  max-height: 100dvh !important;
+  min-height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+body.search-map-route #template-chrome-root.reovana-site {
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  min-height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+body.search-map-route .template-chrome-footer {
+  display: none !important;
+}
+
+.search-map-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 0.95fr) minmax(320px, 1.15fr);
+  gap: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #eef1f6;
+}
+
+.search-map-list {
+  min-height: 0;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: #fff;
+  border-right: 1px solid rgba(22, 30, 45, 0.08);
+}
+
+.search-map-list__inner {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.search-map-list__filters {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 12px 16px 10px;
+  background: #fff;
+  border-bottom: 1px solid rgba(22, 30, 45, 0.06);
+}
+
+.search-map-list__filters .reovana-search-bar {
+  box-shadow: none;
+}
+
+.search-map-list__head {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--Line, #ececec);
+}
+
+.search-map-list__head h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  color: var(--Heading, #161e2d);
+}
+
+.search-map-list__head p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--Note, #a8abae);
+}
+
+.search-map-list__head .auctions-list-head__actions {
+  margin-top: 12px;
+}
+
+.search-map-list__cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 24px;
+  flex: 1 0 auto;
+}
+
+.search-map-list__sentinel {
+  height: 1px;
+  width: 100%;
+}
+
+.search-map-list__status {
+  margin: 4px 0 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--Note, #a8abae);
+}
+
+.search-map-list__status--error {
+  color: #c0392b;
+}
+
+.search-map-list__footer {
+  margin-top: auto;
+  border-top: 1px solid rgba(22, 30, 45, 0.08);
+  background: #f7f8fa;
+}
+
+.search-map-list__footer .footer,
+.search-map-list__footer footer {
+  margin: 0 !important;
+}
+
+.search-map-panel {
+  display: block;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #dfe5ee;
+  position: relative;
+}
+
+.search-map-panel__wrap {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.search-map-panel__wrap .leaflet-container {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 1100px) {
+  html:has(body.search-map-route) {
+    height: auto;
+    overflow: auto;
+  }
+
+  body.search-map-route {
+    height: auto !important;
+    max-height: none !important;
+    overflow: auto !important;
+  }
+
+  body.search-map-route #template-chrome-root.reovana-site {
+    height: auto !important;
+    max-height: none !important;
+    min-height: 100dvh !important;
+    overflow: visible !important;
+  }
+
+  .search-map-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .search-map-list {
+    height: auto;
+    overflow: visible;
+    border-right: none;
+  }
+
+  .search-map-panel {
+    order: -1;
+    height: 360px;
+    min-height: 360px;
+  }
+
+  .search-map-list__filters {
+    position: static;
+  }
+}
+
 .reovana-search-bar {
   background: #fff;
   border: 1px solid rgba(22, 30, 45, 0.08);

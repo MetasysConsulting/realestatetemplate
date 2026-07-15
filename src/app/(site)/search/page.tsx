@@ -3,13 +3,9 @@ import { TemplateChrome } from "@/components/template/TemplateChrome";
 import { extractTemplateChrome } from "@/lib/extract-template-chrome";
 import { loadTemplatePageBySlug } from "@/lib/load-template-page";
 import { searchListings } from "@/lib/listings-repository";
-import {
-  maybeRedactPropertyListings,
-} from "@/lib/listing-browse-redact";
+import { maybeRedactPropertyListings } from "@/lib/listing-browse-redact";
 import { shouldRevealBrowseDetails } from "@/lib/listing-browse-access";
-import { PropertyCategoryExplorer } from "@/components/properties/PropertyCategoryExplorer";
-import { SearchPageForm } from "@/components/search/SearchPageForm";
-import { SearchPager } from "@/components/search/SearchPager";
+import { HomesStyleSearchLayout } from "@/components/search/HomesStyleSearchLayout";
 import { normalizeStateQuery } from "@/lib/us-states";
 
 export const dynamic = "force-dynamic";
@@ -38,9 +34,9 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const baths = Number(readParam(params, "baths")) || 0;
   const minPrice = Number(readParam(params, "minPrice")) || 0;
   const maxPrice = Number(readParam(params, "maxPrice")) || 0;
-  const page = Math.max(1, Number(readParam(params, "page")) || 1);
   const pageSize = Math.min(100, Math.max(20, Number(readParam(params, "pageSize")) || 40));
 
+  // Always load first page for SSR; infinite scroll loads later pages client-side.
   const { listings, total } = await searchListings({
     q,
     state,
@@ -49,7 +45,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
     baths,
     minPrice,
     maxPrice,
-    page,
+    page: 1,
     pageSize,
   });
 
@@ -74,61 +70,43 @@ export default async function SearchPage({ searchParams }: PageProps) {
     ? descriptionParts.join(" · ")
     : "Browse distressed property listings based on your search.";
 
-  const safeTotal = typeof total === "number" ? total : undefined;
-  const totalPages = safeTotal ? Math.max(1, Math.ceil(safeTotal / pageSize)) : 1;
-  const showPager = totalPages > 1;
-
-  const buildHref = (nextPage: number) => {
-    const next = new URLSearchParams();
-    if (q) next.set("q", q);
-    if (state) next.set("state", state);
-    if (propertyType) next.set("propertyType", propertyType);
-    if (beds) next.set("beds", String(beds));
-    if (baths) next.set("baths", String(baths));
-    if (minPrice) next.set("minPrice", String(minPrice));
-    if (maxPrice) next.set("maxPrice", String(maxPrice));
-    if (pageSize !== 40) next.set("pageSize", String(pageSize));
-    if (nextPage > 1) next.set("page", String(nextPage));
-    const qs = next.toString();
-    return qs ? `/search?${qs}` : "/search";
-  };
+  const filterKey = [
+    q,
+    state,
+    propertyType,
+    beds,
+    baths,
+    minPrice,
+    maxPrice,
+    pageSize,
+  ].join("|");
 
   return (
     <TemplateChrome
       headerHtml={chrome.headerHtml}
-      footerHtml={chrome.footerHtml}
+      footerHtml=""
       tailHtml={chrome.tailHtml}
-      bodyClass="theme-color-4 auctions-route"
+      bodyClass="theme-color-4 auctions-route search-map-route"
     >
-      <div className="reovana-search-page">
-        <div className="reovana-search-page__chrome">
-          <SearchPageForm
-            q={q}
-            state={state}
-            propertyType={propertyType}
-            beds={beds}
-            baths={baths}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            pageSize={pageSize}
-          />
-        </div>
-
-        <PropertyCategoryExplorer
-          title={title}
-          description={description}
-          listings={gatedListings}
-          totalCount={total}
-          hideStateFilter
-          emptyMessage="No properties match your search yet. Try a different city, state, or filter."
-        />
-
-        {showPager ? (
-          <div className="reovana-search-page__chrome reovana-search-page__chrome--footer">
-            <SearchPager page={page} totalPages={totalPages} buildHref={buildHref} />
-          </div>
-        ) : null}
-      </div>
+      <HomesStyleSearchLayout
+        key={filterKey}
+        title={title}
+        description={description}
+        filters={{
+          q,
+          state,
+          propertyType,
+          beds,
+          baths,
+          minPrice,
+          maxPrice,
+          pageSize,
+        }}
+        initialListings={gatedListings}
+        totalCount={total}
+        footerHtml={chrome.footerHtml}
+        emptyMessage="No properties match your search yet. Try a different city, state, or filter."
+      />
     </TemplateChrome>
   );
 }
