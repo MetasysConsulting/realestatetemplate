@@ -3186,33 +3186,6 @@ body.search-map-route .template-chrome-footer {
   display: none !important;
 }
 
-/*
- * Extra safety on /search: clip + shrink logo so it cannot cover Filters,
- * even if another stylesheet fights pointer-events on the img.
- */
-body.search-map-route .template-chrome-header {
-  overflow: hidden !important;
-  position: relative;
-  z-index: 200;
-}
-
-body.search-map-route .reovana-site .header .header-logo,
-body.search-map-route .reovana-site .header .header-logo a.site-logo {
-  overflow: hidden !important;
-}
-
-body.search-map-route .reovana-site .header .header-logo img.reovana-logo,
-body.search-map-route .reovana-site .header .header-logo img#logo_header,
-body.search-map-route .reovana-site .header .header-logo img.logo_header {
-  height: 72px !important;
-  max-height: 72px !important;
-}
-
-body.search-map-route .search-map-list__toolbar {
-  position: relative;
-  z-index: 1;
-}
-
 .search-map-layout {
   display: grid;
   grid-template-columns: var(--search-list-pct, 42%) 10px minmax(0, 1fr);
@@ -3311,17 +3284,74 @@ body.search-map-splitting {
   z-index: 20;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
+  gap: 10px;
+  /* Clear oversized navbar logo overflow (~46px) so controls aren't under it. */
+  padding: 52px 16px 14px;
   background: #fff;
   border-bottom: 1px solid rgba(22, 30, 45, 0.06);
+}
+
+.search-map-toolbar-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px 0 12px;
+  border: 1px solid rgba(22, 30, 45, 0.12);
+  border-radius: 999px;
+  background: #f7f8fa;
+}
+
+.search-map-toolbar-search__icon {
+  display: inline-flex;
+  color: var(--Note, #a8abae);
+  flex-shrink: 0;
+}
+
+.search-map-toolbar-search__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--Heading, #161e2d);
+  line-height: 1.2;
+  padding: 10px 0;
+}
+
+.search-map-toolbar-search__input::-webkit-search-decoration,
+.search-map-toolbar-search__input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.search-map-toolbar-search__submit {
+  flex-shrink: 0;
+  min-height: 34px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  background: var(--Primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.search-map-toolbar-search__submit:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .search-map-filters-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 42px;
+  flex-shrink: 0;
+  min-height: 44px;
   padding: 0 16px;
   border-radius: 999px;
   border: 1px solid rgba(22, 30, 45, 0.12);
@@ -3360,12 +3390,6 @@ body.search-map-splitting {
   color: #fff;
   font-size: 12px;
   font-weight: 700;
-}
-
-.search-map-list__toolbar-hint {
-  margin: 0;
-  font-size: 13px;
-  color: var(--Note, #a8abae);
 }
 
 .search-filters-overlay {

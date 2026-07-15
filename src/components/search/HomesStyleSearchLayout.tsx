@@ -6,12 +6,15 @@ import {
   useMemo,
   useRef,
   useState,
+  useTransition,
   type CSSProperties,
+  type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
 } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import { AuctionsMap } from "@/components/auctions/AuctionsMap";
 import { AuctionsMapToolbar } from "@/components/auctions/AuctionsMapToolbar";
 import { ListingDetailLink } from "@/components/listings/ListingDetailLink";
@@ -184,6 +187,30 @@ function FilterIcon() {
   );
 }
 
+function SearchFieldIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function filtersHref(filters: SearchFilterValues, nextQ: string): string {
+  const next = new URLSearchParams();
+  const q = nextQ.trim();
+  if (q) next.set("q", q);
+  if (filters.state) next.set("state", filters.state);
+  if (filters.propertyType) next.set("propertyType", filters.propertyType);
+  if (filters.beds) next.set("beds", String(filters.beds));
+  if (filters.baths) next.set("baths", String(filters.baths));
+  if (filters.minPrice) next.set("minPrice", String(filters.minPrice));
+  if (filters.maxPrice) next.set("maxPrice", String(filters.maxPrice));
+  if (filters.pageSize !== 40) next.set("pageSize", String(filters.pageSize));
+  const qs = next.toString();
+  return qs ? `/search?${qs}` : "/search";
+}
+
 function notifyMapResize() {
   window.dispatchEvent(new Event("resize"));
 }
@@ -197,6 +224,8 @@ export function HomesStyleSearchLayout({
   footerHtml,
   emptyMessage = "No properties match your search yet. Try a different city, state, or filter.",
 }: HomesStyleSearchLayoutProps) {
+  const router = useRouter();
+  const [isSearchPending, startSearchTransition] = useTransition();
   const [listings, setListings] = useState(initialListings);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(totalCount);
@@ -223,7 +252,17 @@ export function HomesStyleSearchLayout({
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const safeFooterHtml = normalizeTemplateHtml(footerHtml);
 
-  const activeFilterCount = countActiveSearchFilters(filters);
+  // Location lives in the toolbar search bar; badge counts refinement filters only.
+  const activeFilterCount = countActiveSearchFilters({ ...filters, q: "" });
+
+  const onToolbarSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const nextQ = String(data.get("q") ?? "");
+    startSearchTransition(() => {
+      router.push(filtersHref(filters, nextQ));
+    });
+  };
 
   useEffect(() => {
     setPortalReady(true);
@@ -404,6 +443,33 @@ export function HomesStyleSearchLayout({
       <section className="search-map-list" aria-label={title} ref={listScrollRef}>
         <div className="search-map-list__inner">
           <div className="search-map-list__toolbar">
+            <form
+              className="search-map-toolbar-search"
+              action="/search"
+              method="get"
+              onSubmit={onToolbarSearch}
+            >
+              <span className="search-map-toolbar-search__icon" aria-hidden="true">
+                <SearchFieldIcon />
+              </span>
+              <input
+                key={filters.q}
+                type="search"
+                name="q"
+                defaultValue={filters.q}
+                placeholder="City, address, or ZIP"
+                className="search-map-toolbar-search__input"
+                autoComplete="off"
+                aria-label="Search location"
+              />
+              <button
+                type="submit"
+                className="search-map-toolbar-search__submit"
+                disabled={isSearchPending}
+              >
+                {isSearchPending ? "…" : "Search"}
+              </button>
+            </form>
             <button
               ref={filterBtnRef}
               type="button"
@@ -422,13 +488,6 @@ export function HomesStyleSearchLayout({
                 <span className="search-map-filters-btn__badge">{activeFilterCount}</span>
               ) : null}
             </button>
-            {activeFilterCount > 0 ? (
-              <p className="search-map-list__toolbar-hint">
-                {activeFilterCount} filter{activeFilterCount === 1 ? "" : "s"} applied
-              </p>
-            ) : (
-              <p className="search-map-list__toolbar-hint">Refine location, price, beds &amp; more</p>
-            )}
           </div>
 
           <div className="search-map-list__head">
