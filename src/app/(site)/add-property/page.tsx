@@ -14,7 +14,7 @@ export default function AddPropertyPage() {
     <MemberDashboardShell
       activeHref="/add-property"
       title="Add property"
-      subtitle="Sell On Your Own — save your listing draft, then subscribe for $49/month to publish."
+      subtitle="Sell On Your Own — add photos, pin the map, save your draft, then subscribe for $49/month to publish."
     >
       <AddPropertyForm />
     </MemberDashboardShell>

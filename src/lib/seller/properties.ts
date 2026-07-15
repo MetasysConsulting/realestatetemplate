@@ -30,22 +30,40 @@ function createServiceClient() {
 }
 
 function mapProperty(row: Record<string, unknown>): SellerPropertyRow {
+  const images = Array.isArray(row.image_urls)
+    ? row.image_urls.map((u) => String(u)).filter(Boolean)
+    : [];
   return {
     id: String(row.id),
+    title: row.title == null ? null : String(row.title),
     address: String(row.address ?? ""),
     city: String(row.city ?? ""),
     state: String(row.state ?? ""),
     zip: String(row.zip ?? ""),
+    county: row.county == null ? null : String(row.county),
     price: row.price == null ? null : Number(row.price),
     bedrooms: row.bedrooms == null ? null : Number(row.bedrooms),
     bathrooms: row.bathrooms == null ? null : Number(row.bathrooms),
     squareFootage: row.square_footage == null ? null : Number(row.square_footage),
+    lotSize: row.lot_size == null ? null : Number(row.lot_size),
+    yearBuilt: row.year_built == null ? null : Number(row.year_built),
+    garage: row.garage == null ? null : Number(row.garage),
+    propertyType: row.property_type == null ? null : String(row.property_type),
+    listingStatus: row.listing_status == null ? null : String(row.listing_status),
     description: row.description == null ? null : String(row.description),
+    videoUrl: row.video_url == null ? null : String(row.video_url),
+    virtualTourUrl: row.virtual_tour_url == null ? null : String(row.virtual_tour_url),
+    lat: row.lat == null ? null : Number(row.lat),
+    lng: row.lng == null ? null : Number(row.lng),
+    imageUrls: images,
     status: String(row.status ?? "draft") as SellerPropertyStatus,
     createdAt: String(row.created_at ?? ""),
     updatedAt: String(row.updated_at ?? ""),
   };
 }
+
+const SELLER_PROPERTY_SELECT =
+  "id, title, address, city, state, zip, county, price, bedrooms, bathrooms, square_footage, lot_size, year_built, garage, property_type, listing_status, description, video_url, virtual_tour_url, lat, lng, image_urls, status, created_at, updated_at";
 
 export async function listMySellerProperties(): Promise<SellerPropertyRow[]> {
   if (!isSupabaseAuthConfigured()) return [];
@@ -54,9 +72,7 @@ export async function listMySellerProperties(): Promise<SellerPropertyRow[]> {
     const supabase = await createSupabaseAuthServerClient();
     const { data, error } = await supabase
       .from("seller_properties")
-      .select(
-        "id, address, city, state, zip, price, bedrooms, bathrooms, square_footage, description, status, created_at, updated_at",
-      )
+      .select(SELLER_PROPERTY_SELECT)
       .order("updated_at", { ascending: false });
 
     if (error || !data) return [];
@@ -73,9 +89,7 @@ export async function getMySellerProperty(id: string): Promise<SellerPropertyRow
     const supabase = await createSupabaseAuthServerClient();
     const { data, error } = await supabase
       .from("seller_properties")
-      .select(
-        "id, address, city, state, zip, price, bedrooms, bathrooms, square_footage, description, status, created_at, updated_at",
-      )
+      .select(SELLER_PROPERTY_SELECT)
       .eq("id", id.trim())
       .maybeSingle();
 
@@ -101,6 +115,11 @@ export async function createSellerPropertyDraft(
     return { ok: false, error: "Address, city, state, and ZIP are required." };
   }
 
+  const imageUrls = (input.imageUrls ?? [])
+    .map((u) => String(u).trim())
+    .filter((u) => u.startsWith("https://") || u.startsWith("http://"))
+    .slice(0, 12);
+
   try {
     const supabase = await createSupabaseAuthServerClient();
     const { data: userData } = await supabase.auth.getUser();
@@ -113,15 +132,27 @@ export async function createSellerPropertyDraft(
       .from("seller_properties")
       .insert({
         user_id: userData.user.id,
+        title: input.title?.trim() || null,
         address,
         city,
         state,
         zip,
+        county: input.county?.trim() || null,
         price: input.price ?? null,
         bedrooms: input.bedrooms ?? null,
         bathrooms: input.bathrooms ?? null,
         square_footage: input.squareFootage ?? null,
+        lot_size: input.lotSize ?? null,
+        year_built: input.yearBuilt ?? null,
+        garage: input.garage ?? null,
+        property_type: input.propertyType?.trim() || null,
+        listing_status: input.listingStatus?.trim() || null,
         description: input.description?.trim() || null,
+        video_url: input.videoUrl?.trim() || null,
+        virtual_tour_url: input.virtualTourUrl?.trim() || null,
+        lat: input.lat ?? null,
+        lng: input.lng ?? null,
+        image_urls: imageUrls,
         status,
         updated_at: new Date().toISOString(),
       })

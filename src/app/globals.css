@@ -7046,6 +7046,13 @@ body.loans-route #loading {
   line-height: 1.55;
 }
 
+.reovana-add-property__section {
+  margin: 28px 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--Heading, #161e2d);
+}
+
 .reovana-add-property__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -7084,6 +7091,99 @@ body.loans-route #loading {
 .reovana-add-property__field textarea {
   min-height: 120px;
   resize: vertical;
+}
+
+.reovana-add-property__media {
+  margin-bottom: 18px;
+}
+
+.reovana-add-property__upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px dashed rgba(22, 30, 45, 0.2);
+  border-radius: 12px;
+  background: #fafbfc;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reovana-add-property__upload input {
+  font-weight: 400;
+}
+
+.reovana-add-property__media-hint {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--Note, #a8abae);
+}
+
+.reovana-add-property__thumbs {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.reovana-add-property__thumbs li {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(22, 30, 45, 0.1);
+  background: #fff;
+}
+
+.reovana-add-property__thumbs img {
+  display: block;
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+}
+
+.reovana-add-property__thumbs button {
+  width: 100%;
+  border: none;
+  background: #fff;
+  padding: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reovana-add-property__map-actions {
+  margin-bottom: 12px;
+}
+
+.reovana-map-pin {
+  margin-bottom: 18px;
+}
+
+.reovana-map-pin__hint,
+.reovana-map-pin__coords {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--Note, #5c5e61);
+}
+
+.reovana-map-pin__map {
+  height: 320px;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(22, 30, 45, 0.1);
+  z-index: 0;
+}
+
+.reovana-map-pin--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 320px;
+  border-radius: 14px;
+  background: #f5f6f8;
+  color: var(--Note, #a8abae);
 }
 
 .reovana-add-property__error {

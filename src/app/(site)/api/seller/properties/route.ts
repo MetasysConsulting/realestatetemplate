@@ -10,6 +10,12 @@ function numOrNull(value: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+function strOrNull(value: unknown): string | null {
+  if (value == null) return null;
+  const s = String(value).trim();
+  return s || null;
+}
+
 export async function POST(request: NextRequest) {
   const user = await getAuthUser();
   if (!user) {
@@ -17,16 +23,32 @@ export async function POST(request: NextRequest) {
   }
 
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
+  const imageUrls = Array.isArray(body.imageUrls)
+    ? body.imageUrls.map((u) => String(u))
+    : [];
+
   const result = await createSellerPropertyDraft({
+    title: strOrNull(body.title),
     address: String(body.address ?? ""),
     city: String(body.city ?? ""),
     state: String(body.state ?? ""),
     zip: String(body.zip ?? ""),
+    county: strOrNull(body.county),
     price: numOrNull(body.price),
     bedrooms: numOrNull(body.bedrooms),
     bathrooms: numOrNull(body.bathrooms),
     squareFootage: numOrNull(body.squareFootage),
-    description: body.description == null ? null : String(body.description),
+    lotSize: numOrNull(body.lotSize),
+    yearBuilt: numOrNull(body.yearBuilt),
+    garage: numOrNull(body.garage),
+    propertyType: strOrNull(body.propertyType),
+    listingStatus: strOrNull(body.listingStatus),
+    description: strOrNull(body.description),
+    videoUrl: strOrNull(body.videoUrl),
+    virtualTourUrl: strOrNull(body.virtualTourUrl),
+    lat: numOrNull(body.lat),
+    lng: numOrNull(body.lng),
+    imageUrls,
   });
 
   if (!result.ok) {

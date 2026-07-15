@@ -112,25 +112,46 @@ export function MemberSellerPropertiesList({
           <li key={row.id} className="reovana-member-list__item">
             <div className="reovana-member-list__link" style={{ cursor: "default" }}>
               <div className="reovana-member-list__thumb">
-                <div className="reovana-member-list__thumb-fallback" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
-                    <path
-                      d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5.5v-5.5h-3V21H5a1 1 0 0 1-1-1v-9.5Z"
-                      stroke="currentColor"
-                      strokeWidth="1.6"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
+                {row.imageUrls[0] ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={row.imageUrls[0]}
+                    alt=""
+                    className="reovana-member-list__thumb-img"
+                  />
+                ) : (
+                  <div className="reovana-member-list__thumb-fallback" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
+                      <path
+                        d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-5.5v-5.5h-3V21H5a1 1 0 0 1-1-1v-9.5Z"
+                        stroke="currentColor"
+                        strokeWidth="1.6"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                )}
               </div>
               <div className="reovana-member-list__body">
                 <span className="reovana-member-list__badge">{statusLabel(row.status)}</span>
                 <h3>
-                  {row.address}, {row.city}, {row.state} {row.zip}
+                  {row.title?.trim() ||
+                    `${row.address}, ${row.city}, ${row.state} ${row.zip}`}
                 </h3>
+                {row.title?.trim() ? (
+                  <p className="reovana-member-list__meta">
+                    {row.address}, {row.city}, {row.state} {row.zip}
+                  </p>
+                ) : null}
                 <p className="reovana-member-list__price">{formatPrice(row.price)}</p>
                 <p className="reovana-member-list__meta">
-                  {[row.bedrooms ? `${row.bedrooms} bd` : null, row.bathrooms ? `${row.bathrooms} ba` : null, row.squareFootage ? `${row.squareFootage.toLocaleString()} sqft` : null]
+                  {[
+                    row.propertyType,
+                    row.bedrooms ? `${row.bedrooms} bd` : null,
+                    row.bathrooms ? `${row.bathrooms} ba` : null,
+                    row.squareFootage ? `${row.squareFootage.toLocaleString()} sqft` : null,
+                    row.lat != null && row.lng != null ? "Map pin set" : null,
+                  ]
                     .filter(Boolean)
                     .join(" · ") || "Details TBD"}
                 </p>
