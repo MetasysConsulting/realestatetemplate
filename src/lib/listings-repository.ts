@@ -26,6 +26,7 @@ import {
 } from "@/lib/supabase/listings-query";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import type { VrmListing, VrmListingsDataset } from "@/lib/vrm-listings";
+import { isValidMapBounds, type MapBounds } from "@/lib/map-bounds";
 import { rankSearchListings } from "@/lib/search-query";
 import { normalizeStateQuery, parseLocationQuery } from "@/lib/us-states";
 import { connection } from "next/server";
@@ -809,6 +810,8 @@ type SearchListingsOptions = {
   baths?: number;
   minPrice?: number;
   maxPrice?: number;
+  /** Inclusive viewport filter (AND with other filters). */
+  bounds?: MapBounds | null;
   page?: number;
   pageSize?: number;
 };
@@ -875,6 +878,17 @@ export async function searchListings(
   // ZIP is an AND filter when we know it (e.g. "Los Angeles, CA 90012").
   if (parsedZip) {
     query = query.like("zip", `${parsedZip}%`);
+  }
+
+  if (isValidMapBounds(options.bounds)) {
+    const { minLat, maxLat, minLng, maxLng } = options.bounds;
+    query = query
+      .not("lat", "is", null)
+      .not("lng", "is", null)
+      .gte("lat", minLat)
+      .lte("lat", maxLat)
+      .gte("lng", minLng)
+      .lte("lng", maxLng);
   }
 
   if (searchQ) {

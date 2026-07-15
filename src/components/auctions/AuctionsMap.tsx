@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { AuctionProperty } from "@/lib/generate-auction-properties";
 import { MapPropertyPopup } from "@/components/auctions/MapPropertyPopup";
 import { MapLayerLegend, MapOptionsPanel } from "@/components/auctions/MapOptionsPanel";
+import type { MapBounds } from "@/lib/map-bounds";
 import {
   buildLayerGrid,
   getLayerValues,
@@ -20,11 +21,16 @@ const US_BOUNDS: [[number, number], [number, number]] = [
 ];
 
 const US_CENTER: [number, number] = [39.8283, -98.5795];
+const BOUNDS_DEBOUNCE_MS = 350;
 
 type AuctionsMapProps = {
   properties: AuctionProperty[];
   mapView: "map" | "satellite";
   layersPanelOpen: boolean;
+  /** When true, skip re-fitting when markers change (search-as-I-move). */
+  lockAutoFit?: boolean;
+  /** Fired (debounced) after pan/zoom ends. */
+  onBoundsChange?: (bounds: MapBounds, meta: { userGesture: boolean }) => void;
 };
 
 type LeafletModules = {
@@ -59,11 +65,19 @@ function createMarkerIcon(
   });
 }
 
-export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMapProps) {
+export function AuctionsMap({
+  properties,
+  mapView,
+  layersPanelOpen,
+  lockAutoFit = false,
+  onBoundsChange,
+}: AuctionsMapProps) {
   const [leaflet, setLeaflet] = useState<LeafletModules | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [markerColor, setMarkerColor] = useState("#7695ff");
   const [selectedLayer, setSelectedLayer] = useState<MapLayerKey | null>(null);
+  const onBoundsChangeRef = useRef(onBoundsChange);
+  onBoundsChangeRef.current = onBoundsChange;
 
   useEffect(() => {
     void import("leaflet/dist/leaflet.css");
@@ -188,13 +202,69 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
 
   function FitInitialBounds() {
     const map = useMap();
+    const didFitRef = useRef(false);
     useEffect(() => {
-      if (selectedLayer || mapProperties.length === 0) return;
+      if (lockAutoFit || selectedLayer || mapProperties.length === 0) return;
+      if (didFitRef.current) return;
       const bounds = latLngBounds(getPropertyBounds(mapProperties));
       if (!bounds.isValid()) return;
+      didFitRef.current = true;
       map.fitBounds(bounds, { padding: [40, 40], maxZoom: 6, animate: false });
       map.invalidateSize({ animate: false });
-    }, [map, selectedLayer, mapProperties]);
+    }, [map, lockAutoFit, selectedLayer, mapProperties]);
+    return null;
+  }
+
+  function BoundsReporter() {
+    const map = useMap();
+    useEffect(() => {
+      let timer: number | undefined;
+      let lastProgrammatic = 0;
+
+      const emit = (userGesture: boolean) => {
+        const b = map.getBounds();
+        if (!b.isValid()) return;
+        onBoundsChangeRef.current?.(
+          {
+            minLat: b.getSouth(),
+            maxLat: b.getNorth(),
+            minLng: b.getWest(),
+            maxLng: b.getEast(),
+          },
+          { userGesture },
+        );
+      };
+
+      const onMoveStart = () => {
+        // Leaflet fires movestart for both user and programmatic moves; we
+        // treat anything shortly after fitBounds as programmatic.
+      };
+
+      const onMoveEnd = () => {
+        const programmatic = Date.now() - lastProgrammatic < 500;
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => {
+          emit(!programmatic);
+        }, BOUNDS_DEBOUNCE_MS);
+      };
+
+      // Mark the initial fit / any fitBounds we trigger as programmatic.
+      const originalFitBounds = map.fitBounds.bind(map);
+      map.fitBounds = ((...args: Parameters<typeof map.fitBounds>) => {
+        lastProgrammatic = Date.now();
+        return originalFitBounds(...args);
+      }) as typeof map.fitBounds;
+
+      map.on("movestart", onMoveStart);
+      map.on("moveend", onMoveEnd);
+
+      return () => {
+        window.clearTimeout(timer);
+        map.off("movestart", onMoveStart);
+        map.off("moveend", onMoveEnd);
+        map.fitBounds = originalFitBounds;
+      };
+    }, [map]);
     return null;
   }
 
@@ -225,6 +295,7 @@ export function AuctionsMap({ properties, mapView, layersPanelOpen }: AuctionsMa
         <MapResizeFix />
         <FitInitialBounds />
         <FitLayerBounds />
+        {onBoundsChange ? <BoundsReporter /> : null}
         <TileLayer attribution={tileAttribution} url={tileUrl} />
 
         {selectedLayer

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { searchListings } from "@/lib/listings-repository";
 import { maybeRedactPropertyListings } from "@/lib/listing-browse-redact";
 import { shouldRevealBrowseDetails } from "@/lib/listing-browse-access";
+import { parseMapBoundsParams } from "@/lib/map-bounds";
 import { normalizeStateQuery } from "@/lib/us-states";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,12 @@ export async function GET(request: NextRequest) {
   const maxPrice = Number(readParam(url, "maxPrice")) || 0;
   const page = Math.max(1, Number(readParam(url, "page")) || 1);
   const pageSize = Math.min(100, Math.max(20, Number(readParam(url, "pageSize")) || 40));
+  const bounds = parseMapBoundsParams({
+    minLat: readParam(url, "minLat"),
+    maxLat: readParam(url, "maxLat"),
+    minLng: readParam(url, "minLng"),
+    maxLng: readParam(url, "maxLng"),
+  });
 
   const { listings, total } = await searchListings({
     q,
@@ -30,6 +37,7 @@ export async function GET(request: NextRequest) {
     baths,
     minPrice,
     maxPrice,
+    bounds,
     page,
     pageSize,
   });

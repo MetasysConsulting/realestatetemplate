@@ -35,6 +35,11 @@ import {
   formatCardPrice,
 } from "@/lib/listing-browse-redact";
 import type { PropertyListing } from "@/lib/load-category-listings";
+import {
+  appendMapBoundsParams,
+  mapBoundsKey,
+  type MapBounds,
+} from "@/lib/map-bounds";
 import { normalizeTemplateHtml } from "@/lib/normalize-template-html";
 import { buildNormalizedSearchHref } from "@/lib/search-query";
 import type { SearchSuggestion } from "@/lib/search-suggestion-types";
@@ -158,7 +163,11 @@ function toMapProperties(listings: PropertyListing[]): AuctionProperty[] {
     }));
 }
 
-function filtersToQuery(filters: SearchFilterValues, page: number): string {
+function filtersToQuery(
+  filters: SearchFilterValues,
+  page: number,
+  bounds?: MapBounds | null,
+): string {
   const next = new URLSearchParams();
   if (filters.q) next.set("q", filters.q);
   if (filters.state) next.set("state", filters.state);
@@ -168,6 +177,7 @@ function filtersToQuery(filters: SearchFilterValues, page: number): string {
   if (filters.minPrice) next.set("minPrice", String(filters.minPrice));
   if (filters.maxPrice) next.set("maxPrice", String(filters.maxPrice));
   if (filters.pageSize !== 40) next.set("pageSize", String(filters.pageSize));
+  appendMapBoundsParams(next, bounds);
   next.set("page", String(page));
   return next.toString();
 }
@@ -230,11 +240,15 @@ export function HomesStyleSearchLayout({
   const [mapView, setMapView] = useState<"map" | "satellite">("map");
   const [layersOpen, setLayersOpen] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [boundsLoading, setBoundsLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [listPct, setListPct] = useState(LIST_PCT_DEFAULT);
   const [isDraggingSplit, setIsDraggingSplit] = useState(false);
   const [portalReady, setPortalReady] = useState(false);
+  const [searchAsIMove, setSearchAsIMove] = useState(true);
+  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
+  const [pendingBounds, setPendingBounds] = useState<MapBounds | null>(null);
   const [hasMore, setHasMore] = useState(() => {
     if (typeof totalCount === "number") return initialListings.length < totalCount;
     return initialListings.length >= filters.pageSize;
@@ -248,6 +262,11 @@ export function HomesStyleSearchLayout({
   const filterBtnRef = useRef<HTMLButtonElement | null>(null);
   const toolbarQRef = useRef<HTMLInputElement | null>(null);
   const dialogRef = useRef<HTMLDivElement | null>(null);
+  const latestBoundsRef = useRef<MapBounds | null>(null);
+  const appliedBoundsKeyRef = useRef("");
+  const boundsAbortRef = useRef<AbortController | null>(null);
+  const searchAsIMoveRef = useRef(searchAsIMove);
+  searchAsIMoveRef.current = searchAsIMove;
   const safeFooterHtml = normalizeTemplateHtml(footerHtml);
 
   // Location lives in the toolbar search bar; badge counts refinement filters only.
@@ -313,12 +332,113 @@ export function HomesStyleSearchLayout({
     setPage(1);
     setTotal(totalCount);
     setLoadError(null);
+    setMapBounds(null);
+    setPendingBounds(null);
+    latestBoundsRef.current = null;
+    appliedBoundsKeyRef.current = "";
     setHasMore(
       typeof totalCount === "number"
         ? initialListings.length < totalCount
         : initialListings.length >= filters.pageSize,
     );
   }, [initialListings, totalCount, filters.pageSize]);
+
+  const replaceListingsForBounds = useCallback(
+    async (bounds: MapBounds | null) => {
+      const key = mapBoundsKey(bounds);
+      if (key && key === appliedBoundsKeyRef.current) return;
+
+      boundsAbortRef.current?.abort();
+      const controller = new AbortController();
+      boundsAbortRef.current = controller;
+      loadingRef.current = true;
+      setBoundsLoading(true);
+      setLoadError(null);
+      setPendingBounds(null);
+
+      try {
+        const qs = filtersToQuery(filters, 1, bounds);
+        const res = await fetch(`/api/search/listings?${qs}`, {
+          credentials: "same-origin",
+          signal: controller.signal,
+        });
+        const data = (await res.json().catch(() => ({}))) as {
+          listings?: PropertyListing[];
+          total?: number | null;
+          error?: string;
+        };
+
+        if (!res.ok) {
+          setLoadError(data.error || "Could not update map search.");
+          return;
+        }
+
+        const incoming = Array.isArray(data.listings) ? data.listings : [];
+        const nextTotal = typeof data.total === "number" ? data.total : incoming.length;
+
+        setMapBounds(bounds);
+        appliedBoundsKeyRef.current = key;
+        setListings(incoming);
+        setPage(1);
+        setTotal(nextTotal);
+        setHasMore(
+          typeof nextTotal === "number"
+            ? incoming.length < nextTotal
+            : incoming.length >= filters.pageSize,
+        );
+
+        if (listScrollRef.current) {
+          listScrollRef.current.scrollTop = 0;
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setLoadError("Network error updating map search.");
+      } finally {
+        if (boundsAbortRef.current === controller) {
+          boundsAbortRef.current = null;
+          loadingRef.current = false;
+          setBoundsLoading(false);
+        }
+      }
+    },
+    [filters],
+  );
+
+  const onMapBoundsChange = useCallback(
+    (bounds: MapBounds, meta: { userGesture: boolean }) => {
+      latestBoundsRef.current = bounds;
+
+      if (searchAsIMoveRef.current) {
+        // First programmatic emit (after fit) + every user pan/zoom.
+        if (meta.userGesture || !appliedBoundsKeyRef.current) {
+          void replaceListingsForBounds(bounds);
+        }
+        return;
+      }
+
+      if (meta.userGesture) {
+        const changed = mapBoundsKey(bounds) !== appliedBoundsKeyRef.current;
+        setPendingBounds(changed ? bounds : null);
+      }
+    },
+    [replaceListingsForBounds],
+  );
+
+  const onSearchAsIMoveChange = useCallback(
+    (enabled: boolean) => {
+      setSearchAsIMove(enabled);
+      if (enabled) {
+        const bounds = latestBoundsRef.current;
+        if (bounds) void replaceListingsForBounds(bounds);
+        return;
+      }
+      appliedBoundsKeyRef.current = "";
+      setMapBounds(null);
+      setPendingBounds(null);
+      void replaceListingsForBounds(null);
+    },
+    [replaceListingsForBounds],
+  );
 
   useEffect(() => {
     if (!filtersOpen) return;
@@ -354,7 +474,7 @@ export function HomesStyleSearchLayout({
 
     const nextPage = page + 1;
     try {
-      const qs = filtersToQuery(filters, nextPage);
+      const qs = filtersToQuery(filters, nextPage, mapBounds);
       const res = await fetch(`/api/search/listings?${qs}`, {
         credentials: "same-origin",
       });
@@ -390,7 +510,7 @@ export function HomesStyleSearchLayout({
       loadingRef.current = false;
       setLoadingMore(false);
     }
-  }, [filters, hasMore, page, total]);
+  }, [filters, hasMore, mapBounds, page, total]);
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -527,6 +647,8 @@ export function HomesStyleSearchLayout({
             <p>{description}</p>
             <p>
               Showing <strong>{showingCount}</strong> of <strong>{totalLabel}</strong> properties
+              {mapBounds ? " in map area" : ""}
+              {boundsLoading ? " · Updating…" : ""}
             </p>
             <div className="auctions-list-head__actions">
               <label className="auctions-sort">
@@ -599,12 +721,30 @@ export function HomesStyleSearchLayout({
           onMapViewChange={setMapView}
           layersOpen={layersOpen}
           onLayersOpenChange={setLayersOpen}
+          searchAsIMove={searchAsIMove}
+          onSearchAsIMoveChange={onSearchAsIMoveChange}
         />
         <div className="search-map-panel__wrap">
+          {!searchAsIMove && pendingBounds ? (
+            <div className="search-map-area-cta">
+              <button
+                type="button"
+                className="search-map-area-cta__btn"
+                disabled={boundsLoading}
+                onClick={() => {
+                  if (pendingBounds) void replaceListingsForBounds(pendingBounds);
+                }}
+              >
+                {boundsLoading ? "Searching…" : "Search this area"}
+              </button>
+            </div>
+          ) : null}
           <AuctionsMap
             properties={toMapProperties(sorted)}
             mapView={mapView}
             layersPanelOpen={layersOpen}
+            lockAutoFit={mapBounds != null}
+            onBoundsChange={onMapBoundsChange}
           />
         </div>
       </section>
