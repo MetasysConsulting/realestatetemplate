@@ -1824,6 +1824,11 @@ body.auctions-route .reovana-site .header {
   object-fit: contain !important;
   position: relative;
   z-index: 1;
+  /*
+   * Oversized logo overflows the 78px bar into page content. Without this,
+   * clicks on that overflow hit <a.site-logo href="/"> (e.g. Filters on /search).
+   */
+  pointer-events: none !important;
 }
 
 /*
@@ -3179,6 +3184,33 @@ body.search-map-route #template-chrome-root.reovana-site {
 
 body.search-map-route .template-chrome-footer {
   display: none !important;
+}
+
+/*
+ * Extra safety on /search: clip + shrink logo so it cannot cover Filters,
+ * even if another stylesheet fights pointer-events on the img.
+ */
+body.search-map-route .template-chrome-header {
+  overflow: hidden !important;
+  position: relative;
+  z-index: 200;
+}
+
+body.search-map-route .reovana-site .header .header-logo,
+body.search-map-route .reovana-site .header .header-logo a.site-logo {
+  overflow: hidden !important;
+}
+
+body.search-map-route .reovana-site .header .header-logo img.reovana-logo,
+body.search-map-route .reovana-site .header .header-logo img#logo_header,
+body.search-map-route .reovana-site .header .header-logo img.logo_header {
+  height: 72px !important;
+  max-height: 72px !important;
+}
+
+body.search-map-route .search-map-list__toolbar {
+  position: relative;
+  z-index: 1;
 }
 
 .search-map-layout {
