@@ -6246,6 +6246,308 @@ body.loans-route #loading {
   }
 }
 
+/* ── Loan calculators ────────────────────────────────────────────────────── */
+.loan-calc-page {
+  background: #f6f7fb;
+  padding: clamp(40px, 6vw, 72px) 0 clamp(56px, 8vw, 96px);
+  font-family: var(--font-main);
+  color: var(--Heading, #161e2d);
+}
+
+.loan-calc-hero {
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.loan-calc-hero__eyebrow {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+
+.loan-calc-hero__eyebrow a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.loan-calc-hero__eyebrow a:hover {
+  color: var(--Primary, #7695ff);
+}
+
+.loan-calc-hero h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.loan-calc-hero p {
+  margin: 12px 0 0;
+  color: var(--Text, #5c5e61);
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.loan-calc-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.loan-calc-nav a {
+  display: inline-flex;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid #e4e7ef;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.loan-calc-nav a:hover,
+.loan-calc-nav a.is-active {
+  background: var(--Primary, #7695ff);
+  border-color: var(--Primary, #7695ff);
+  color: #fff;
+}
+
+.loan-calc-hub-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.loan-calc-hub-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #e8ebf2;
+  border-radius: 16px;
+  padding: 22px 20px;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.loan-calc-hub-card:hover {
+  border-color: #c9d4ff;
+  box-shadow: 0 10px 28px rgba(22, 30, 45, 0.06);
+}
+
+.loan-calc-hub-card h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.loan-calc-hub-card p {
+  margin: 8px 0 14px;
+  color: var(--Text, #5c5e61);
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 300;
+}
+
+.loan-calc-hub-card span {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--Primary, #7695ff);
+}
+
+.loan-calc-hub-back {
+  margin: 28px 0 0;
+}
+
+.loan-calc-hub-back a {
+  color: var(--Primary, #7695ff);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.loan-calc-workspace {
+  background: #fff;
+  border: 1px solid #e8ebf2;
+  border-radius: 18px;
+  padding: clamp(20px, 3vw, 28px);
+  margin-bottom: 24px;
+}
+
+.loan-calc-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.loan-calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.loan-calc-field__input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #dce1ec;
+  border-radius: 10px;
+  padding: 0 12px;
+  background: #fbfcff;
+}
+
+.loan-calc-field__input input {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  padding: 12px 0;
+  font-size: 15px;
+  font-family: inherit;
+  color: var(--Heading, #161e2d);
+  outline: none;
+  min-width: 0;
+}
+
+.loan-calc-field__input em {
+  font-style: normal;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.loan-calc-results {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.loan-calc-results--compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.loan-calc-result {
+  background: #f4f6fc;
+  border-radius: 12px;
+  padding: 14px 14px 16px;
+}
+
+.loan-calc-result span {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.loan-calc-result strong {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--Heading, #161e2d);
+}
+
+.loan-calc-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.loan-calc-compare h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.loan-calc-table-wrap {
+  margin-top: 22px;
+  overflow-x: auto;
+  border: 1px solid #e8ebf2;
+  border-radius: 12px;
+}
+
+.loan-calc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.loan-calc-table th,
+.loan-calc-table td {
+  padding: 10px 12px;
+  text-align: right;
+  border-bottom: 1px solid #eef1f7;
+  white-space: nowrap;
+}
+
+.loan-calc-table th:first-child,
+.loan-calc-table td:first-child {
+  text-align: left;
+}
+
+.loan-calc-table th {
+  background: #f6f7fb;
+  font-weight: 700;
+  color: #4b5563;
+}
+
+.loan-calc-table-note {
+  margin: 0;
+  padding: 10px 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.loan-calc-lead {
+  background: #161e2d;
+  color: #fff;
+  border-radius: 16px;
+  padding: 22px 24px;
+}
+
+.loan-calc-lead p {
+  margin: 0 0 14px;
+  color: #d5dff5;
+  font-size: 15px;
+  line-height: 1.55;
+  font-weight: 300;
+}
+
+.loan-calc-lead__hint {
+  margin: 12px 0 0 !important;
+  font-size: 13px !important;
+  color: #9aa8c7 !important;
+}
+
+@media (max-width: 991px) {
+  .loan-calc-hub-grid,
+  .loan-calc-compare,
+  .loan-calc-results {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .loan-calc-hub-grid,
+  .loan-calc-grid,
+  .loan-calc-compare,
+  .loan-calc-results,
+  .loan-calc-results--compact {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ── Sell page ───────────────────────────────────────────────────────────── */
 .section-selling-home.style-2 {
   background-color: #fff !important;

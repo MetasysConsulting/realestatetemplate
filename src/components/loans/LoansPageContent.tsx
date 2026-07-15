@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   LOAN_FEATURES,
   LOAN_SOLUTIONS,
@@ -139,31 +140,34 @@ export function LoansPageContent() {
                 Find a Loan — Get Matched with Lenders
                 <span aria-hidden="true">→</span>
               </button>
-              <button type="button" className="loans-btn loans-btn--secondary loans-cta--pending" disabled>
+              <Link href="/search" className="loans-btn loans-btn--secondary">
                 Browse Distressed Properties
                 <span aria-hidden="true">→</span>
-              </button>
+              </Link>
+              <Link href="/loans/calculators" className="loans-btn loans-btn--secondary">
+                Open Loan Calculators
+                <span aria-hidden="true">→</span>
+              </Link>
             </div>
           </div>
 
           <aside className="loans-calculator-card">
-            <h2>Loan Calculator</h2>
-            <p>Estimate your loan payments in seconds.</p>
+            <h2>Loan Calculators</h2>
+            <p>Free estimates — payment, affordability, refinance, and more.</p>
 
             <div className="loans-calculator-card__option">
               <div className="loans-calculator-card__icon loans-calculator-card__icon--blue">
                 <LoanIcon type="home" />
               </div>
               <div>
-                <h3>Residential Loan Calculator</h3>
-                <p>Estimate payments for fix &amp; flip, rental, and bridge loans.</p>
-                <button
-                  type="button"
-                  className="loans-calculator-card__cta loans-calculator-card__cta--blue loans-cta--pending"
-                  disabled
+                <h3>Mortgage Payment</h3>
+                <p>Estimate monthly P&amp;I plus tax, insurance, and HOA.</p>
+                <Link
+                  href="/loans/calculators/mortgage-payment"
+                  className="loans-calculator-card__cta loans-calculator-card__cta--blue"
                 >
                   Calculate Now
-                </button>
+                </Link>
               </div>
             </div>
 
@@ -172,15 +176,14 @@ export function LoansPageContent() {
                 <LoanIcon type="building" />
               </div>
               <div>
-                <h3>Commercial Loan Calculator</h3>
-                <p>Model terms for office, retail, and mixed-use investments.</p>
-                <button
-                  type="button"
-                  className="loans-calculator-card__cta loans-calculator-card__cta--accent loans-cta--pending"
-                  disabled
+                <h3>All 7 Calculators</h3>
+                <p>Amortization, extra payments, refinance, compare loans, and more.</p>
+                <Link
+                  href="/loans/calculators"
+                  className="loans-calculator-card__cta loans-calculator-card__cta--accent"
                 >
-                  Calculate Now
-                </button>
+                  View all tools
+                </Link>
               </div>
             </div>
           </aside>
