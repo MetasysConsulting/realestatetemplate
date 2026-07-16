@@ -1,17 +1,23 @@
 /**
- * One-time: set default admin password + app_metadata.role for allowlisted accounts.
+ * Create/update allowlisted admin Auth users with the default password.
  *
  * Usage:
  *   node --env-file=.env.local scripts/set-admin-passwords.mjs
+ *   node --env-file=.env.local scripts/set-admin-passwords.mjs management@reovana.com
  *
- * Default password is only used here — change it in Admin → Settings after first login.
+ * Default password is only for first login — change it in Admin → Settings after.
  */
 import { createClient } from "@supabase/supabase-js";
 
 const DEFAULT_PASSWORD = "Reovana123$";
+const DEFAULT_ADMIN_EMAILS =
+  "creditteck1@gmail.com,metasysprojects@gmail.com,management@reovana.com";
+
+const args = process.argv.slice(2).map((e) => e.trim().toLowerCase()).filter(Boolean);
 const ADMIN_EMAILS = (
-  process.env.ADMIN_EMAILS ||
-  "creditteck1@gmail.com,metasysprojects@gmail.com"
+  args.length
+    ? args.join(",")
+    : process.env.ADMIN_EMAILS || DEFAULT_ADMIN_EMAILS
 )
   .split(",")
   .map((e) => e.trim().toLowerCase())
@@ -43,30 +49,44 @@ async function findUserByEmail(email) {
   }
 }
 
+async function ensureAdminUser(email) {
+  let user = await findUserByEmail(email);
+
+  if (!user) {
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password: DEFAULT_PASSWORD,
+      email_confirm: true,
+      app_metadata: { role: "admin" },
+    });
+    if (error) throw error;
+    user = data.user;
+    console.log(`  ✓ ${email} — created + password set, role=admin`);
+    return;
+  }
+
+  const { error } = await admin.auth.admin.updateUserById(user.id, {
+    password: DEFAULT_PASSWORD,
+    email_confirm: true,
+    app_metadata: {
+      ...(user.app_metadata ?? {}),
+      role: "admin",
+    },
+  });
+
+  if (error) throw error;
+  console.log(`  ✓ ${email} — password set, role=admin`);
+}
+
 async function main() {
   console.log("Setting admin passwords for:", ADMIN_EMAILS.join(", "));
 
   for (const email of ADMIN_EMAILS) {
-    const user = await findUserByEmail(email);
-    if (!user) {
-      console.error(`  ✗ ${email} — not found in auth.users`);
-      continue;
+    try {
+      await ensureAdminUser(email);
+    } catch (err) {
+      console.error(`  ✗ ${email} — ${err.message || err}`);
     }
-
-    const { error } = await admin.auth.admin.updateUserById(user.id, {
-      password: DEFAULT_PASSWORD,
-      email_confirm: true,
-      app_metadata: {
-        ...(user.app_metadata ?? {}),
-        role: "admin",
-      },
-    });
-
-    if (error) {
-      console.error(`  ✗ ${email} — ${error.message}`);
-      continue;
-    }
-    console.log(`  ✓ ${email} — password set, role=admin`);
   }
 
   console.log("Done. Sign in at /admin/login and change the password in Settings.");

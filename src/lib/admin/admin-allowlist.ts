@@ -6,6 +6,7 @@
 export const DEFAULT_ADMIN_EMAILS = [
   "creditteck1@gmail.com",
   "metasysprojects@gmail.com",
+  "management@reovana.com",
 ] as const;
 
 export function getAdminAllowlist(): string[] {
