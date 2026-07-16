@@ -61,16 +61,20 @@ const Header = ({ adminUser }: { adminUser: AdminShellUser }) => {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative group">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative group text-white/90 hover:bg-white/10 hover:text-white"
+            >
               <Bell className="size-5 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-80">
-            <DropdownMenuLabel>Admin alerts</DropdownMenuLabel>
+            <DropdownMenuLabel className="text-white/70">Admin alerts</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <div className="px-3 py-6 text-center">
-              <p className="text-sm font-medium text-foreground/80">No alerts yet</p>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-sm font-medium text-white/90">No alerts yet</p>
+              <p className="mt-1 text-xs text-white/50">
                 System notifications will appear here when available.
               </p>
             </div>
@@ -79,38 +83,46 @@ const Header = ({ adminUser }: { adminUser: AdminShellUser }) => {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full group">
-              <div className="flex items-center justify-center size-8 rounded-full bg-sidebar-accent border border-sidebar-accent transition-all duration-300 group-hover:shadow-lg">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full group hover:bg-white/10"
+            >
+              <div className="flex size-8 items-center justify-center rounded-full border border-white/20 bg-white/10 transition-all duration-300 group-hover:border-white/35 group-hover:bg-white/15">
                 <UserCircle className="size-5 text-white transition-transform duration-300" />
               </div>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuLabel>
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">{adminUser.fullName}</p>
-                <p className="text-xs text-muted-foreground">{adminUser.email}</p>
-                <p className="text-xs text-primary">{adminUser.role}</p>
+              <div className="flex flex-col gap-0.5 px-0.5 py-0.5">
+                <p className="truncate text-sm font-semibold text-white">
+                  {adminUser.fullName}
+                </p>
+                <p className="truncate text-xs text-white/55">{adminUser.email}</p>
+                <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-[#9eb4f0]">
+                  {adminUser.role}
+                </p>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/admin/settings">
-                <User className="" /> Profile
+                <User /> Profile
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/admin/settings">
-                <Settings className="" /> Settings
+                <Settings /> Settings
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <a href={REOVANA_BRAND.localPublicSiteUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="" /> Public site
+                <ExternalLink /> Public site
               </a>
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <HelpCircle className="" /> Help & Support
+            <DropdownMenuItem disabled className="opacity-45">
+              <HelpCircle /> Help & Support
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -118,7 +130,7 @@ const Header = ({ adminUser }: { adminUser: AdminShellUser }) => {
               onClick={handleLogout}
               disabled={isPending}
             >
-              <LogOut className="text-destructive" />
+              <LogOut />
               {isPending ? "Signing out…" : "Log out"}
             </DropdownMenuItem>
           </DropdownMenuContent>

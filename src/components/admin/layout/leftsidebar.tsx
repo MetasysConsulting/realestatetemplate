@@ -122,14 +122,21 @@ const LeftSidebar = ({ adminUser }: { adminUser: AdminShellUser }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="end" className="w-72">
               <DropdownMenuLabel>
-                <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium">{adminUser.fullName}</p>
-                  <p className="text-xs text-muted-foreground">{adminUser.email}</p>
+                <div className="flex flex-col gap-0.5">
+                  <p className="truncate text-sm font-semibold text-white">
+                    {adminUser.fullName}
+                  </p>
+                  <p className="truncate text-xs text-white/55">{adminUser.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <div className="p-2">
-                <Button variant="outline" className="w-full" size="sm" asChild>
+                <Button
+                  variant="outline"
+                  className="w-full border-white/15 bg-white/5 text-white hover:bg-white/10 hover:text-white"
+                  size="sm"
+                  asChild
+                >
                   <Link href="/admin/settings">Account settings</Link>
                 </Button>
               </div>
