@@ -1,5 +1,6 @@
 import { TemplateScripts } from "@/components/template/TemplateScripts";
 import { WireTemplateAuth } from "@/components/auth/WireTemplateAuth";
+import { WireContactForm } from "@/components/contact/WireContactForm";
 import { SiteAnalytics } from "@/components/analytics/SiteAnalytics";
 import { SiteBodyClass } from "@/components/SiteBodyClass";
 import "../globals.css";
@@ -21,6 +22,7 @@ export default function SiteLayout({
       <SiteBodyClass />
       {children}
       <WireTemplateAuth />
+      <WireContactForm />
       <SiteAnalytics />
       <TemplateScripts />
     </>

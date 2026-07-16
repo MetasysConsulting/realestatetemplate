@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { getBrevoConfig, sendBrevoEmail } from "@/lib/email/brevo";
 import { estimateInvestorLoan } from "@/lib/loans/loan-estimate";
 import { insertLoanLead } from "@/lib/loans/loan-leads";
 import {
@@ -145,6 +146,31 @@ export async function POST(request: NextRequest) {
 
   if ("error" in result) {
     return NextResponse.json({ error: result.error }, { status: 503 });
+  }
+
+  const brevo = getBrevoConfig();
+  if (brevo) {
+    const text = [
+      `New Find a Loan lead`,
+      `ID: ${result.id}`,
+      `Name: ${fullName}`,
+      `Email: ${email}`,
+      `Phone: ${phone ?? "—"}`,
+      `Purpose: ${purpose}`,
+      `Property: ${propertyCity}, ${propertyState}`,
+      `Purchase: ${purchasePrice}`,
+      `Est. loan: ${estimate.estimatedLoanAmount}`,
+      `Est. rate: ${estimate.estimatedRatePercent}%`,
+      `Admin: /admin/loan-leads`,
+    ].join("\n");
+    void sendBrevoEmail({
+      toEmail: brevo.notifyEmail,
+      toName: "REOVANA",
+      subject: `REOVANA loan lead: ${fullName}`,
+      textContent: text,
+      replyToEmail: email,
+      replyToName: fullName,
+    });
   }
 
   return NextResponse.json({ ok: true, id: result.id, estimate });
