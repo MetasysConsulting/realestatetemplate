@@ -55,6 +55,26 @@ export function MemberSellerPropertiesList({
     setActivatingId(propertyId);
     setError(null);
     try {
+      if (hasActiveSellerSub) {
+        const res = await fetch("/api/seller/properties", {
+          method: "PATCH",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "activate", propertyId }),
+        });
+        const data = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string };
+        if (res.status === 401) {
+          router.push("/?login=required&next=/my-property");
+          return;
+        }
+        if (!res.ok || !data.ok) {
+          setError(data.error ?? "Could not publish listing.");
+          return;
+        }
+        router.refresh();
+        return;
+      }
+
       const res = await fetch("/api/stripe/checkout", {
         method: "POST",
         credentials: "same-origin",
@@ -164,8 +184,21 @@ export function MemberSellerPropertiesList({
                 disabled={activatingId === row.id}
                 onClick={() => void activate(row.id)}
               >
-                {activatingId === row.id ? "Starting…" : "Activate $49/mo"}
+                {activatingId === row.id
+                  ? "Working…"
+                  : hasActiveSellerSub
+                    ? "Publish listing"
+                    : "Activate $49/mo"}
               </button>
+            ) : row.status === "active" ? (
+              <a
+                className="reovana-member-list__remove"
+                href={`/buy/off-market/seller-${row.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View public page
+              </a>
             ) : null}
           </li>
         ))}

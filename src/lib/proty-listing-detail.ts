@@ -73,7 +73,7 @@ function resolveGalleryImages(...urls: (string | null | undefined)[]): string[] 
   }
 
   if (!result.length) return [];
-  return result.slice(0, 5);
+  return result.slice(0, 12);
 }
 
 function buildAmenities(tags: string[]): string[] {
@@ -121,6 +121,16 @@ export function propertyListingToProtyDetail(
   if (sourceAgency) detailFacts.push({ label: "Source Agency", value: sourceAgency });
   if (listing.tags.length) detailFacts.push({ label: "Tags", value: listing.tags.join(", ") });
 
+  const aboutFromListing = listing.aboutText?.trim();
+  const description =
+    aboutFromListing ||
+    `${categoryLabel} opportunity at ${listing.address} in ${listing.city}, ${listing.state}. ${listing.priceLabel}: ${priceDisplay}. Browse distressed inventory on REOVANA and register interest to connect with our team.`;
+
+  const galleryImages = resolveGalleryImages(
+    ...(listing.galleryImages ?? []),
+    listing.imageUrl,
+  );
+
   return {
     id: listing.id,
     listingId: resolveListingId(listing),
@@ -140,12 +150,12 @@ export function propertyListingToProtyDetail(
     yearBuilt: listing.yearBuilt,
     lotSize: listing.lotSize,
     imageUrl: hasListingImage(listing.imageUrl) ? listing.imageUrl!.trim() : DEFAULT_AUCTION_PROPERTY_IMAGE,
-    galleryImages: resolveGalleryImages(listing.imageUrl),
+    galleryImages,
     lat: listing.lat,
     lng: listing.lng,
     hasRealCoordinates: listing.hasRealCoordinates,
     detailPath: listing.detailPath,
-    description: `${categoryLabel} opportunity at ${listing.address} in ${listing.city}, ${listing.state}. ${listing.priceLabel}: ${priceDisplay}. Browse distressed inventory on REOVANA and register interest to connect with our team.`,
+    description,
     detailFacts,
     amenities: buildAmenities(listing.tags),
     mapAddress: listing.address,

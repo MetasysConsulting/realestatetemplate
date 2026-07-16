@@ -26,11 +26,11 @@ export function SellerCheckoutConfirm() {
       body: JSON.stringify({ sessionId }),
     })
       .then((res) => res.json().catch(() => ({})))
-      .then((data: { ok?: boolean; error?: string }) => {
+      .then((data: { unlocked?: boolean; ok?: boolean; error?: string }) => {
         if (cancelled) return;
         setMessage(
-          data.ok
-            ? "Listing subscription active. Your property is live."
+          data.unlocked || data.ok
+            ? "Listing subscription active. Your property is live on REOVANA search."
             : data.error || "Payment received — refreshing your listings…",
         );
         router.replace("/my-property");

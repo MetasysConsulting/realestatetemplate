@@ -12,8 +12,10 @@ import {
   auctionPropertyDetailPath,
   bankOwnedDetailPath,
   hudDetailPath,
+  offMarketDetailPath,
   propertyRadarDetailPath,
 } from "@/lib/property-categories";
+import { SELLER_LISTING_SOURCE_ID } from "@/lib/seller/sync-public-listing";
 import {
   areSiteListingsEnabled,
   createSupabaseServerClient,
@@ -160,6 +162,15 @@ async function fetchPropertyRadarCategoryListings(
   return rows
     .filter((row) => row.category === categoryKey)
     .map(propertyRadarToPropertyListing)
+    .sort((a, b) => b.price - a.price);
+}
+
+async function fetchSellerPublicListings(): Promise<PropertyListing[]> {
+  connection();
+  if (!isSupabaseConfigured()) return [];
+  const rows = await fetchAllRows(SELLER_LISTING_SOURCE_ID);
+  return rows
+    .map(sellerToPropertyListing)
     .sort((a, b) => b.price - a.price);
 }
 
@@ -487,6 +498,53 @@ function propertyRadarToPropertyListing(row: DatabaseListingRow): PropertyListin
   };
 }
 
+function sellerToPropertyListing(row: DatabaseListingRow): PropertyListing {
+  const { lat, lng, hasRealCoordinates } = coordsFromRow(row);
+  const image = listingImageFromRow(row);
+  const meta =
+    row.metadata && typeof row.metadata === "object"
+      ? (row.metadata as Record<string, unknown>)
+      : {};
+  const galleryFromMeta = Array.isArray(meta.imageUrls)
+    ? meta.imageUrls.map((u) => String(u)).filter(Boolean)
+    : [];
+  const galleryImages = Array.from(
+    new Set([image.imageUrl, ...galleryFromMeta].filter(Boolean) as string[]),
+  );
+  const title = meta.title ? String(meta.title).trim() : "";
+  const aboutText = meta.description ? String(meta.description).trim() : "";
+
+  return {
+    id: row.id,
+    address: row.address,
+    city: row.city,
+    state: row.state,
+    zip: row.zip,
+    price: Number(row.price) || 0,
+    priceLabel: row.price_label || "List Price",
+    bedrooms: row.bedrooms ?? 0,
+    bathrooms: Number(row.bathrooms) || 0,
+    squareFootage: row.square_footage ?? 0,
+    propertyType: row.property_type ?? "Residential",
+    status: row.status ?? "For Sale",
+    tags: row.tags?.length ? row.tags : ["Seller listing", "FSBO"],
+    imageUrl: image.imageUrl ?? galleryImages[0] ?? null,
+    hasImage: image.hasImage || galleryImages.length > 0,
+    detailPath: offMarketDetailPath(row.id),
+    lat,
+    lng,
+    hasRealCoordinates,
+    isNew: row.is_new ?? false,
+    subtitle: title || "Seller listing on REOVANA",
+    yearBuilt: row.year_built,
+    lotSize: row.lot_size != null ? Number(row.lot_size) : null,
+    detailUrl: row.detail_url,
+    galleryImages,
+    aboutText: aboutText || null,
+    ownerContact: null,
+  };
+}
+
 function listingToAuctionProperty(listing: PropertyListing, buyType: BuyCategoryKey): AuctionProperty {
   return {
     id: listing.id,
@@ -758,6 +816,9 @@ function rowToPropertyListing(row: DatabaseListingRow): PropertyListing | null {
   if (row.source_id === "propertyradar") {
     return propertyRadarToPropertyListing(row);
   }
+  if (row.source_id === SELLER_LISTING_SOURCE_ID || row.source_id === "seller") {
+    return sellerToPropertyListing(row);
+  }
 
   return null;
 }
@@ -793,11 +854,18 @@ export async function fetchCategoryListings(categoryKey: PropertyCategoryKey): P
     }
 
     case "motivated-seller":
-    case "off-market":
     case "foreclosure":
     case "pre-foreclosure": {
       if (!PROPERTY_RADAR_CATEGORIES.has(categoryKey)) return [];
       return fetchPropertyRadarCategoryListings(categoryKey);
+    }
+
+    case "off-market": {
+      const [radar, seller] = await Promise.all([
+        fetchPropertyRadarCategoryListings("off-market"),
+        fetchSellerPublicListings(),
+      ]);
+      return [...seller, ...radar].sort((a, b) => b.price - a.price);
     }
 
     case "sheriffs-sale":

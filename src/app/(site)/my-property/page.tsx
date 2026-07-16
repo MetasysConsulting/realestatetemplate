@@ -24,6 +24,7 @@ export default async function MyPropertyPage({ searchParams }: PageProps) {
   const checkoutError =
     typeof params.checkout_error === "string" ? params.checkout_error : null;
   const draftSaved = typeof params.draft === "string";
+  const justPublished = typeof params.published === "string";
 
   const [properties, sellerSub] = await Promise.all([
     listMySellerProperties(),
@@ -33,6 +34,12 @@ export default async function MyPropertyPage({ searchParams }: PageProps) {
   const hasActiveSellerSub = sellerSub
     ? isMembershipStatusActive(sellerSub.status, sellerSub.currentPeriodEnd)
     : false;
+
+  const checkoutNotice = justPublished
+    ? "Your listing is live on REOVANA search and the Off-Market category."
+    : draftSaved
+      ? "Listing draft saved. Activate with $49/month to publish."
+      : null;
 
   return (
     <MemberDashboardShell
@@ -44,11 +51,7 @@ export default async function MyPropertyPage({ searchParams }: PageProps) {
       <MemberSellerPropertiesList
         properties={properties}
         hasActiveSellerSub={hasActiveSellerSub}
-        checkoutNotice={
-          draftSaved
-            ? "Listing draft saved. Activate with $49/month to publish."
-            : null
-        }
+        checkoutNotice={checkoutNotice}
         checkoutError={checkoutError}
       />
     </MemberDashboardShell>

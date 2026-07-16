@@ -374,6 +374,10 @@ export function detailPathForListingId(
     return auctionPropertyDetailPath(id);
   }
 
+  if (id.startsWith("seller-")) {
+    return propertyRadarDetailPath("off-market", id);
+  }
+
   if (
     categoryKey === "motivated-seller" ||
     categoryKey === "off-market" ||

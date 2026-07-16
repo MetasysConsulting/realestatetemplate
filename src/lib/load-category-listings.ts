@@ -30,6 +30,10 @@ export type PropertyListing = {
   estEquity?: number | null;
   radarId?: string | null;
   detailUrl?: string | null;
+  /** Extra gallery URLs when source provides more than imageUrl (e.g. seller listings). */
+  galleryImages?: string[];
+  /** Optional longer description for detail About section. */
+  aboutText?: string | null;
   /** Owner of record / contact — member-only on detail when present. */
   ownerContact?: ListingOwnerContact | null;
 };

@@ -66,6 +66,7 @@ export default async function PropertyRadarDetailPage({ params }: PageProps) {
 
   const config = PROPERTY_CATEGORIES[categoryKey];
   const meta = await fetchSourceMetaForPropertyRadar();
+  const isSellerListing = listing.id.startsWith("seller-");
 
   return (
     <ListingDetailPageShell
@@ -73,7 +74,7 @@ export default async function PropertyRadarDetailPage({ params }: PageProps) {
       categoryLabel={config.title}
       backHref={config.path}
       scrapedAt={meta.scrapedAt}
-      sourceAgency="PropertyRadar"
+      sourceAgency={isSellerListing ? "REOVANA Seller" : "PropertyRadar"}
     />
   );
 }

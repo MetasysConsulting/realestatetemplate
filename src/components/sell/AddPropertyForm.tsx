@@ -126,6 +126,8 @@ export function AddPropertyForm() {
       const saveData = (await saveRes.json().catch(() => ({}))) as {
         id?: string;
         error?: string;
+        published?: boolean;
+        status?: string;
       };
 
       if (saveRes.status === 401) {
@@ -134,6 +136,13 @@ export function AddPropertyForm() {
       }
       if (!saveRes.ok || !saveData.id) {
         setError(saveData.error ?? "Could not save your listing.");
+        return;
+      }
+
+      // Already has $49 sub → listing is active + public; no checkout needed.
+      if (saveData.published || saveData.status === "active") {
+        router.push("/my-property?published=1");
+        router.refresh();
         return;
       }
 

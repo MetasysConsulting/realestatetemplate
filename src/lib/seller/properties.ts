@@ -1,5 +1,6 @@
 import "server-only";
 
+import pg from "pg";
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseAuthServerClient } from "@/lib/supabase/auth-server";
 import {
@@ -13,6 +14,11 @@ import type {
   SellerPropertyRow,
   SellerPropertyStatus,
 } from "@/lib/seller/property-types";
+import {
+  deactivatePublicListingForSellerProperty,
+  deactivatePublicListingsForSellerUser,
+  syncPublicListingForSellerPropertyId,
+} from "@/lib/seller/sync-public-listing";
 
 export type {
   SellerPropertyRow,
@@ -20,13 +26,32 @@ export type {
   SellerPropertyInput,
 } from "@/lib/seller/property-types";
 
+const { Client } = pg;
+
 function createServiceClient() {
   const url = getSupabaseProjectUrl();
-  const key = getSupabaseServiceRoleKey();
-  if (!url || !key) return null;
+  const key = getSupabaseServiceRoleKey()?.trim();
+  if (!url || !key || key.length < 20) return null;
   return createClient(url, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
+}
+
+async function withPg<T>(fn: (client: pg.Client) => Promise<T>): Promise<T> {
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (!databaseUrl) {
+    throw new Error("Neither a valid service role key nor DATABASE_URL is configured.");
+  }
+  const client = new Client({
+    connectionString: databaseUrl,
+    ssl: { rejectUnauthorized: false },
+  });
+  await client.connect();
+  try {
+    return await fn(client);
+  } finally {
+    await client.end().catch(() => {});
+  }
 }
 
 function mapProperty(row: Record<string, unknown>): SellerPropertyRow {
@@ -102,7 +127,7 @@ export async function getMySellerProperty(id: string): Promise<SellerPropertyRow
 
 export async function createSellerPropertyDraft(
   input: SellerPropertyInput,
-): Promise<{ ok: boolean; id?: string; error?: string }> {
+): Promise<{ ok: boolean; id?: string; status?: SellerPropertyStatus; error?: string }> {
   if (!isSupabaseAuthConfigured()) {
     return { ok: false, error: "Auth is not configured." };
   }
@@ -160,7 +185,28 @@ export async function createSellerPropertyDraft(
       .single();
 
     if (error) return { ok: false, error: error.message };
-    return { ok: true, id: String(data.id) };
+    const id = String(data.id);
+    if (status === "active") {
+      const sync = await syncPublicListingForSellerPropertyId({
+        userId: userData.user.id,
+        propertyId: id,
+        isActive: true,
+      });
+      if (!sync.ok) {
+        console.error("[seller] public sync failed after draft", sync.error);
+        // Keep the private row, but do not claim it is live/public.
+        await supabase
+          .from("seller_properties")
+          .update({ status: "pending_payment", updated_at: new Date().toISOString() })
+          .eq("id", id)
+          .eq("user_id", userData.user.id);
+        return {
+          ok: false,
+          error: `Saved, but could not publish publicly: ${sync.error}`,
+        };
+      }
+    }
+    return { ok: true, id, status };
   } catch {
     return { ok: false, error: "Could not save listing draft." };
   }
@@ -243,57 +289,189 @@ export async function upsertSellerListingSubscription(input: {
   metadata?: Record<string, unknown>;
 }): Promise<{ ok: boolean; error?: string }> {
   const client = createServiceClient();
-  if (!client) {
-    return { ok: false, error: "Service role client is not configured." };
+  if (client) {
+    const { error } = await client.from("seller_listing_subscriptions").upsert(
+      {
+        user_id: input.userId,
+        stripe_customer_id: input.stripeCustomerId ?? null,
+        stripe_subscription_id: input.stripeSubscriptionId ?? null,
+        status: input.status,
+        current_period_end: input.currentPeriodEnd ?? null,
+        cancel_at_period_end: input.cancelAtPeriodEnd ?? false,
+        metadata: input.metadata ?? {},
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "user_id" },
+    );
+    if (!error) return { ok: true };
+    console.error("[seller] subscription upsert failed, trying DATABASE_URL", error.message);
   }
 
-  const { error } = await client.from("seller_listing_subscriptions").upsert(
-    {
-      user_id: input.userId,
-      stripe_customer_id: input.stripeCustomerId ?? null,
-      stripe_subscription_id: input.stripeSubscriptionId ?? null,
-      status: input.status,
-      current_period_end: input.currentPeriodEnd ?? null,
-      cancel_at_period_end: input.cancelAtPeriodEnd ?? false,
-      metadata: input.metadata ?? {},
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "user_id" },
-  );
-
-  if (error) return { ok: false, error: error.message };
-  return { ok: true };
+  try {
+    await withPg(async (pgClient) => {
+      await pgClient.query(
+        `
+        INSERT INTO seller_listing_subscriptions (
+          user_id, stripe_customer_id, stripe_subscription_id, status,
+          current_period_end, cancel_at_period_end, metadata, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, NOW())
+        ON CONFLICT (user_id) DO UPDATE SET
+          stripe_customer_id = COALESCE(EXCLUDED.stripe_customer_id, seller_listing_subscriptions.stripe_customer_id),
+          stripe_subscription_id = COALESCE(EXCLUDED.stripe_subscription_id, seller_listing_subscriptions.stripe_subscription_id),
+          status = EXCLUDED.status,
+          current_period_end = EXCLUDED.current_period_end,
+          cancel_at_period_end = EXCLUDED.cancel_at_period_end,
+          metadata = EXCLUDED.metadata,
+          updated_at = NOW()
+        `,
+        [
+          input.userId,
+          input.stripeCustomerId ?? null,
+          input.stripeSubscriptionId ?? null,
+          input.status,
+          input.currentPeriodEnd ?? null,
+          input.cancelAtPeriodEnd ?? false,
+          JSON.stringify(input.metadata ?? {}),
+        ],
+      );
+    });
+    return { ok: true };
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Subscription upsert failed." };
+  }
 }
 
 export async function activateSellerPropertyForUser(input: {
   userId: string;
   propertyId?: string | null;
 }): Promise<{ ok: boolean; error?: string }> {
-  const client = createServiceClient();
-  if (!client) {
-    return { ok: false, error: "Service role client is not configured." };
-  }
-
   const now = new Date().toISOString();
+  const client = createServiceClient();
 
   if (input.propertyId?.trim()) {
-    const { error } = await client
-      .from("seller_properties")
-      .update({ status: "active", updated_at: now })
-      .eq("user_id", input.userId)
-      .eq("id", input.propertyId.trim());
+    const propertyId = input.propertyId.trim();
+    if (client) {
+      const { error } = await client
+        .from("seller_properties")
+        .update({ status: "active", updated_at: now })
+        .eq("user_id", input.userId)
+        .eq("id", propertyId);
+      if (error) {
+        console.error("[seller] activate failed, trying DATABASE_URL", error.message);
+      } else {
+        const sync = await syncPublicListingForSellerPropertyId({
+          userId: input.userId,
+          propertyId,
+          isActive: true,
+        });
+        if (!sync.ok) {
+          await client
+            .from("seller_properties")
+            .update({ status: "pending_payment", updated_at: new Date().toISOString() })
+            .eq("user_id", input.userId)
+            .eq("id", propertyId);
+          return { ok: false, error: sync.error };
+        }
+        return { ok: true };
+      }
+    }
 
-    if (error) return { ok: false, error: error.message };
+    try {
+      await withPg(async (pgClient) => {
+        await pgClient.query(
+          `UPDATE seller_properties SET status = 'active', updated_at = $3
+           WHERE user_id = $1 AND id = $2`,
+          [input.userId, propertyId, now],
+        );
+      });
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : "Activate failed." };
+    }
+
+    const sync = await syncPublicListingForSellerPropertyId({
+      userId: input.userId,
+      propertyId,
+      isActive: true,
+    });
+    if (!sync.ok) {
+      try {
+        await withPg(async (pgClient) => {
+          await pgClient.query(
+            `UPDATE seller_properties SET status = 'pending_payment', updated_at = NOW()
+             WHERE user_id = $1 AND id = $2`,
+            [input.userId, propertyId],
+          );
+        });
+      } catch {
+        /* ignore rollback failure */
+      }
+      return { ok: false, error: sync.error };
+    }
     return { ok: true };
   }
 
-  const { error } = await client
-    .from("seller_properties")
-    .update({ status: "active", updated_at: now })
-    .eq("user_id", input.userId)
-    .in("status", ["draft", "pending_payment"]);
+  let pendingIds: string[] = [];
 
-  if (error) return { ok: false, error: error.message };
+  if (client) {
+    const { data: pending, error: listError } = await client
+      .from("seller_properties")
+      .select("id")
+      .eq("user_id", input.userId)
+      .in("status", ["draft", "pending_payment", "inactive"]);
+
+    if (!listError) {
+      pendingIds = (pending ?? []).map((row) => String(row.id));
+      const { error } = await client
+        .from("seller_properties")
+        .update({ status: "active", updated_at: now })
+        .eq("user_id", input.userId)
+        .in("status", ["draft", "pending_payment", "inactive"]);
+      if (!error) {
+        for (const id of pendingIds) {
+          const sync = await syncPublicListingForSellerPropertyId({
+            userId: input.userId,
+            propertyId: id,
+            isActive: true,
+          });
+          if (!sync.ok) {
+            console.error("[seller] bulk public sync failed", id, sync.error);
+          }
+        }
+        return { ok: true };
+      }
+      console.error("[seller] bulk activate failed, trying DATABASE_URL", error.message);
+    }
+  }
+
+  try {
+    pendingIds = await withPg(async (pgClient) => {
+      const pending = await pgClient.query<{ id: string }>(
+        `SELECT id FROM seller_properties
+         WHERE user_id = $1 AND status = ANY($2::text[])`,
+        [input.userId, ["draft", "pending_payment", "inactive"]],
+      );
+      await pgClient.query(
+        `UPDATE seller_properties SET status = 'active', updated_at = $2
+         WHERE user_id = $1 AND status = ANY($3::text[])`,
+        [input.userId, now, ["draft", "pending_payment", "inactive"]],
+      );
+      return pending.rows.map((r) => String(r.id));
+    });
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Bulk activate failed." };
+  }
+
+  for (const id of pendingIds) {
+    const sync = await syncPublicListingForSellerPropertyId({
+      userId: input.userId,
+      propertyId: id,
+      isActive: true,
+    });
+    if (!sync.ok) {
+      console.error("[seller] bulk public sync failed", id, sync.error);
+    }
+  }
+
   return { ok: true };
 }
 
@@ -301,18 +479,78 @@ export async function deactivateSellerPropertiesForUser(
   userId: string,
 ): Promise<{ ok: boolean; error?: string }> {
   const client = createServiceClient();
-  if (!client) {
-    return { ok: false, error: "Service role client is not configured." };
+  let activeIds: string[] = [];
+
+  if (client) {
+    const { data: activeRows } = await client
+      .from("seller_properties")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("status", "active");
+    activeIds = (activeRows ?? []).map((row) => String(row.id));
+
+    const { error } = await client
+      .from("seller_properties")
+      .update({ status: "inactive", updated_at: new Date().toISOString() })
+      .eq("user_id", userId)
+      .eq("status", "active");
+
+    if (!error) {
+      const publicSync = await deactivatePublicListingsForSellerUser(userId);
+      if (!publicSync.ok) {
+        for (const id of activeIds) {
+          await deactivatePublicListingForSellerProperty(id);
+        }
+      }
+      return { ok: true };
+    }
+    console.error("[seller] deactivate failed, trying DATABASE_URL", error.message);
   }
 
-  const { error } = await client
-    .from("seller_properties")
-    .update({ status: "inactive", updated_at: new Date().toISOString() })
-    .eq("user_id", userId)
-    .eq("status", "active");
+  try {
+    activeIds = await withPg(async (pgClient) => {
+      const active = await pgClient.query<{ id: string }>(
+        `SELECT id FROM seller_properties WHERE user_id = $1 AND status = 'active'`,
+        [userId],
+      );
+      await pgClient.query(
+        `UPDATE seller_properties SET status = 'inactive', updated_at = NOW()
+         WHERE user_id = $1 AND status = 'active'`,
+        [userId],
+      );
+      return active.rows.map((r) => String(r.id));
+    });
+  } catch (err) {
+    return { ok: false, error: err instanceof Error ? err.message : "Deactivate failed." };
+  }
 
-  if (error) return { ok: false, error: error.message };
+  const publicSync = await deactivatePublicListingsForSellerUser(userId);
+  if (!publicSync.ok) {
+    for (const id of activeIds) {
+      await deactivatePublicListingForSellerProperty(id);
+    }
+  }
+
   return { ok: true };
+}
+
+/**
+ * Reactivate a pending/inactive listing when the user already has an active $49 sub.
+ * No Stripe checkout — publishes to public inventory immediately.
+ */
+export async function activateSellerPropertyWithExistingSub(input: {
+  userId: string;
+  propertyId: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  const hasSub = await userHasActiveSellerListingSubscription(input.userId);
+  if (!hasSub) {
+    return { ok: false, error: "An active $49/month seller subscription is required." };
+  }
+
+  return activateSellerPropertyForUser({
+    userId: input.userId,
+    propertyId: input.propertyId,
+  });
 }
 
 /** Resolve Stripe customer from buyer membership, seller sub, or unlocks. */
