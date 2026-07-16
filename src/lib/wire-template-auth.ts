@@ -150,7 +150,7 @@ function wireLoginForm(supabase: ReturnType<typeof tryCreateSupabaseBrowserClien
       return;
     }
 
-    const redirectTo = `${window.location.origin}/auth/callback?next=/my-profile`;
+    const redirectTo = `${window.location.origin}/auth/callback?next=/update-password`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
     if (error) {
       showAuthMessage(modal, error.message);

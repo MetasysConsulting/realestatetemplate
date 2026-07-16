@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { tryCreateSupabaseBrowserClient } from "@/lib/supabase/client";
 
@@ -183,6 +184,9 @@ export function AccountSettingsForm() {
               >
                 {saving ? "Saving…" : "Save changes"}
               </button>
+              <Link href="/update-password" className="tf-btn style-border pd-20">
+                Change password
+              </Link>
               <button
                 type="button"
                 className="tf-btn style-border pd-20"

@@ -45,6 +45,7 @@ const MEMBER_PROTECTED_PREFIXES = [
   "/my-save-search",
   "/my-property",
   "/add-property",
+  "/update-password",
 ];
 
 function isMemberProtectedPath(pathname: string): boolean {
