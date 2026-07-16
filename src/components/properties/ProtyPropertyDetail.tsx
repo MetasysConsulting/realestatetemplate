@@ -1,60 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useEffectEvent, useMemo } from "react";
+import { useEffect, useEffectEvent, useMemo, useState } from "react";
 import { RecordRecentlyViewed } from "@/components/home/RecordRecentlyViewed";
 import { FavoriteButton } from "@/components/member/FavoriteButton";
 import { ListingGallery } from "@/components/properties/ListingGallery";
 import { ListingUnlockPaywall } from "@/components/properties/ListingUnlockPaywall";
-import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
 import {
-  syncBlurTargets,
-  trackUnlockIntent,
-} from "@/lib/property-gate";
+  formatMoney,
+  formatMoneyExact,
+  monthlyPiPayment,
+} from "@/lib/loan-calculator-math";
+import type { ProtyListingDetailModel } from "@/lib/proty-listing-detail";
+import { syncBlurTargets, trackUnlockIntent } from "@/lib/property-gate";
 
 type ProtyPropertyDetailProps = {
   model: ProtyListingDetailModel;
-  /** Full listing visible (admin bypass or purchased unlock). */
   unlocked?: boolean;
   isAdminBypass?: boolean;
   initialFavorited?: boolean;
 };
-
-const OVERVIEW_ACTION_ICONS = [
-  (
-    <svg key="share" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M5.625 15.75L2.25 12.375M2.25 12.375L5.625 9M2.25 12.375H12.375M12.375 2.25L15.75 5.625M15.75 5.625L12.375 9M15.75 5.625H5.625"
-        stroke="#5C5E61"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  (
-    <svg key="print" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M5.04 10.3718C4.86 10.3943 4.68 10.4183 4.5 10.4438M5.04 10.3718C7.66969 10.0418 10.3303 10.0418 12.96 10.3718M5.04 10.3718L4.755 13.5M12.96 10.3718C13.14 10.3943 13.32 10.4183 13.5 10.4438M12.96 10.3718L13.245 13.5L13.4167 15.3923C13.4274 15.509 13.4136 15.6267 13.3762 15.7378C13.3388 15.8489 13.2787 15.951 13.1996 16.0376C13.1206 16.1242 13.0244 16.1933 12.9172 16.2407C12.8099 16.288 12.694 16.3125 12.5767 16.3125H5.42325C4.92675 16.3125 4.53825 15.8865 4.58325 15.3923L4.755 13.5M4.755 13.5H3.9375C3.48995 13.5 3.06072 13.3222 2.74426 13.0057C2.42779 12.6893 2.25 12.2601 2.25 11.8125V7.092C2.25 6.28125 2.826 5.58075 3.62775 5.46075C4.10471 5.3894 4.58306 5.32764 5.0625 5.2755M13.2435 13.5H14.0618C14.2834 13.5001 14.5029 13.4565 14.7078 13.3718C14.9126 13.287 15.0987 13.1627 15.2555 13.006C15.4123 12.8493 15.5366 12.6632 15.6215 12.4585C15.7063 12.2537 15.75 12.0342 15.75 11.8125V7.092C15.75 6.28125 15.174 5.58075 14.3723 5.46075C13.8953 5.38941 13.4169 5.32764 12.9375 5.2755M12.9375 5.2755C10.3202 4.99073 7.67978 4.99073 5.0625 5.2755M12.9375 5.2755V2.53125C12.9375 2.0655 12.5595 1.6875 12.0938 1.6875H5.90625C5.4405 1.6875 5.0625 2.0655 5.0625 2.53125V5.2755M13.5 7.875H13.506V7.881H13.5V7.875ZM11.25 7.875H11.256V7.881H11.25V7.875Z"
-        stroke="#5C5E61"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-  (
-    <svg key="compare" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
-        d="M5.41251 8.18028C5.23091 7.85351 4.94594 7.5963 4.60234 7.44902C4.25874 7.30173 3.87596 7.27271 3.51408 7.36651C3.1522 7.46032 2.83171 7.67163 2.60293 7.96728C2.37414 8.26293 2.25 8.62619 2.25 9.00003C2.25 9.37387 2.37414 9.73712 2.60293 10.0328C2.83171 10.3284 3.1522 10.5397 3.51408 10.6335C3.87596 10.7273 4.25874 10.6983 4.60234 10.551C4.94594 10.4038 5.23091 10.1465 5.41251 9.81978M5.41251 8.18028C5.54751 8.42328 5.62476 8.70228 5.62476 9.00003C5.62476 9.29778 5.54751 9.57753 5.41251 9.81978M5.41251 8.18028L12.587 4.19478M5.41251 9.81978L12.587 13.8053M12.587 4.19478C12.6922 4.39288 12.8358 4.56803 13.0095 4.70998C13.1832 4.85192 13.3834 4.95782 13.5985 5.02149C13.8135 5.08515 14.0392 5.1053 14.2621 5.08075C14.4851 5.0562 14.7009 4.98745 14.897 4.87853C15.093 4.7696 15.2654 4.62267 15.404 4.44634C15.5427 4.27001 15.6448 4.06781 15.7043 3.85157C15.7639 3.63532 15.7798 3.40937 15.751 3.18693C15.7222 2.96448 15.6494 2.75 15.5368 2.55603C15.3148 2.17378 14.9518 1.89388 14.5256 1.77649C14.0995 1.6591 13.6443 1.71359 13.2579 1.92824C12.8715 2.1429 12.5848 2.50059 12.4593 2.92442C12.3339 3.34826 12.3797 3.80439 12.587 4.19478ZM12.587 13.8053C12.4794 13.9991 12.4109 14.2121 12.3856 14.4324C12.3603 14.6526 12.3787 14.8757 12.4396 15.0888C12.5005 15.3019 12.6028 15.501 12.7406 15.6746C12.8784 15.8482 13.0491 15.993 13.2429 16.1007C13.4367 16.2083 13.6498 16.2767 13.87 16.302C14.0902 16.3273 14.3133 16.309 14.5264 16.2481C14.7396 16.1872 14.9386 16.0849 15.1122 15.9471C15.2858 15.8092 15.4306 15.6386 15.5383 15.4448C15.7557 15.0534 15.8087 14.5917 15.6857 14.1613C15.5627 13.7308 15.2737 13.3668 14.8824 13.1494C14.491 12.932 14.0293 12.879 13.5989 13.002C13.1684 13.125 12.8044 13.4139 12.587 13.8053Z"
-        stroke="#5C5E61"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  ),
-];
 
 function buildMapEmbedUrl(model: ProtyListingDetailModel): string {
   const query = encodeURIComponent(
@@ -66,129 +31,46 @@ function buildMapEmbedUrl(model: ProtyListingDetailModel): string {
   return `https://maps.google.com/maps?q=${query}&z=15&output=embed`;
 }
 
-function chunkAmenities(items: string[]): string[][] {
-  const columns: string[][] = [[], [], []];
-  items.forEach((item, index) => {
-    columns[index % 3]!.push(item);
-  });
-  return columns.filter((col) => col.length > 0);
+function dash(value: string | number | null | undefined): string {
+  if (value == null) return "—";
+  if (typeof value === "number") {
+    if (!Number.isFinite(value) || value <= 0) return "—";
+    return value.toLocaleString();
+  }
+  const trimmed = value.trim();
+  return trimmed ? trimmed : "—";
 }
 
-function formatSqFt(value: number | null | undefined): string {
-  if (!value || value <= 0) return "—";
-  return `${value.toLocaleString()} SqFt`;
+function pricePerSqFt(price: number, sqft: number): string {
+  if (!(price > 0) || !(sqft > 0)) return "—";
+  return formatMoney(Math.round(price / sqft));
 }
 
-function formatRooms(value: number): string {
-  if (value <= 0) return "—";
-  return `${value} ${value === 1 ? "Room" : "Rooms"}`;
-}
-
-function InfoDetailBox({
-  iconClass,
-  label,
-  value,
+function Section({
+  id,
+  title,
+  children,
+  empty,
 }: {
-  iconClass: string;
-  label: string;
-  value: string;
+  id?: string;
+  title: string;
+  children?: React.ReactNode;
+  empty?: boolean;
 }) {
   return (
-    <div className="box-icon">
-      <div className="icons">
-        <i className={iconClass} />
-      </div>
-      <div className="content">
-        <div className="text-4 text-color-default">{label}</div>
-        <div className="text-1 text-color-heading">{value}</div>
-      </div>
-    </div>
+    <section id={id} className="homes-section">
+      <h2 className="homes-section__title">{title}</h2>
+      {empty ? <p className="homes-section__empty">—</p> : children}
+    </section>
   );
 }
 
-function ListingOverview({
-  model,
-  initialFavorited,
-}: {
-  model: ProtyListingDetailModel;
-  initialFavorited?: boolean;
-}) {
+function FactRow({ label, value }: { label: string; value: string }) {
   return (
-    <>
-      <div className="heading flex justify-between">
-        <div className="title text-5 fw-6 text-color-heading">{model.title}</div>
-        <div className="price text-5 fw-6 text-color-heading">
-          {model.priceDisplay}
-          {model.priceSuffix ? (
-            <span className="h5 lh-30 fw-4 text-color-default">{model.priceSuffix}</span>
-          ) : null}
-        </div>
-      </div>
-      <div className="info flex justify-between">
-        <div className="feature">
-          <p className="location text-1 flex items-center gap-10">
-            <i className="icon-location" />
-            {model.locationLine}
-          </p>
-          <ul className="meta-list flex">
-            {model.bedrooms > 0 ? (
-              <li className="text-1 flex">
-                <span>{model.bedrooms}</span>Bed
-              </li>
-            ) : null}
-            {model.bathrooms > 0 ? (
-              <li className="text-1 flex">
-                <span>{model.bathrooms}</span>Bath
-              </li>
-            ) : null}
-            {model.squareFootage > 0 ? (
-              <li className="text-1 flex">
-                <span>{model.squareFootage.toLocaleString()}</span>Sqft
-              </li>
-            ) : null}
-          </ul>
-        </div>
-        <div className="action">
-          <ul className="list-action">
-            <li>
-              <FavoriteButton
-                listingId={model.id}
-                initialFavorited={initialFavorited}
-                className="reovana-favorite-btn--inline"
-              />
-            </li>
-            {OVERVIEW_ACTION_ICONS.map((icon, index) => (
-              <li key={index}>
-                <a href="#" onClick={(e) => e.preventDefault()} aria-hidden="true" tabIndex={-1}>
-                  {icon}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-      <div className="info-detail">
-        <div className="wrap-box">
-          <InfoDetailBox iconClass="icon-HouseLine" label="ID:" value={model.listingId} />
-          <InfoDetailBox iconClass="icon-Bathtub" label="Bathrooms:" value={formatRooms(model.bathrooms)} />
-        </div>
-        <div className="wrap-box">
-          <InfoDetailBox iconClass="icon-SlidersHorizontal" label="Type:" value={model.propertyType} />
-          <InfoDetailBox iconClass="icon-Crop" label="Land Size:" value={formatSqFt(model.lotSize)} />
-        </div>
-        <div className="wrap-box">
-          <InfoDetailBox iconClass="icon-Garage-1" label="Status:" value={model.status} />
-          <InfoDetailBox iconClass="icon-Hammer" label="Year Built:" value={model.yearBuilt || "—"} />
-        </div>
-        <div className="wrap-box">
-          <InfoDetailBox iconClass="icon-Bed-2" label="Bedrooms:" value={formatRooms(model.bedrooms)} />
-          <InfoDetailBox iconClass="icon-Ruler" label="Size:" value={formatSqFt(model.squareFootage)} />
-        </div>
-      </div>
-      <Link href="/contact" className="tf-btn bg-color-primary pd-21 fw-6">
-        Ask a question
-      </Link>
-    </>
+    <div className="homes-facts__row">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
   );
 }
 
@@ -200,66 +82,85 @@ function OwnerContactBlock({
   unlocked: boolean;
 }) {
   return (
-    <div className={`wg-property box-owner-contact${unlocked ? "" : " reovana-blur-target"}`}>
-      <div className="wg-title text-11 fw-6 text-color-heading">Owner information</div>
-      <div className="box">
-        <ul>
-          {owner.name?.trim() ? (
-            <li className="flex">
-              <p className="fw-6">Owner</p>
-              <p>{owner.name}</p>
-            </li>
-          ) : null}
-          {owner.phone?.trim() ? (
-            <li className="flex">
-              <p className="fw-6">Phone</p>
-              <p>{owner.phone}</p>
-            </li>
-          ) : null}
-          {owner.email?.trim() ? (
-            <li className="flex">
-              <p className="fw-6">Email</p>
-              <p>{owner.email}</p>
-            </li>
-          ) : null}
-        </ul>
+    <section className={`homes-section homes-owner${unlocked ? "" : " reovana-blur-target"}`}>
+      <h2 className="homes-section__title">Owner information</h2>
+      <div className="homes-owner__grid">
+        <FactRow label="Owner" value={dash(owner.name)} />
+        <FactRow label="Phone" value={dash(owner.phone)} />
+        <FactRow label="Email" value={dash(owner.email)} />
       </div>
       {!unlocked ? (
-        <p className="reovana-owner-locked-hint text-1">
-          Unlock this listing to reveal owner contact details.
-        </p>
+        <p className="homes-owner__hint">Unlock this listing to reveal owner contact details.</p>
       ) : null}
-    </div>
+    </section>
   );
 }
 
-function SidebarAds() {
+function ListingPaymentCalculator({ price }: { price: number }) {
+  const [homePrice, setHomePrice] = useState(price > 0 ? String(Math.round(price)) : "");
+  const [downPct, setDownPct] = useState("20");
+  const [rate, setRate] = useState("6.5");
+  const [termYears, setTermYears] = useState("30");
+
+  const result = useMemo(() => {
+    const P = Number(String(homePrice).replace(/[$,\s]/g, ""));
+    const down = Number(downPct);
+    const annual = Number(rate);
+    const years = Number(termYears);
+    if (!(P > 0) || !Number.isFinite(down) || !Number.isFinite(annual) || !(years > 0)) {
+      return null;
+    }
+    const downPayment = P * (Math.min(90, Math.max(0, down)) / 100);
+    const loan = Math.max(0, P - downPayment);
+    const pi = monthlyPiPayment(loan, annual, years);
+    const tax = (P * 0.012) / 12;
+    const insurance = (P * 0.0035) / 12;
+    const total = pi + tax + insurance;
+    return { loan, downPayment, pi, tax, insurance, total };
+  }, [homePrice, downPct, rate, termYears]);
+
   return (
-    <div className="sidebar-ads mb-30">
-      <div className="image-wrap">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/home/house-db-1.jpg" alt="" />
+    <div className="homes-payment">
+      <div className="homes-payment__inputs">
+        <label>
+          <span>Home price</span>
+          <input value={homePrice} onChange={(e) => setHomePrice(e.target.value)} inputMode="decimal" />
+        </label>
+        <label>
+          <span>Down payment %</span>
+          <input value={downPct} onChange={(e) => setDownPct(e.target.value)} inputMode="decimal" />
+        </label>
+        <label>
+          <span>Interest rate %</span>
+          <input value={rate} onChange={(e) => setRate(e.target.value)} inputMode="decimal" />
+        </label>
+        <label>
+          <span>Loan term (years)</span>
+          <input value={termYears} onChange={(e) => setTermYears(e.target.value)} inputMode="decimal" />
+        </label>
       </div>
-      <div className="logo relative z-5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/images/reovana/logo.png" alt="REOVANA" />
-      </div>
-      <div className="box-ads relative z-5">
-        <div className="content">
-          <h4 className="title">
-            <Link href="/contact">We can help you find a local real estate agent</Link>
-          </h4>
-          <div className="text-addres">
-            <p>
-              Connect with a trusted agent who knows the market inside out — whether you&apos;re
-              buying or selling.
-            </p>
+      {result ? (
+        <div className="homes-payment__results">
+          <div className="homes-payment__hero">
+            <span>Est. payment</span>
+            <strong>{formatMoneyExact(result.total)}/mo</strong>
           </div>
+          <div className="homes-payment__breakdown">
+            <FactRow label="Principal & interest" value={formatMoneyExact(result.pi)} />
+            <FactRow label="Est. property tax" value={formatMoneyExact(result.tax)} />
+            <FactRow label="Est. home insurance" value={formatMoneyExact(result.insurance)} />
+            <FactRow label="Loan amount" value={formatMoney(result.loan)} />
+            <FactRow label="Down payment" value={formatMoney(result.downPayment)} />
+          </div>
+          <p className="homes-payment__note">
+            Tax and insurance are rough national averages (~1.2% and ~0.35% of price / year). Not a
+            lender quote.{" "}
+            <Link href="/loans/calculators">Open full calculators</Link>
+          </p>
         </div>
-        <Link href="/contact" className="tf-btn fw-6 bg-color-primary fw-6 w-full">
-          Connect with an agent
-        </Link>
-      </div>
+      ) : (
+        <p className="homes-section__empty">Enter a price to estimate payment.</p>
+      )}
     </div>
   );
 }
@@ -286,156 +187,205 @@ export function ProtyPropertyDetail({
     () => (model.hasRealCoordinates ? buildMapEmbedUrl(model) : ""),
     [model],
   );
-  const amenityColumns = useMemo(() => chunkAmenities(model.amenities), [model.amenities]);
+
+  const estPayment = useMemo(() => {
+    if (!(model.priceNumeric > 0)) return null;
+    const loan = model.priceNumeric * 0.8;
+    const pi = monthlyPiPayment(loan, 6.5, 30);
+    const tax = (model.priceNumeric * 0.012) / 12;
+    const insurance = (model.priceNumeric * 0.0035) / 12;
+    return pi + tax + insurance;
+  }, [model.priceNumeric]);
+
+  const aboutText = model.description?.trim() || "";
+  const hasAbout =
+    aboutText.length > 0 &&
+    !aboutText.toLowerCase().startsWith("tbd") &&
+    aboutText !== "—";
+
+  const propertyFactRows = [
+    { label: "Home type", value: dash(model.propertyType) },
+    { label: "Status", value: dash(model.status) },
+    { label: "Bedrooms", value: model.bedrooms > 0 ? String(model.bedrooms) : "—" },
+    { label: "Bathrooms", value: model.bathrooms > 0 ? String(model.bathrooms) : "—" },
+    {
+      label: "Square footage",
+      value: model.squareFootage > 0 ? `${model.squareFootage.toLocaleString()} Sq Ft` : "—",
+    },
+    {
+      label: "Price per sq ft",
+      value: pricePerSqFt(model.priceNumeric, model.squareFootage),
+    },
+    { label: "Year built", value: dash(model.yearBuilt) },
+    {
+      label: "Lot size",
+      value: model.lotSize && model.lotSize > 0 ? `${model.lotSize.toLocaleString()} Sq Ft` : "—",
+    },
+    { label: "Listing ID", value: dash(model.listingId) },
+    { label: "Category", value: dash(model.categoryLabel) },
+    ...model.detailFacts
+      .filter(
+        (f) =>
+          !["Property Type", "Status", "Year Built", "Land Size"].includes(f.label),
+      )
+      .map((f) => ({ label: f.label, value: dash(f.value) })),
+  ];
 
   return (
     <div
       id="listing-detail-root"
-      className={`reovana-listing-detail main-content${unlocked ? " reovana-listing-detail--unlocked" : " reovana-listing-detail--locked"}`}
+      className={`reovana-listing-detail homes-listing main-content${unlocked ? " reovana-listing-detail--unlocked" : " reovana-listing-detail--locked"}`}
     >
       <RecordRecentlyViewed {...model.recentlyViewed} />
 
-      <section className="flat-title">
+      <section className="homes-breadcrumb">
         <div className="tf-container">
-          <div className="row">
-            <div className="col-lg-12">
-              <div className="title-inner">
-                <ul className="breadcrumb">
-                  <li>
-                    <Link className="home fw-6 text-color-3" href="/">
-                      Home
-                    </Link>
-                  </li>
-                  <li>
-                    <Link href={model.backHref}>{model.backLabel}</Link>
-                  </li>
-                  <li>{model.title}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <ul>
+            <li>
+              <Link href="/">Home</Link>
+            </li>
+            <li>
+              <Link href={model.backHref}>{model.backLabel}</Link>
+            </li>
+            <li>{model.title}</li>
+          </ul>
         </div>
       </section>
 
-      <section className="section-property-image">
+      <section className="section-property-image homes-gallery">
         <div className="tf-container">
-          <div className="row">
-            <div className="col-12">
-              <ListingGallery images={model.galleryImages} alt={model.title} />
-            </div>
-          </div>
+          <ListingGallery images={model.galleryImages} alt={model.title} />
         </div>
       </section>
 
-      <section className="section-property-detail">
+      <section className="homes-body">
         <div className="tf-container">
-          <div className="row">
-            <div className="col-xl-8 col-lg-7">
-              <div className="wg-property box-overview">
-                <ListingOverview model={model} initialFavorited={initialFavorited} />
-              </div>
+          <div className="homes-layout">
+            <div className="homes-main">
+              <header className="homes-hero">
+                <div className="homes-hero__top">
+                  <div>
+                    <p className="homes-hero__price">{model.priceDisplay}</p>
+                    {model.priceLabel ? (
+                      <p className="homes-hero__price-label">{model.priceLabel}</p>
+                    ) : null}
+                  </div>
+                  <div className="homes-hero__actions">
+                    <span className="homes-hero__status">{dash(model.status)}</span>
+                    <FavoriteButton
+                      listingId={model.id}
+                      initialFavorited={initialFavorited}
+                      className="reovana-favorite-btn--inline"
+                    />
+                  </div>
+                </div>
 
-              <div className="wg-property box-property-detail">
-                <div className="wg-title text-11 fw-6 text-color-heading">Property Details</div>
-                <div className="content">
-                  <p className="description text-1">{model.description}</p>
+                <h1 className="homes-hero__address">{model.title}</h1>
+                <p className="homes-hero__location">
+                  {model.mapCity}, {model.mapState} {model.mapZip}
+                  {model.mapCounty ? ` · ${model.mapCounty}` : ""}
+                </p>
+
+                {estPayment != null ? (
+                  <p className="homes-hero__payment">
+                    Estimated payment{" "}
+                    <strong>{formatMoney(Math.round(estPayment))}/month</strong>
+                    <a href="#mortgage-calculator">Adjust estimate</a>
+                  </p>
+                ) : null}
+
+                <div className="homes-stats">
+                  <div>
+                    <strong>{model.bedrooms > 0 ? model.bedrooms : "—"}</strong>
+                    <span>Beds</span>
+                  </div>
+                  <div>
+                    <strong>{model.bathrooms > 0 ? model.bathrooms : "—"}</strong>
+                    <span>Baths</span>
+                  </div>
+                  <div>
+                    <strong>
+                      {model.squareFootage > 0
+                        ? model.squareFootage.toLocaleString()
+                        : "—"}
+                    </strong>
+                    <span>Sq Ft</span>
+                  </div>
+                  <div>
+                    <strong>{pricePerSqFt(model.priceNumeric, model.squareFootage)}</strong>
+                    <span>Price / Sq Ft</span>
+                  </div>
                 </div>
-                <div className="box">
-                  <ul>
-                    {model.detailFacts.slice(0, Math.ceil(model.detailFacts.length / 2)).map((fact) => (
-                      <li className="flex" key={fact.label}>
-                        <p className="fw-6">{fact.label}</p>
-                        <p>{fact.value}</p>
-                      </li>
-                    ))}
-                  </ul>
-                  <ul>
-                    {model.detailFacts.slice(Math.ceil(model.detailFacts.length / 2)).map((fact) => (
-                      <li className="flex" key={fact.label}>
-                        <p className="fw-6">{fact.label}</p>
-                        <p>{fact.value}</p>
-                      </li>
-                    ))}
-                  </ul>
+              </header>
+
+              <Section title="About This Home" empty={!hasAbout}>
+                {hasAbout ? <p className="homes-about">{aboutText}</p> : null}
+              </Section>
+
+              <Section title="Property Details">
+                <div className="homes-facts">
+                  {propertyFactRows.map((row) => (
+                    <FactRow key={row.label} label={row.label} value={row.value} />
+                  ))}
                 </div>
-              </div>
+              </Section>
 
               {model.ownerContact ? (
                 <OwnerContactBlock owner={model.ownerContact} unlocked={unlocked} />
               ) : null}
 
-              {amenityColumns.length > 0 ? (
-                <div className="wg-property box-amenities">
-                  <div className="wg-title text-11 fw-6 text-color-heading">Amenities And Features</div>
-                  <div className="wrap-feature">
-                    {amenityColumns.map((column, columnIndex) => (
-                      <div className="box-feature" key={columnIndex}>
-                        <ul>
-                          {column.map((item) => (
-                            <li className="feature-item" key={item}>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
+              <Section
+                title="Amenities And Features"
+                empty={model.amenities.length === 0}
+              >
+                <ul className="homes-amenities">
+                  {model.amenities.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </Section>
 
-              {model.hasRealCoordinates ? (
-                <div className="wg-property single-property-map">
-                  <div className="wg-title text-11 fw-6 text-color-heading">Get Direction</div>
-                  <iframe
-                    className="map reovana-listing-detail__map"
-                    src={mapUrl}
-                    style={{ border: 0 }}
-                    allowFullScreen
-                    loading="lazy"
-                    referrerPolicy="no-referrer-when-downgrade"
-                    title={`Map for ${model.title}`}
-                  />
-                  <div className="info-map">
-                    <ul className="box-left">
-                      <li>
-                        <span className="label fw-6">Address</span>
-                        <div className="text text-variant-1">{model.mapAddress}</div>
-                      </li>
-                      <li>
-                        <span className="label fw-6">City</span>
-                        <div className="text text-variant-1">{model.mapCity}</div>
-                      </li>
-                      <li>
-                        <span className="label fw-6">State</span>
-                        <div className="text text-variant-1">{model.mapState}</div>
-                      </li>
-                    </ul>
-                    <ul className="box-right">
-                      <li>
-                        <span className="label fw-6">Postal code</span>
-                        <div className="text text-variant-1">{model.mapZip}</div>
-                      </li>
-                      {model.mapCounty ? (
-                        <li>
-                          <span className="label fw-6">County</span>
-                          <div className="text text-variant-1">{model.mapCounty}</div>
-                        </li>
-                      ) : null}
-                      <li>
-                        <span className="label fw-6">Category</span>
-                        <div className="text text-variant-1">{model.categoryLabel}</div>
-                      </li>
-                    </ul>
+              <Section title="Map" empty={!model.hasRealCoordinates}>
+                {model.hasRealCoordinates ? (
+                  <div className="homes-map">
+                    <iframe
+                      className="map reovana-listing-detail__map"
+                      src={mapUrl}
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title={`Map for ${model.title}`}
+                    />
+                    <p className="homes-map__address">{model.locationLine}</p>
                   </div>
-                </div>
-              ) : null}
+                ) : null}
+              </Section>
+
+              <Section title="Explore this Neighborhood" empty />
+              <Section title="Schools" empty />
+              <Section title="Tax History" empty />
+              <Section title="Property History" empty />
+
+              <Section id="mortgage-calculator" title="Mortgage Payment Calculator">
+                <ListingPaymentCalculator price={model.priceNumeric} />
+              </Section>
+
+              <div className="homes-cta-row">
+                <Link href="/loans/find" className="tf-btn bg-color-primary pd-21 fw-6">
+                  Find a Loan for this property
+                </Link>
+                <Link href="/contact" className="tf-btn btn-border pd-21 fw-6">
+                  Ask a question
+                </Link>
+              </div>
 
               {model.disclaimer ? (
                 <p className="reovana-listing-detail__disclaimer">{model.disclaimer}</p>
               ) : null}
             </div>
 
-            <div className="col-xl-4 col-lg-5">
+            <aside className="homes-sidebar">
               <div className="tf-sidebar sticky-sidebar">
                 <ListingUnlockPaywall
                   unlocked={unlocked}
@@ -446,71 +396,26 @@ export function ProtyPropertyDetail({
                   }}
                 />
 
-                <form className="form-contact-seller mb-30" onSubmit={(e) => e.preventDefault()}>
-                  <h4 className="heading-title mb-30">Contact Sellers</h4>
-                  <div className="seller-info">
-                    <div className="avartar">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src="/images/reovana/logo.png" alt="REOVANA" />
-                    </div>
-                    <div className="content">
-                      <h6 className="name">REOVANA Listing Team</h6>
-                      <ul className="contact">
-                        <li>
-                          <i className="icon-phone-1" />
-                          <span>Register interest to inquire</span>
-                        </li>
-                        <li>
-                          <i className="icon-mail" />
-                          <Link href="/contact">contact@reovana.com</Link>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                  <fieldset className="mb-12">
-                    <input type="text" className="form-control" placeholder="Full Name" name="name" />
-                  </fieldset>
-                  <fieldset className="mb-30">
-                    <textarea name="message" cols={30} rows={6} placeholder="How can we help?" />
-                  </fieldset>
-                  <Link href="/contact" className="tf-btn bg-color-primary w-full">
-                    Send message
+                <div className="homes-sidebar-card">
+                  <h3>Need financing?</h3>
+                  <p>
+                    Get a formula-based investor loan estimate and send your deal to the REOVANA
+                    team.
+                  </p>
+                  <Link href="/loans/find" className="tf-btn bg-color-primary w-full fw-6">
+                    Find a Loan
                   </Link>
-                </form>
+                </div>
 
-                <SidebarAds />
-
-                <form className="form-contact-agent" onSubmit={(e) => e.preventDefault()}>
-                  <h4 className="heading-title mb-30">More About This Property</h4>
-                  <fieldset>
-                    <input type="text" className="form-control" placeholder="Your name" name="name" />
-                  </fieldset>
-                  <fieldset>
-                    <input type="text" className="form-control" placeholder="Email" name="email" />
-                  </fieldset>
-                  <fieldset className="phone">
-                    <input type="text" className="form-control" placeholder="Phone" name="phone" />
-                  </fieldset>
-                  <fieldset>
-                    <textarea name="message" cols={30} rows={6} placeholder="Message" />
-                  </fieldset>
-                  <div className="wrap-btn">
-                    <Link href="/contact" className="tf-btn bg-color-primary fw-6 w-full">
-                      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M18.125 5.625V14.375C18.125 14.8723 17.9275 15.3492 17.5758 15.7008C17.2242 16.0525 16.7473 16.25 16.25 16.25H3.75C3.25272 16.25 2.77581 16.0525 2.42417 15.7008C2.07254 15.3492 1.875 14.8723 1.875 14.375V5.625M18.125 5.625C18.125 5.12772 17.9275 4.65081 17.5758 4.29917C17.2242 3.94754 16.7473 3.75 16.25 3.75H3.75C3.25272 3.75 2.77581 3.94754 2.42417 4.29917C2.07254 4.65081 1.875 5.12772 1.875 5.625M18.125 5.625V5.8275C18.125 6.14762 18.0431 6.46242 17.887 6.74191C17.7309 7.0214 17.5059 7.25628 17.2333 7.42417L10.9833 11.27C10.6877 11.4521 10.3472 11.5485 10 11.5485C9.65275 11.5485 9.31233 11.4521 9.01667 11.27L2.76667 7.425C2.4941 7.25711 2.26906 7.02224 2.11297 6.74275C1.95689 6.46325 1.87496 6.14845 1.875 5.82833V5.625"
-                          stroke="white"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      Email agent
-                    </Link>
-                  </div>
-                </form>
+                <div className="homes-sidebar-card">
+                  <h3>Questions about this listing?</h3>
+                  <p>Our team can help you understand distressed inventory and next steps.</p>
+                  <Link href="/contact" className="tf-btn btn-border w-full fw-6">
+                    Contact REOVANA
+                  </Link>
+                </div>
               </div>
-            </div>
+            </aside>
           </div>
         </div>
       </section>

@@ -18,6 +18,8 @@ export type ProtyListingDetailModel = {
   backLabel: string;
   title: string;
   priceDisplay: string;
+  /** Numeric list/est. price for payment estimates; 0 if unknown. */
+  priceNumeric: number;
   priceSuffix?: string;
   priceLabel: string;
   locationLine: string;
@@ -127,6 +129,7 @@ export function propertyListingToProtyDetail(
     backLabel: categoryLabel,
     title: listing.address,
     priceDisplay,
+    priceNumeric: listing.price > 0 ? listing.price : 0,
     priceLabel: listing.priceLabel,
     locationLine: `${listing.address}, ${listing.city}, ${listing.state} ${listing.zip}`,
     bedrooms: listing.bedrooms,
@@ -191,6 +194,7 @@ export function hudListingToProtyDetail(listing: HudListing, scrapedAt: string):
     backLabel: "HUD Homes",
     title: listing.address,
     priceDisplay,
+    priceNumeric: listing.listPrice > 0 ? listing.listPrice : 0,
     priceLabel: "List Price",
     locationLine: `${listing.address}, ${listing.city}, ${listing.state} ${listing.zip}`,
     bedrooms: listing.bedrooms,
