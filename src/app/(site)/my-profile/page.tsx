@@ -15,7 +15,7 @@ export default function MyProfilePage() {
     <MemberDashboardShell
       activeHref="/my-profile"
       title="Account settings"
-      subtitle="Manage your profile and reopen any listing you've unlocked."
+      subtitle="Manage your name, phone, password, and listing unlocks."
     >
       <div className="reovana-account-page__stack">
         <AccountSettingsForm />

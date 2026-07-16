@@ -520,6 +520,14 @@ body.auctions-route .reovana-site .header {
   color: var(--Text);
 }
 
+.reovana-account-settings__hint {
+  margin: 8px 0 0;
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--Text);
+  opacity: 0.85;
+}
+
 .reovana-account-settings__actions {
   display: flex;
   flex-wrap: wrap;
