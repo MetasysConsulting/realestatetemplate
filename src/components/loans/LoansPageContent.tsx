@@ -136,10 +136,10 @@ export function LoansPageContent() {
             </p>
 
             <div className="loans-hero__actions">
-              <button type="button" className="loans-btn loans-btn--primary loans-cta--pending" disabled>
+              <Link href="/loans/find" className="loans-btn loans-btn--primary">
                 Find a Loan — Get Matched with Lenders
                 <span aria-hidden="true">→</span>
-              </button>
+              </Link>
               <Link href="/search" className="loans-btn loans-btn--secondary">
                 Browse Distressed Properties
                 <span aria-hidden="true">→</span>
@@ -226,11 +226,18 @@ export function LoansPageContent() {
                 </div>
                 <h3>{solution.title}</h3>
                 <p>{solution.description}</p>
-                <button type="button" className="loans-solution-card__link loans-cta--pending" disabled>
-                  Learn More <span aria-hidden="true">→</span>
-                </button>
               </article>
             ))}
+          </div>
+
+          <div className="loans-solutions__cta">
+            <Link href="/loans/find" className="loans-btn loans-btn--primary loans-solutions__cta-btn">
+              Find a Loan
+              <span aria-hidden="true">→</span>
+            </Link>
+            <p className="loans-solutions__cta-hint">
+              Start the wizard for a formula-based estimate and lender follow-up.
+            </p>
           </div>
         </div>
       </section>

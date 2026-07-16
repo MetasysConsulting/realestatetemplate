@@ -6548,6 +6548,315 @@ body.loans-route #loading {
   }
 }
 
+/* ── Find a Loan wizard ──────────────────────────────────────────────────── */
+.find-loan-page {
+  background:
+    radial-gradient(circle at top left, rgba(59, 91, 184, 0.12), transparent 42%),
+    linear-gradient(180deg, #f4f6fb 0%, #ffffff 48%, #f7f8fc 100%);
+  padding: 48px 0 80px;
+}
+
+.find-loan-page__inner {
+  max-width: 920px;
+}
+
+.find-loan-page__header {
+  margin-bottom: 28px;
+}
+
+.find-loan-page__eyebrow {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #3b5bb8;
+}
+
+.find-loan-page__header h1 {
+  margin: 0 0 12px;
+  font-size: clamp(1.75rem, 3vw, 2.35rem);
+  line-height: 1.2;
+  color: #161e2d;
+}
+
+.find-loan-page__header p {
+  margin: 0;
+  max-width: 640px;
+  color: #5b6475;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.find-loan-wizard {
+  background: #fff;
+  border: 1px solid #e5e9f2;
+  border-radius: 20px;
+  padding: 28px 28px 24px;
+  box-shadow: 0 18px 40px rgba(22, 30, 45, 0.06);
+}
+
+.find-loan-wizard__progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.find-loan-wizard__step-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid #e5e9f2;
+  background: #f7f8fc;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.find-loan-wizard__step-pill span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: #e8ebf2;
+  color: #4b5563;
+  font-size: 11px;
+}
+
+.find-loan-wizard__step-pill.is-active {
+  border-color: #3b5bb8;
+  background: #eef2ff;
+  color: #243a8a;
+}
+
+.find-loan-wizard__step-pill.is-active span,
+.find-loan-wizard__step-pill.is-done span {
+  background: #3b5bb8;
+  color: #fff;
+}
+
+.find-loan-wizard__step-pill.is-done {
+  border-color: #c9d4f0;
+  color: #3b5bb8;
+}
+
+.find-loan-wizard__panel h2 {
+  margin: 0 0 8px;
+  font-size: 1.35rem;
+  color: #161e2d;
+}
+
+.find-loan-wizard__panel > p {
+  margin: 0 0 18px;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.find-loan-wizard__purpose-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.find-loan-wizard__purpose {
+  text-align: left;
+  border: 1px solid #e5e9f2;
+  border-radius: 14px;
+  padding: 16px;
+  background: #fafbfe;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.find-loan-wizard__purpose:hover {
+  border-color: #b8c5e8;
+}
+
+.find-loan-wizard__purpose.is-selected {
+  border-color: #3b5bb8;
+  background: #eef2ff;
+  box-shadow: 0 0 0 1px rgba(59, 91, 184, 0.2);
+}
+
+.find-loan-wizard__purpose strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #161e2d;
+  font-size: 15px;
+}
+
+.find-loan-wizard__purpose span {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.find-loan-wizard__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 16px;
+}
+
+.find-loan-wizard__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.find-loan-wizard__field--full {
+  grid-column: 1 / -1;
+}
+
+.find-loan-wizard__field input,
+.find-loan-wizard__field select,
+.find-loan-wizard__field textarea {
+  width: 100%;
+  border: 1px solid #d9dee8;
+  border-radius: 10px;
+  padding: 11px 12px;
+  font: inherit;
+  font-weight: 400;
+  color: #161e2d;
+  background: #fff;
+}
+
+.find-loan-wizard__field input:focus,
+.find-loan-wizard__field select:focus,
+.find-loan-wizard__field textarea:focus {
+  outline: none;
+  border-color: #3b5bb8;
+  box-shadow: 0 0 0 3px rgba(59, 91, 184, 0.15);
+}
+
+.find-loan-wizard__honeypot {
+  position: absolute;
+  left: -9999px;
+  height: 0;
+  overflow: hidden;
+}
+
+.find-loan-wizard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.find-loan-wizard__error {
+  margin: 16px 0 0;
+  color: #b42318;
+  font-size: 14px;
+}
+
+.find-loan-wizard--done h2 {
+  margin: 0 0 10px;
+  color: #161e2d;
+}
+
+.find-loan-wizard__eyebrow {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #3b5bb8;
+}
+
+.find-loan-wizard__lead {
+  margin: 0 0 20px;
+  color: #5b6475;
+  line-height: 1.55;
+}
+
+.find-loan-estimate {
+  margin-top: 8px;
+  border: 1px solid #e5e9f2;
+  border-radius: 16px;
+  background: #f7f8fc;
+  padding: 18px;
+}
+
+.find-loan-estimate__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.find-loan-estimate__grid span {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.find-loan-estimate__grid strong {
+  font-size: 18px;
+  color: #161e2d;
+}
+
+.find-loan-estimate__notes {
+  margin: 16px 0 0;
+  padding-left: 18px;
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.find-loan-estimate__disclaimer {
+  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.loans-solutions__cta {
+  margin-top: 36px;
+  text-align: center;
+}
+
+.loans-solutions__cta-btn {
+  display: inline-flex;
+  min-width: min(100%, 280px);
+  justify-content: center;
+}
+
+.loans-solutions__cta-hint {
+  margin: 12px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  .find-loan-wizard {
+    padding: 20px 16px;
+  }
+
+  .find-loan-wizard__purpose-grid,
+  .find-loan-wizard__grid,
+  .find-loan-estimate__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .find-loan-wizard__actions {
+    flex-direction: column;
+  }
+
+  .find-loan-wizard__actions .loans-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ── Sell page ───────────────────────────────────────────────────────────── */
 .section-selling-home.style-2 {
   background-color: #fff !important;

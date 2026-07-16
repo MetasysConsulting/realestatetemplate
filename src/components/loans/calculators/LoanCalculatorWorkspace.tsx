@@ -68,12 +68,12 @@ function FindLoanCta() {
         These estimates are for planning only — not a loan offer or commitment. Ready for
         real options?
       </p>
-      <Link href="/loans#solutions" className="loans-btn loans-btn--primary">
-        Explore loan solutions
+      <Link href="/loans/find" className="loans-btn loans-btn--primary">
+        Find a Loan
         <span aria-hidden="true">→</span>
       </Link>
       <p className="loan-calc-lead__hint">
-        Full Find a Loan matching wizard comes next — for now browse solutions or contact us.
+        Get a formula-based estimate and send your deal details to the REOVANA team.
       </p>
     </div>
   );

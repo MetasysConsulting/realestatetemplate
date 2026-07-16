@@ -33,6 +33,7 @@ import {
   Building2,
   Users,
   Mail,
+  Handshake,
 } from "lucide-react";
 import { ReovanaLogo } from "@/components/admin/reovana-logo";
 import Link from "next/link";
@@ -48,6 +49,7 @@ const menuItems = [
   { title: "Listings", path: "/admin/listings", icon: Building2 },
   { title: "Data Sources", path: "/admin/data-sources", icon: Database },
   { title: "Manage Members", path: "/admin/members", icon: Users },
+  { title: "Loan Leads", path: "/admin/loan-leads", icon: Handshake },
   { title: "Email Management", path: "/admin/emails", icon: Mail },
   { title: "Listing Tools", path: "/admin/content-tools", icon: Wand2 },
   { title: "Admin AI", path: "/admin/chatbot", icon: Bot },
